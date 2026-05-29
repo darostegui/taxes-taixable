@@ -26,6 +26,8 @@ from taixable_copilot.api.schemas import (
     MemoResponse,
     PersistRequest,
     PersistResponse,
+    SearchRequest,
+    SearchResponse,
 )
 from taixable_copilot.chat import chat as run_chat
 from taixable_copilot.citations import resolve_citations
@@ -92,6 +94,42 @@ def create_app(deps: Deps) -> FastAPI:
     def healthz() -> dict:
         return {"status": "ok"}
 
+    @app.get("/health/search")
+    def health_search() -> dict:
+        """Probe the Elasticsearch knowledge backend for the demo dashboard.
+
+        Reports the active mode and whether a representative query returns
+        grounded passages, so the hosted demo can show Elastic is live.
+        """
+        if deps.knowledge_search is None:
+            return {"status": "disabled", "elastic": False}
+        try:
+            probe = deps.knowledge_search("183 day tax residency rule", jurisdiction=None)
+        except Exception as exc:  # noqa: BLE001 - surface the failure, don't crash
+            return {"status": "error", "elastic": False, "detail": str(exc)}
+        meta = probe.get("meta", {})
+        results = probe.get("results", [])
+        mode = meta.get("mode", "unknown")
+        return {
+            "status": "ok" if results else "empty",
+            "elastic": mode in {"elastic", "corpus_fallback"},
+            "mode": mode,
+            "retrieval": meta.get("retrieval"),
+            "hits": len(results),
+        }
+
+    @app.post("/tools/search_knowledge", response_model=SearchResponse)
+    def search_knowledge(req: SearchRequest) -> SearchResponse:
+        if deps.knowledge_search is None:
+            return SearchResponse(results=[], meta={"mode": "disabled"})
+        out = deps.knowledge_search(
+            req.query, k=req.k, jurisdiction=(req.jurisdiction or None)
+        )
+        _reject_unknown_citations(
+            deps, [r["citation_id"] for r in out.get("results", []) if r.get("citation_id")]
+        )
+        return SearchResponse(results=out.get("results", []), meta=out.get("meta", {}))
+
     @app.get("/")
     def index() -> FileResponse:
         return FileResponse(_WEB_DIR / "index.html")
@@ -150,6 +188,12 @@ def create_app(deps: Deps) -> FastAPI:
         if assessment:
             cited = [s["id"] for s in assessment.get("sources", []) if s.get("id")]
             _reject_unknown_citations(deps, cited)
+        # Knowledge passages are returned by the curated, allowlisted search; still
+        # re-validate their ids against the known-citation guardrail.
+        knowledge = result.get("knowledge") or []
+        _reject_unknown_citations(
+            deps, [p["citation_id"] for p in knowledge if p.get("citation_id")]
+        )
         return ChatResponse(**result)
 
     @app.post("/tools/persist_case", response_model=PersistResponse)

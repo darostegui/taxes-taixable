@@ -32,9 +32,27 @@ _SYSTEM_INSTRUCTION = (
     "Germany (DE).\n\n"
     "ABSOLUTE RULE — NEVER HALLUCINATE: You must never state a tax rate, treaty "
     "article, filing deadline, residency conclusion, monetary figure or legal "
-    "claim that did not come from the assess_tax_obligations tool. If the tool "
-    "has not given you a fact, you do not know it. Do not rely on your own "
-    "training knowledge for any specific tax rule.\n\n"
+    "claim that did not come from a tool. If a tool has not given you a fact, you "
+    "do not know it. Do not rely on your own training knowledge for any specific "
+    "tax rule.\n\n"
+    "YOU HAVE TWO TOOLS:\n"
+    "1. assess_tax_obligations — the deterministic engine and the ONLY source of "
+    "computed figures: residence determination, rates, treaty articles, relief "
+    "and filing deadlines for a specific person. Use it whenever the user gives "
+    "you their days per country and income.\n"
+    "2. search_tax_knowledge — a curated Elasticsearch knowledge base of tax "
+    "legislation and double-tax-treaty articles. Use it to EXPLAIN concepts and "
+    "answer general questions (e.g. 'what is the 183-day rule?', 'how does DE/ES "
+    "treaty relief work?', 'what is a habitual abode?'). It returns curated "
+    "passages with source URLs. This is EVIDENCE ONLY: you may explain and quote "
+    "retrieved passages and you MUST cite their source, but you may NOT compute a "
+    "person's rate, residence or deadline from them — that always comes from "
+    "assess_tax_obligations.\n\n"
+    "CHOOSING A TOOL: For a specific client's obligations, call "
+    "assess_tax_obligations. For background, definitions, or 'how does X work' "
+    "questions, call search_tax_knowledge and ground your answer strictly in the "
+    "returned passages, citing the source. You may use both in one turn (e.g. "
+    "assess, then explain a treaty article you searched).\n\n"
     "GATHERING INFORMATION: Tax residence is normally the country where the "
     "person spends the most days in the tax year — infer it from the days unless "
     "the user states otherwise. Call assess_tax_obligations as soon as you know "
@@ -44,13 +62,14 @@ _SYSTEM_INSTRUCTION = (
     "politely.\n\n"
     "WHEN INFORMATION IS MISSING: If the days do not sum to 365/366, or income is "
     "unknown, ask ONE short, specific clarifying question instead of guessing. "
-    "Never assume.\n\n"
-    "PRESENTING RESULTS: After the tool returns, explain the outcome clearly and "
+    "If neither tool returns relevant facts, say plainly that you do not have "
+    "grounded information rather than guessing. Never assume.\n\n"
+    "PRESENTING RESULTS: After a tool returns, explain the outcome clearly and "
     "professionally for a client: primary residence, each obligation (income "
-    "type, where taxable, rate, relief), and filing deadlines. Always list the "
-    "cited sources the tool returned. Close by noting this is decision support "
-    "for a qualified tax professional, not a substitute for formal advice. Keep "
-    "replies concise and well-structured."
+    "type, where taxable, rate, relief), and filing deadlines. Always cite the "
+    "sources the tools returned. Close by noting this is decision support for a "
+    "qualified tax professional, not a substitute for formal advice. Keep replies "
+    "concise and well-structured."
 )
 
 _DEFAULT_MODEL = "gemini-3-flash-preview"
@@ -69,6 +88,19 @@ _TOOL_DOC = (
     "    residence_country: Optional ISO-2 code (UK/ES/DE). If empty, the engine "
     "uses the country with the most days.\n"
     "    tax_year: The tax year, e.g. 2025."
+)
+
+_SEARCH_TOOL_DOC = (
+    "Search the curated Elasticsearch tax-knowledge base (legislation + double-"
+    "tax-treaty articles for UK/ES/DE) with hybrid keyword + semantic retrieval. "
+    "Use this to explain concepts or answer general questions; it returns curated "
+    "passages with source URLs. EVIDENCE ONLY — do not derive a person's figures "
+    "from it.\n\n"
+    "Args:\n"
+    "    query: A natural-language question or topic, e.g. 'Spain 183 day rule' "
+    "or 'Germany UK pension treaty'.\n"
+    "    jurisdiction: Optional filter — a country code (UK/ES/DE) or treaty pair "
+    '(e.g. "ES-UK"). Leave empty to search everything.'
 )
 
 
@@ -233,6 +265,38 @@ def _make_assess_tool(deps: "Deps"):
     return assess_tax_obligations, captured
 
 
+def _make_search_tool(deps: "Deps"):
+    """Build the Elasticsearch knowledge-search tool + a capture of its results."""
+    captured: dict[str, Any] = {"passages": [], "meta": None, "used": False}
+
+    def search_tax_knowledge(query: str, jurisdiction: str = "") -> dict:
+        if deps.knowledge_search is None:
+            return {"results": [], "meta": {"mode": "unavailable"}}
+        try:
+            out = deps.knowledge_search(
+                query, jurisdiction=(jurisdiction or None)
+            )
+        except Exception as exc:  # noqa: BLE001 - report back, never fabricate
+            return {"error": str(exc), "results": []}
+        captured["used"] = True
+        captured["meta"] = out.get("meta")
+        # Accumulate unique passages across multiple searches in one turn.
+        seen = {p.get("citation_id") for p in captured["passages"]}
+        for p in out.get("results", []):
+            if p.get("citation_id") not in seen:
+                captured["passages"].append(p)
+                seen.add(p.get("citation_id"))
+        return out
+
+    search_tax_knowledge.__doc__ = _SEARCH_TOOL_DOC
+    search_tax_knowledge.__annotations__ = {
+        "query": str,
+        "jurisdiction": str,
+        "return": dict,
+    }
+    return search_tax_knowledge, captured
+
+
 def _to_contents(history: list[dict], message: str):
     """Map a plain {role, content} history + new message to genai Content list."""
     from google.genai import types
@@ -269,10 +333,14 @@ def chat(
             ),
             "available": False,
             "used_tool": False,
+            "used_search": False,
             "assessment": None,
+            "knowledge": [],
+            "search_meta": None,
         }
 
     assess_tool, captured = _make_assess_tool(deps)
+    search_tool, captured_search = _make_search_tool(deps)
     model = os.getenv("GEMINI_MODEL", _DEFAULT_MODEL)
     try:
         from google.genai import types
@@ -282,7 +350,7 @@ def chat(
             contents=_to_contents(history, message),
             config=types.GenerateContentConfig(
                 system_instruction=_SYSTEM_INSTRUCTION,
-                tools=[assess_tool],
+                tools=[assess_tool, search_tool],
                 temperature=0.2,
                 thinking_config=types.ThinkingConfig(thinking_budget=0),
             ),
@@ -297,7 +365,10 @@ def chat(
             ),
             "available": False,
             "used_tool": False,
+            "used_search": False,
             "assessment": None,
+            "knowledge": [],
+            "search_meta": None,
         }
 
     return {
@@ -305,5 +376,8 @@ def chat(
         or "Could you share a little more detail so I can assess your situation?",
         "available": True,
         "used_tool": "assessment" in captured,
+        "used_search": captured_search["used"],
         "assessment": captured.get("assessment"),
+        "knowledge": captured_search["passages"],
+        "search_meta": captured_search["meta"],
     }

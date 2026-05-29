@@ -20,6 +20,9 @@ secrets.env
 .idea/
 .vscode/
 
+# Browser-test artifacts
+.playwright-mcp/
+
 # Local data volumes
 mysql-data/
 

@@ -76,6 +76,43 @@ def test_assess_obligations_surfaces_supporting_legislation():
         assert p["source_url"].startswith("http")
 
 
+def test_search_knowledge_returns_cited_passages():
+    from taixable_copilot.api.app import create_app
+    from taixable_copilot.api.deps import build_default_deps
+
+    client = TestClient(create_app(build_default_deps()))
+    r = client.post(
+        "/tools/search_knowledge",
+        json={"query": "183 day residency rule in Spain", "jurisdiction": "ES", "k": 4},
+    )
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["results"], "expected at least one knowledge passage"
+    assert body["meta"]["mode"] in {"corpus", "elastic", "corpus_fallback"}
+    for p in body["results"]:
+        assert p["citation_id"]
+        assert p["source_url"].startswith("http")
+
+
+def test_search_knowledge_disabled_when_no_backend():
+    # Fake deps don't wire a knowledge_search, so the tool reports disabled.
+    r = _client().post("/tools/search_knowledge", json={"query": "anything"})
+    assert r.status_code == 200, r.text
+    assert r.json()["meta"]["mode"] == "disabled"
+
+
+def test_health_search_reports_mode():
+    from taixable_copilot.api.app import create_app
+    from taixable_copilot.api.deps import build_default_deps
+
+    client = TestClient(create_app(build_default_deps()))
+    r = client.get("/health/search")
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["status"] in {"ok", "empty"}
+    assert "mode" in body
+
+
 def test_generate_memo_includes_token_and_sources():
     r = _client().post(
         "/tools/generate_memo",

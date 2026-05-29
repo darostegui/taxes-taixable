@@ -11,7 +11,12 @@ import json
 
 import taixable_copilot.chat as chatmod
 from taixable_copilot.api.deps import build_default_deps
-from taixable_copilot.chat import _build_profile, _make_assess_tool, chat
+from taixable_copilot.chat import (
+    _build_profile,
+    _make_assess_tool,
+    _make_search_tool,
+    chat,
+)
 from taixable_copilot.models import Country
 
 
@@ -57,5 +62,41 @@ def test_chat_graceful_when_unavailable(monkeypatch):
     result = chat(deps, history=[], message="What do I owe?")
     assert result["available"] is False
     assert result["used_tool"] is False
+    assert result["used_search"] is False
     assert result["assessment"] is None
+    assert result["knowledge"] == []
     assert "form" in result["reply"].lower()
+
+
+def test_search_tool_returns_cited_passages_and_captures():
+    deps = build_default_deps()
+    tool, captured = _make_search_tool(deps)
+    out = tool(query="what is the 183 day rule in Spain", jurisdiction="ES")
+    assert out["results"], "search must return at least one passage"
+    assert captured["used"] is True
+    assert captured["meta"]["mode"] in {"corpus", "elastic", "corpus_fallback"}
+    # Every passage is cited with a real source URL (no hallucinated evidence).
+    for p in out["results"]:
+        assert p["citation_id"]
+        assert (p["source_url"] or "").startswith("http")
+    assert captured["passages"], "passages are captured for the UI evidence drawer"
+
+
+def test_search_tool_dedupes_across_multiple_calls():
+    deps = build_default_deps()
+    tool, captured = _make_search_tool(deps)
+    tool(query="Spain residency 183 days")
+    tool(query="Spain residency 183 days")  # same query again
+    ids = [p["citation_id"] for p in captured["passages"]]
+    assert len(ids) == len(set(ids)), "captured passages must be de-duplicated"
+
+
+def test_both_tools_have_concrete_annotations_for_function_calling():
+    # google-genai automatic function calling does isinstance() against these;
+    # `from __future__ import annotations` would stringify them and break the SDK.
+    deps = build_default_deps()
+    assess_tool, _ = _make_assess_tool(deps)
+    search_tool, _ = _make_search_tool(deps)
+    for fn in (assess_tool, search_tool):
+        for name, typ in fn.__annotations__.items():
+            assert isinstance(typ, type), f"{fn.__name__}.{name} must be a real type"

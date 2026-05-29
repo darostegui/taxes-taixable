@@ -75,7 +75,21 @@ class ChatResponse(BaseModel):
     reply: str
     available: bool = True
     used_tool: bool = False
+    used_search: bool = False
     assessment: dict | None = None
+    knowledge: list[dict] = Field(default_factory=list)
+    search_meta: dict | None = None
+
+
+class SearchRequest(BaseModel):
+    query: str
+    jurisdiction: str = ""
+    k: int = Field(default=4, ge=1, le=20)
+
+
+class SearchResponse(BaseModel):
+    results: list[dict] = Field(default_factory=list)
+    meta: dict = Field(default_factory=dict)
 
 
 class PersistDeadline(BaseModel):

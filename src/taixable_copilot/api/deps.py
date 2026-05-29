@@ -20,6 +20,7 @@ from taixable_copilot.treaty import Retriever
 
 if TYPE_CHECKING:
     from taixable_copilot.citations import Citation
+    from taixable_copilot.knowledge import KnowledgeSearch
     from taixable_copilot.legislation import LegislationLookup
 
 # Fallback day-count rules so residency works before the YAML corpus exists.
@@ -44,6 +45,10 @@ class Deps:
     # Maps the engine's citation ids to curated supporting-legislation passages.
     # None means no supporting legislation is attached (e.g. tests with fakes).
     legislation_lookup: "LegislationLookup | None" = None
+    # Free-text hybrid Elasticsearch search over the curated tax-knowledge base,
+    # used by the conversational agent's search_tax_knowledge tool. None disables
+    # it (the tool then returns no passages).
+    knowledge_search: "KnowledgeSearch | None" = None
 
 
 def _load_residency_rules() -> dict[Country, dict]:
@@ -64,6 +69,7 @@ def build_default_deps() -> Deps:
     """
     from taixable_copilot.citations import build_citation_index
     from taixable_copilot.db.repository import make_engine
+    from taixable_copilot.knowledge import build_knowledge_search
     from taixable_copilot.legislation import build_legislation_lookup
     from taixable_copilot.search import all_citation_ids, build_retrievers
 
@@ -79,4 +85,5 @@ def build_default_deps() -> Deps:
         known_citation_ids=all_citation_ids(),
         citation_index=build_citation_index(),
         legislation_lookup=build_legislation_lookup(),
+        knowledge_search=build_knowledge_search(),
     )
