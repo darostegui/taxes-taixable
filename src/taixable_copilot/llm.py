@@ -100,7 +100,7 @@ def _make_client():  # noqa: ANN202 - SDK type only available when installed
 
     try:
         if use_vertex and project:
-            location = os.getenv("GOOGLE_CLOUD_LOCATION", "europe-west1")
+            location = os.getenv("GOOGLE_CLOUD_LOCATION", "global")
             return genai.Client(vertexai=True, project=project, location=location)
         if api_key:
             return genai.Client(api_key=api_key)
@@ -136,6 +136,9 @@ def narrate_assessment(
                 system_instruction=_SYSTEM_INSTRUCTION,
                 temperature=0.2,
                 max_output_tokens=600,
+                # Disable "thinking" so the output-token budget yields the answer
+                # (gemini-2.5-flash otherwise spends tokens on hidden reasoning).
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
             ),
         )
         text = (resp.text or "").strip()
