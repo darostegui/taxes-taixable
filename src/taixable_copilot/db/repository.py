@@ -14,7 +14,6 @@ from sqlalchemy import (
     Column,
     DateTime,
     Engine,
-    Float,
     ForeignKey,
     Integer,
     MetaData,
@@ -25,6 +24,7 @@ from sqlalchemy import (
     insert,
     select,
 )
+from sqlalchemy.pool import StaticPool
 
 metadata = MetaData()
 
@@ -71,8 +71,20 @@ case_citations = Table(
 
 
 def make_engine(url: str) -> Engine:
-    """Create an engine and ensure the schema exists."""
-    engine = create_engine(url, future=True)
+    """Create an engine and ensure the schema exists.
+
+    For in-memory SQLite (tests) use a StaticPool so every checkout shares the
+    single connection — otherwise each request would get an empty database.
+    """
+    if url == "sqlite:///:memory:" or url == "sqlite://":
+        engine = create_engine(
+            url,
+            future=True,
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
+    else:
+        engine = create_engine(url, future=True)
     metadata.create_all(engine)
     return engine
 
