@@ -73,10 +73,12 @@ _TOOL_DOC = (
 
 
 def _serialize_assessment(
-    assessment: Assessment, citation_index: dict | None
+    assessment: Assessment,
+    citation_index: dict | None,
+    legislation_lookup: Any | None = None,
 ) -> dict[str, Any]:
     details = resolve_citations(assessment.citations, citation_index)
-    return {
+    result = {
         "primary_residence": str(assessment.primary_residence),
         "residence_confidence": assessment.residence_confidence,
         "obligations": [
@@ -101,6 +103,11 @@ def _serialize_assessment(
             {"id": c.id, "label": c.label, "url": c.url} for c in details
         ],
     }
+    # Deterministically attach supporting legislation for the exact citation ids
+    # the engine produced — never via free-text search by the model.
+    if legislation_lookup is not None:
+        result["legislation"] = legislation_lookup(assessment.citations)
+    return result
 
 
 _COUNTRY_ALIASES = {
@@ -193,7 +200,9 @@ def _make_assess_tool(deps: "Deps"):
                 deps.treaty_retriever,
                 deps.rate_lookup,
             )
-            result = _serialize_assessment(assessment, deps.citation_index)
+            result = _serialize_assessment(
+                assessment, deps.citation_index, deps.legislation_lookup
+            )
         except Exception as exc:  # noqa: BLE001 - report bad input back to the model
             if os.getenv("TAIXABLE_DEBUG"):
                 import sys

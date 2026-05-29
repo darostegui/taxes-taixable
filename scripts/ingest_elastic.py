@@ -20,6 +20,7 @@ from pathlib import Path
 DATA_DIR = Path(__file__).resolve().parents[1] / "src" / "taixable_copilot" / "data"
 TREATY_INDEX = "treaty-articles"
 RATES_INDEX = "withholding-rates"
+LEGISLATION_INDEX = "tax-legislation"
 
 TREATY_MAPPING = {
     "properties": {
@@ -44,6 +45,20 @@ RATES_MAPPING = {
     }
 }
 
+LEGISLATION_MAPPING = {
+    "properties": {
+        "citation_id": {"type": "keyword"},
+        "jurisdiction": {"type": "keyword"},
+        "article": {"type": "keyword"},
+        "content_type": {"type": "keyword"},
+        "package_version": {"type": "keyword"},
+        "source_url": {"type": "keyword"},
+        "title": {"type": "text"},
+        "summary": {"type": "text"},
+        "effective_date": {"type": "date"},
+    }
+}
+
 
 def _recreate_index(es, name: str, mapping: dict) -> None:
     if es.indices.exists(index=name):
@@ -64,9 +79,11 @@ def main() -> int:
 
     _recreate_index(es, TREATY_INDEX, TREATY_MAPPING)
     _recreate_index(es, RATES_INDEX, RATES_MAPPING)
+    _recreate_index(es, LEGISLATION_INDEX, LEGISLATION_MAPPING)
 
     treaties = json.loads((DATA_DIR / "treaty_articles.json").read_text())["treaty_articles"]
     rates = json.loads((DATA_DIR / "withholding_rates.json").read_text())["withholding_rates"]
+    legislation = json.loads((DATA_DIR / "legislation.json").read_text())["legislation"]
 
     helpers.bulk(
         es,
@@ -76,10 +93,18 @@ def main() -> int:
         es,
         ({"_index": RATES_INDEX, "_id": r["citation_id"], "_source": r} for r in rates),
     )
+    helpers.bulk(
+        es,
+        ({"_index": LEGISLATION_INDEX, "_id": p["citation_id"], "_source": p} for p in legislation),
+    )
     es.indices.refresh(index=TREATY_INDEX)
     es.indices.refresh(index=RATES_INDEX)
+    es.indices.refresh(index=LEGISLATION_INDEX)
 
-    print(f"Ingested {len(treaties)} treaty articles and {len(rates)} rate rows.")
+    print(
+        f"Ingested {len(treaties)} treaty articles, {len(rates)} rate rows, "
+        f"and {len(legislation)} legislation passages."
+    )
     return 0
 
 

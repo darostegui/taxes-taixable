@@ -20,6 +20,7 @@ from taixable_copilot.treaty import Retriever
 
 if TYPE_CHECKING:
     from taixable_copilot.citations import Citation
+    from taixable_copilot.legislation import LegislationLookup
 
 # Fallback day-count rules so residency works before the YAML corpus exists.
 DEFAULT_RESIDENCY_RULES: dict[Country, dict] = {
@@ -40,6 +41,9 @@ class Deps:
     known_citation_ids: set[str] | None = None
     # id -> Citation (label + source URL); None resolves ids to themselves.
     citation_index: "dict[str, Citation] | None" = None
+    # Maps the engine's citation ids to curated supporting-legislation passages.
+    # None means no supporting legislation is attached (e.g. tests with fakes).
+    legislation_lookup: "LegislationLookup | None" = None
 
 
 def _load_residency_rules() -> dict[Country, dict]:
@@ -60,6 +64,7 @@ def build_default_deps() -> Deps:
     """
     from taixable_copilot.citations import build_citation_index
     from taixable_copilot.db.repository import make_engine
+    from taixable_copilot.legislation import build_legislation_lookup
     from taixable_copilot.search import all_citation_ids, build_retrievers
 
     db_url = os.environ.get("DATABASE_URL", "sqlite:///taixable.db")
@@ -73,4 +78,5 @@ def build_default_deps() -> Deps:
         engine=engine,
         known_citation_ids=all_citation_ids(),
         citation_index=build_citation_index(),
+        legislation_lookup=build_legislation_lookup(),
     )

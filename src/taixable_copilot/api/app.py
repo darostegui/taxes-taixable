@@ -77,6 +77,11 @@ def _serialize(assessment: Assessment, deps: Deps) -> AssessmentOut:
         citation_details=[
             {"id": c.id, "label": c.label, "url": c.url} for c in details
         ],
+        legislation=(
+            deps.legislation_lookup(assessment.citations)
+            if deps.legislation_lookup
+            else []
+        ),
     )
 
 

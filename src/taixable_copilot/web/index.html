@@ -81,6 +81,14 @@
   .sources a:hover { text-decoration:underline; }
   .sources li { margin-bottom:5px; }
   .pill { display:inline-block; font-size:11px; color:var(--muted); border:1px solid var(--line); border-radius:6px; padding:1px 6px; margin-left:6px; }
+  .legislation { margin-top:12px; border-top:1px dashed var(--line); padding-top:10px; }
+  .leg-head { margin:0 0 8px; font-size:12.5px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+  .leg-item { border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:8px; padding:9px 11px; margin-bottom:8px; background:rgba(38,50,77,.18); }
+  .leg-title { font-size:13px; margin-bottom:3px; }
+  .leg-summary { font-size:12.5px; color:var(--text); opacity:.92; line-height:1.5; }
+  .leg-meta { margin-top:5px; font-size:11px; color:var(--muted); }
+  .leg-meta a { color:var(--accent); text-decoration:none; margin-left:8px; }
+  .leg-meta a:hover { text-decoration:underline; }
   table { border-collapse:collapse; }
   table th { text-align:left; color:var(--muted); font-weight:600; border-bottom:1px solid var(--line); padding:6px 8px; }
   table td { padding:6px 8px; border-bottom:1px solid rgba(38,50,77,.5); }
@@ -374,6 +382,14 @@ async function post(path, body) {
 }
 
 // Render the cited sources as real, clickable links (DOM-built + URL-validated).
+function confidenceBand(c) {
+  const v = typeof c === "number" ? c : 0;
+  if (v >= 0.9) return "Very high";
+  if (v >= 0.75) return "High";
+  if (v >= 0.6) return "Moderate";
+  return "Indicative";
+}
+
 function renderSources(details) {
   const ul = document.createElement("ul");
   ul.className = "sources";
@@ -395,6 +411,32 @@ function renderSources(details) {
   return ul;
 }
 
+function renderLegislation(items) {
+  const wrap = document.createElement("div");
+  if (!items || !items.length) return wrap;
+  wrap.className = "legislation";
+  const h = document.createElement("p");
+  h.className = "leg-head";
+  h.innerHTML = `Supporting legislation <span class="pill">curated summary — verify at source</span>`;
+  wrap.appendChild(h);
+  items.forEach(it => {
+    const card = document.createElement("div");
+    card.className = "leg-item";
+    const title = it.title || it.citation_id;
+    const art = it.article ? ` · ${it.article}` : "";
+    let link = "";
+    if (it.source_url && /^https?:\/\//i.test(it.source_url)) {
+      link = ` <a href="${it.source_url}" target="_blank" rel="noopener noreferrer">Read source ↗</a>`;
+    }
+    card.innerHTML = `<div class="leg-title"><b>${title}</b>${art}` +
+      ` <span class="pill">${it.jurisdiction || ""}</span></div>` +
+      `<div class="leg-summary">${it.summary || ""}</div>` +
+      `<div class="leg-meta">${it.citation_id}${link}</div>`;
+    wrap.appendChild(card);
+  });
+  return wrap;
+}
+
 async function assess() {
   if (!targetReached()) return;
   const { status, body } = await post("/tools/assess_obligations", { profile: profile(), tax_year: year() });
@@ -404,11 +446,12 @@ async function assess() {
   const obs = body.obligations.map(o => `<tr><td>${o.income_type}</td><td>${o.source_country}</td><td>${o.treaty_article}</td><td>${(o.rate * 100).toFixed(0)}%</td><td>${o.relief}</td></tr>`).join("");
   const dls = body.deadlines.map(d => `<li><b>${d.jurisdiction}</b> — ${d.description}: <b>${d.due_date}</b></li>`).join("");
   panel.innerHTML = `
-    <p>Primary residence: <b>${body.primary_residence}</b> (confidence ${(body.residence_confidence * 100).toFixed(0)}%)</p>
+    <p>Primary residence: <b>${body.primary_residence}</b> <span class="pill">confidence: ${confidenceBand(body.residence_confidence)}</span></p>
     <table style="width:100%; font-size:13px;"><tr><th>Income</th><th>Src</th><th>Art.</th><th>Rate</th><th>Relief</th></tr>${obs}</table>
     <p>Deadlines:</p><ul>${dls}</ul>
     <p><b>Sources (${body.citation_details ? body.citation_details.length : 0})</b></p>`;
   panel.appendChild(renderSources(body.citation_details));
+  panel.appendChild(renderLegislation(body.legislation));
 }
 
 async function memo() {
@@ -481,11 +524,12 @@ function appendFacts(a) {
   const dls = (a.deadlines || []).map(d => `<li><b>${d.jurisdiction}</b> — ${d.description}: <b>${d.due_date}</b></li>`).join("");
   card.innerHTML = `
     <h4>Engine result — cited</h4>
-    <p style="margin:0 0 8px">Primary residence: <b>${a.primary_residence}</b> (confidence ${((a.residence_confidence || 0) * 100).toFixed(0)}%)</p>
+    <p style="margin:0 0 8px">Primary residence: <b>${a.primary_residence}</b> <span class="pill">confidence: ${confidenceBand(a.residence_confidence)}</span></p>
     ${obs ? `<table style="width:100%; font-size:12.5px;"><tr><th>Income</th><th>Src</th><th>Art.</th><th>Rate</th><th>Relief</th></tr>${obs}</table>` : ""}
     ${dls ? `<p style="margin:8px 0 4px">Deadlines:</p><ul style="margin:0; padding-left:18px">${dls}</ul>` : ""}
     <p style="margin:8px 0 4px"><b>Sources (${(a.sources || []).length})</b></p>`;
   card.appendChild(renderSources(a.sources));
+  card.appendChild(renderLegislation(a.legislation));
   (last || log).appendChild(card);
   log.scrollTop = log.scrollHeight;
 }

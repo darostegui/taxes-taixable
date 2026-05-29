@@ -53,6 +53,27 @@ def test_assess_obligations_returns_cited_assessment():
     assert ob["citation_ids"]
     assert any(d["jurisdiction"] == "UK" for d in body["deadlines"])
     assert body["citations"] == sorted(body["citations"])
+    # Fake deps don't wire a legislation lookup, so the field is present but empty.
+    assert body["legislation"] == []
+
+
+def test_assess_obligations_surfaces_supporting_legislation():
+    from taixable_copilot.api.app import create_app
+    from taixable_copilot.api.deps import build_default_deps
+
+    client = TestClient(create_app(build_default_deps()))
+    r = client.post(
+        "/tools/assess_obligations", json={"profile": _PROFILE, "tax_year": 2025}
+    )
+    assert r.status_code == 200, r.text
+    leg = r.json()["legislation"]
+    assert leg, "expected supporting legislation passages"
+    ids = {p["citation_id"] for p in leg}
+    # The UK residency conclusion must be backed by a curated passage.
+    assert "UK#srt-183" in ids
+    for p in leg:
+        assert p["content_type"] == "curated_summary"
+        assert p["source_url"].startswith("http")
 
 
 def test_generate_memo_includes_token_and_sources():

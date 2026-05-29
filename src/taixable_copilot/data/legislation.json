@@ -1,0 +1,236 @@
+{
+  "package_version": "2025.1",
+  "legislation": [
+    {
+      "citation_id": "ES#residency-183",
+      "jurisdiction": "ES",
+      "title": "Ley 35/2006 (IRPF), Artículo 9 — Residencia habitual",
+      "article": "Art. 9",
+      "summary": "An individual is tax resident in Spain for a calendar year if they spend more than 183 days of that year in Spanish territory. Spanish residents are taxed on their worldwide income. (Simplified; the statute also covers a centre-of-economic-interests test.)",
+      "content_type": "curated_summary",
+      "effective_date": "2007-01-01",
+      "source_url": "https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "UK#srt-183",
+      "jurisdiction": "UK",
+      "title": "UK Statutory Residence Test (RDR3)",
+      "article": "SRT",
+      "summary": "Under the Statutory Residence Test, an individual present in the UK for 183 days or more in a tax year is automatically UK resident. The full test also includes automatic-overseas, sufficient-ties and split-year rules (simplified here to the 183-day automatic test).",
+      "content_type": "curated_summary",
+      "effective_date": "2013-04-06",
+      "source_url": "https://www.gov.uk/government/publications/rdr3-statutory-residence-test-srt",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE#residency-183",
+      "jurisdiction": "DE",
+      "title": "Abgabenordnung (AO) §§ 8–9 — Wohnsitz / gewöhnlicher Aufenthalt",
+      "article": "§§ 8–9",
+      "summary": "Germany treats an individual as unlimitedly tax liable where they have a domicile (Wohnsitz, § 8) or a habitual abode (gewöhnlicher Aufenthalt, § 9) in Germany; a continuous presence of more than six months generally establishes a habitual abode. Such individuals are taxed on worldwide income.",
+      "content_type": "curated_summary",
+      "effective_date": "1977-01-01",
+      "source_url": "https://www.gesetze-im-internet.de/ao_1977/",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "UK#sa-deadline",
+      "jurisdiction": "UK",
+      "title": "UK Self Assessment — online filing deadline",
+      "article": "Filing deadline",
+      "summary": "The deadline to file an online Self Assessment tax return and pay any tax due is 31 January following the end of the tax year (which runs 6 April–5 April).",
+      "content_type": "curated_summary",
+      "effective_date": "2025-01-01",
+      "source_url": "https://www.gov.uk/self-assessment-tax-returns/deadlines",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "ES#renta-deadline",
+      "jurisdiction": "ES",
+      "title": "Spain Renta (IRPF) — campaña anual",
+      "article": "Filing deadline",
+      "summary": "The Spanish personal income tax (IRPF/Renta) campaign for a calendar year runs in the following spring and typically closes at the end of June.",
+      "content_type": "curated_summary",
+      "effective_date": "2025-01-01",
+      "source_url": "https://sede.agenciatributaria.gob.es/",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE#est-deadline",
+      "jurisdiction": "DE",
+      "title": "Germany Einkommensteuererklärung — statutory deadline",
+      "article": "Filing deadline",
+      "summary": "The German income tax return (Einkommensteuererklärung) for a year is generally due by 31 July of the following year; later dates apply where a tax adviser files.",
+      "content_type": "curated_summary",
+      "effective_date": "2025-01-01",
+      "source_url": "https://www.bundesfinanzministerium.de/",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "ES-UK#art6",
+      "jurisdiction": "ES-UK",
+      "title": "Spain–UK Double Taxation Convention — Article 6 (rental)",
+      "article": "Art. 6",
+      "summary": "Income from immovable property (e.g. rental income) may be taxed in the country where the property is situated; the residence country relieves resulting double taxation. The applicable rate and relief are computed by the engine from this convention.",
+      "content_type": "curated_summary",
+      "effective_date": "2014-06-12",
+      "source_url": "https://www.gov.uk/government/publications/spain-tax-treaties",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "ES-UK#art10",
+      "jurisdiction": "ES-UK",
+      "title": "Spain–UK Double Taxation Convention — Article 10 (dividends)",
+      "article": "Art. 10",
+      "summary": "Dividends arising in one country and paid to a resident of the other may be taxed in the source country at a reduced rate set by this convention, with relief given in the residence country. The exact capped rate is computed by the engine.",
+      "content_type": "curated_summary",
+      "effective_date": "2014-06-12",
+      "source_url": "https://www.gov.uk/government/publications/spain-tax-treaties",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "ES-UK#art11",
+      "jurisdiction": "ES-UK",
+      "title": "Spain–UK Double Taxation Convention — Article 11 (interest)",
+      "article": "Art. 11",
+      "summary": "Interest arising in one country and paid to a resident of the other may be taxed in the source country at a reduced rate set by this convention, with relief given in the residence country. The exact capped rate is computed by the engine.",
+      "content_type": "curated_summary",
+      "effective_date": "2014-06-12",
+      "source_url": "https://www.gov.uk/government/publications/spain-tax-treaties",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "ES-UK#art14",
+      "jurisdiction": "ES-UK",
+      "title": "Spain–UK Double Taxation Convention — Article 14 (employment)",
+      "article": "Art. 14",
+      "summary": "Income from employment is generally taxable in the country where the work is physically performed, subject to the convention's conditions; the residence country relieves double taxation.",
+      "content_type": "curated_summary",
+      "effective_date": "2014-06-12",
+      "source_url": "https://www.gov.uk/government/publications/spain-tax-treaties",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "ES-UK#art17",
+      "jurisdiction": "ES-UK",
+      "title": "Spain–UK Double Taxation Convention — Article 17 (pensions)",
+      "article": "Art. 17",
+      "summary": "Pensions and similar remuneration are allocated between the two countries according to this convention; the residence country relieves any double taxation.",
+      "content_type": "curated_summary",
+      "effective_date": "2014-06-12",
+      "source_url": "https://www.gov.uk/government/publications/spain-tax-treaties",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE-UK#art6",
+      "jurisdiction": "DE-UK",
+      "title": "Germany–UK Double Taxation Convention — Article 6 (rental)",
+      "article": "Art. 6",
+      "summary": "Income from immovable property (e.g. rental income) may be taxed in the country where the property is situated; the residence country relieves resulting double taxation. The applicable rate and relief are computed by the engine from this convention.",
+      "content_type": "curated_summary",
+      "effective_date": "2010-12-30",
+      "source_url": "https://www.gov.uk/government/publications/germany-tax-treaties",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE-UK#art10",
+      "jurisdiction": "DE-UK",
+      "title": "Germany–UK Double Taxation Convention — Article 10 (dividends)",
+      "article": "Art. 10",
+      "summary": "Dividends arising in one country and paid to a resident of the other may be taxed in the source country at a reduced rate set by this convention, with relief given in the residence country. The exact capped rate is computed by the engine.",
+      "content_type": "curated_summary",
+      "effective_date": "2010-12-30",
+      "source_url": "https://www.gov.uk/government/publications/germany-tax-treaties",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE-UK#art11",
+      "jurisdiction": "DE-UK",
+      "title": "Germany–UK Double Taxation Convention — Article 11 (interest)",
+      "article": "Art. 11",
+      "summary": "Interest arising in one country and paid to a resident of the other may be taxed in the source country at a reduced rate set by this convention, with relief given in the residence country. The exact capped rate is computed by the engine.",
+      "content_type": "curated_summary",
+      "effective_date": "2010-12-30",
+      "source_url": "https://www.gov.uk/government/publications/germany-tax-treaties",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE-UK#art14",
+      "jurisdiction": "DE-UK",
+      "title": "Germany–UK Double Taxation Convention — Article 14 (employment)",
+      "article": "Art. 14",
+      "summary": "Income from employment is generally taxable in the country where the work is physically performed, subject to the convention's conditions; the residence country relieves double taxation.",
+      "content_type": "curated_summary",
+      "effective_date": "2010-12-30",
+      "source_url": "https://www.gov.uk/government/publications/germany-tax-treaties",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE-UK#art17",
+      "jurisdiction": "DE-UK",
+      "title": "Germany–UK Double Taxation Convention — Article 17 (pensions)",
+      "article": "Art. 17",
+      "summary": "Pensions and similar remuneration are allocated between the two countries according to this convention; the residence country relieves any double taxation.",
+      "content_type": "curated_summary",
+      "effective_date": "2010-12-30",
+      "source_url": "https://www.gov.uk/government/publications/germany-tax-treaties",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE-ES#art6",
+      "jurisdiction": "DE-ES",
+      "title": "Germany–Spain Double Taxation Convention — Article 6 (rental)",
+      "article": "Art. 6",
+      "summary": "Income from immovable property (e.g. rental income) may be taxed in the country where the property is situated; the residence country relieves resulting double taxation. The applicable rate and relief are computed by the engine from this convention.",
+      "content_type": "curated_summary",
+      "effective_date": "2012-10-18",
+      "source_url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE-ES#art10",
+      "jurisdiction": "DE-ES",
+      "title": "Germany–Spain Double Taxation Convention — Article 10 (dividends)",
+      "article": "Art. 10",
+      "summary": "Dividends arising in one country and paid to a resident of the other may be taxed in the source country at a reduced rate set by this convention, with relief given in the residence country. The exact capped rate is computed by the engine.",
+      "content_type": "curated_summary",
+      "effective_date": "2012-10-18",
+      "source_url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE-ES#art11",
+      "jurisdiction": "DE-ES",
+      "title": "Germany–Spain Double Taxation Convention — Article 11 (interest)",
+      "article": "Art. 11",
+      "summary": "Interest arising in one country and paid to a resident of the other may be taxed in the source country at a reduced rate set by this convention, with relief given in the residence country. The exact capped rate is computed by the engine.",
+      "content_type": "curated_summary",
+      "effective_date": "2012-10-18",
+      "source_url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE-ES#art14",
+      "jurisdiction": "DE-ES",
+      "title": "Germany–Spain Double Taxation Convention — Article 14 (employment)",
+      "article": "Art. 14",
+      "summary": "Income from employment is generally taxable in the country where the work is physically performed, subject to the convention's conditions; the residence country relieves double taxation.",
+      "content_type": "curated_summary",
+      "effective_date": "2012-10-18",
+      "source_url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE-ES#art17",
+      "jurisdiction": "DE-ES",
+      "title": "Germany–Spain Double Taxation Convention — Article 17 (pensions)",
+      "article": "Art. 17",
+      "summary": "Pensions and similar remuneration are allocated between the two countries according to this convention; the residence country relieves any double taxation.",
+      "content_type": "curated_summary",
+      "effective_date": "2012-10-18",
+      "source_url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html",
+      "package_version": "2025.1"
+    }
+  ]
+}

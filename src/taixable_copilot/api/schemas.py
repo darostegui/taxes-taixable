@@ -44,6 +44,7 @@ class AssessmentOut(BaseModel):
     deadlines: list[DeadlineOut]
     citations: list[str]
     citation_details: list[CitationOut] = Field(default_factory=list)
+    legislation: list[dict] = Field(default_factory=list)
 
 
 class MemoRequest(BaseModel):
