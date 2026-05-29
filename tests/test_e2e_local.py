@@ -17,6 +17,7 @@ def _client() -> TestClient:
         treaty_retriever=treaty,
         rate_lookup=rate,
         engine=make_engine("sqlite:///:memory:"),
+        known_citation_ids=all_citation_ids(),
     )
     return TestClient(create_app(deps))
 
@@ -47,3 +48,35 @@ def test_full_flow_assess_then_memo_with_valid_citations():
     )
     assert m.status_code == 200, m.text
     assert "DE-ES#art6" in m.json()["memo_markdown"]
+
+
+def test_guardrail_rejects_hallucinated_citation():
+    """A retriever that emits a citation id outside the known set is rejected (422)."""
+
+    def bad_treaty(country_pair, income_type):
+        return {"article_no": "6", "topic": "x", "text": "y", "citation_id": "FAKE#999"}
+
+    def ok_rate(country_pair, income_type):
+        return {"rate": 0.1, "relief": "credit", "citation_id": "ES-UK#art6-rate"}
+
+    deps = Deps(
+        residency_rules=_load_residency_rules(),
+        treaty_retriever=bad_treaty,
+        rate_lookup=ok_rate,
+        engine=make_engine("sqlite:///:memory:"),
+        known_citation_ids=all_citation_ids(),
+    )
+    client = TestClient(create_app(deps))
+    r = client.post(
+        "/tools/assess_obligations",
+        json={
+            "profile": {
+                "residence_country": "UK",
+                "days_present": {"UK": 320, "ES": 40},
+                "income": [{"type": "rental", "source_country": "ES", "amount": 12000}],
+            },
+            "tax_year": 2025,
+        },
+    )
+    assert r.status_code == 422
+    assert "FAKE#999" in r.text

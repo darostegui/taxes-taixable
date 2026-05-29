@@ -44,6 +44,14 @@ Given a tax advisor's customer profile (residence + income/assets, some foreign-
 The domain logic (`src/taixable_copilot/`) is a pure-Python, modular layer designed to be
 **MCP-mappable** — the same units can later back a standalone "taixable MCP server."
 
+> **What is the judged "hosted URL"?** The submission's hosted agent is the **Google Cloud
+> Agent Builder agent (Gemini 3)**, which orchestrates the flow: it consumes the **Elastic
+> MCP server** (partner-MCP requirement) for grounding/retrieval and calls this repo's
+> FastAPI endpoints as **OpenAPI action tools**. The FastAPI service also serves a small
+> **local demo UI** (`/`) that calls the tools directly — that UI is a developer harness for
+> running the flow without cloud, **not** the Gemini-orchestrated path. The FastAPI tools are
+> OpenAPI actions, not an MCP server; Elastic is the MCP server, consumed by the agent.
+
 **Privacy:** synthetic customers only; PII is redacted/tokenized before anything reaches the model.
 
 ## Setup (local development)
@@ -81,10 +89,11 @@ agent is decision support for a qualified professional, not autonomous tax advic
 
 ```bash
 make docker-build                       # build the container
-# push to Artifact Registry and deploy:
+# push to Artifact Registry and deploy (attach Cloud SQL via the connector):
 gcloud run deploy taixable-copilot \
   --source . --region <region> --allow-unauthenticated \
-  --set-env-vars ELASTIC_URL=...,ELASTIC_API_KEY=...,DATABASE_URL=mysql+pymysql://...
+  --add-cloudsql-instances <project:region:instance> \
+  --set-env-vars ELASTIC_URL=...,ELASTIC_API_KEY=...,DATABASE_URL=mysql+pymysql://USER:PASS@/taixable?unix_socket=/cloudsql/<project:region:instance>
 ```
 
 Then assemble the agent per [`agent/README.md`](agent/README.md): ingest the corpus

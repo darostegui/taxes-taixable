@@ -26,10 +26,21 @@ from taixable_copilot.api.schemas import (
     PersistResponse,
 )
 from taixable_copilot.db import repository as repo
+from taixable_copilot.guardrails import validate_citations
 from taixable_copilot.memo import render_memo
 from taixable_copilot.obligations import Assessment, assess_obligations
 
 _WEB_DIR = Path(__file__).resolve().parents[1] / "web"
+
+
+def _reject_unknown_citations(deps: Deps, cited: list[str]) -> None:
+    if deps.known_citation_ids is None:
+        return
+    ok, invalid = validate_citations(cited, deps.known_citation_ids)
+    if not ok:
+        raise HTTPException(
+            status_code=422, detail=f"Unknown/hallucinated citation ids: {invalid}"
+        )
 
 
 def _serialize(assessment: Assessment) -> AssessmentOut:
@@ -83,6 +94,7 @@ def create_app(deps: Deps) -> FastAPI:
             )
         except LookupError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
+        _reject_unknown_citations(deps, assessment.citations)
         return _serialize(assessment)
 
     @app.post("/tools/generate_memo", response_model=MemoResponse)
@@ -97,6 +109,7 @@ def create_app(deps: Deps) -> FastAPI:
             )
         except LookupError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
+        _reject_unknown_citations(deps, assessment.citations)
         return MemoResponse(memo_markdown=render_memo(assessment, req.customer_token))
 
     @app.post("/tools/persist_case", response_model=PersistResponse)
@@ -106,6 +119,8 @@ def create_app(deps: Deps) -> FastAPI:
                 status_code=409,
                 detail="Case not persisted: human approval required (approved=true).",
             )
+        cited = list(req.citation_ids) + [d.citation_id for d in req.deadlines if d.citation_id]
+        _reject_unknown_citations(deps, cited)
         customer_id = repo.create_customer(
             deps.engine,
             customer_token=req.customer_token,

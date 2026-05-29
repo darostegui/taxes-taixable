@@ -31,6 +31,9 @@ class Deps:
     treaty_retriever: Retriever
     rate_lookup: RateLookup
     engine: Engine
+    # When set, the API rejects any citation id not in this set (guardrail against
+    # hallucinated sources). None disables the check (e.g. tests with fake retrievers).
+    known_citation_ids: set[str] | None = None
 
 
 def _load_residency_rules() -> dict[Country, dict]:
@@ -50,7 +53,7 @@ def build_default_deps() -> Deps:
     ELASTIC_URL is set (the hosted demo). Persistence targets DATABASE_URL.
     """
     from taixable_copilot.db.repository import make_engine
-    from taixable_copilot.search import build_retrievers
+    from taixable_copilot.search import all_citation_ids, build_retrievers
 
     db_url = os.environ.get("DATABASE_URL", "sqlite:///taixable.db")
     engine = make_engine(db_url)
@@ -61,4 +64,5 @@ def build_default_deps() -> Deps:
         treaty_retriever=treaty_retriever,
         rate_lookup=rate_lookup,
         engine=engine,
+        known_citation_ids=all_citation_ids(),
     )

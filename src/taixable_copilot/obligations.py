@@ -63,7 +63,10 @@ def assess_obligations(
     obligations: list[Obligation] = []
     citations: list[str] = list(residency.citations)
 
-    for inc in profile.foreign_sourced():
+    # Foreign-sourced is judged against the *computed* primary residence, which may
+    # differ from the profile's declared residence_country.
+    foreign = [inc for inc in profile.income if inc.source_country != primary]
+    for inc in foreign:
         article = resolve_treaty_article(primary, inc.source_country, inc.type, treaty_retriever)
         rate = get_withholding_rate(primary, inc.source_country, inc.type, rate_lookup)
         cite = [article.citation_id, rate.citation_id]

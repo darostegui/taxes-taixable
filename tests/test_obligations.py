@@ -42,3 +42,40 @@ def test_cross_border_assessment():
     assert all(o.citation_ids for o in result.obligations)
     # residence-country filing deadline is present
     assert any(d.jurisdiction == Country.UK for d in result.deadlines)
+
+
+def test_foreign_sourced_uses_computed_primary_not_declared_residence():
+    """Declared residence (DE) differs from day-count primary (ES); obligations are
+    judged against the computed primary, so DE-sourced income becomes 'foreign' and
+    ES-sourced income is domestic."""
+    p = CustomerProfile(
+        residence_country=Country.DE,  # declared, but most days are in ES
+        days_present={Country.ES: 300, Country.DE: 50},
+        income=[
+            IncomeSource(type=IncomeType.RENTAL, source_country=Country.DE, amount=10000),
+            IncomeSource(type=IncomeType.DIVIDEND, source_country=Country.ES, amount=5000),
+        ],
+    )
+    result = assess_obligations(
+        p,
+        tax_year=2025,
+        residency_rules={
+            Country.ES: {"days_threshold": 183, "citation_id": "ES#183"},
+            Country.DE: {"days_threshold": 183, "citation_id": "DE#183"},
+        },
+        treaty_retriever=lambda cp, it: {
+            "article_no": "6",
+            "topic": "x",
+            "text": "",
+            "citation_id": "DE-ES#art6",
+        },
+        rate_lookup=lambda cp, it: {
+            "rate": 0.1,
+            "relief": "credit",
+            "citation_id": "DE-ES#art6-rate",
+        },
+    )
+    assert result.primary_residence == Country.ES
+    sources = {o.source_country for o in result.obligations}
+    assert Country.DE in sources  # DE income is now foreign (primary is ES)
+    assert Country.ES not in sources  # ES income is domestic
