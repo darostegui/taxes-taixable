@@ -101,6 +101,27 @@ into Elastic (`make ingest`), add the **Elastic MCP server** as a tool, and impo
 [`agent/openapi.tools.json`](agent/openapi.tools.json) as the action tool set in
 **Google Cloud Agent Builder** (Gemini 3).
 
+### Hosted URL & domain
+
+The **judged hosted URL is the Agent Builder agent** (Gemini 3), exposed as a
+**no-login demo with sample data** (a login-free sandbox is explicitly preferred by the
+rules). Two equally valid options for the URL:
+
+- **Default Cloud Run URL** (`https://taixable-copilot-<hash>-<region>.run.app`) —
+  simplest, no DNS work, no-login by default. Recommended if you're short on time.
+- **Dedicated hackathon subdomain** on a domain you control (e.g.
+  `tax-copilot.taixable.dev` / `rapid-agent.taixable.app`), mapped to the service:
+
+  ```bash
+  gcloud beta run domain-mappings create \
+    --service taixable-copilot --domain tax-copilot.taixable.dev --region <region>
+  ```
+
+Do **not** host the demo on the production `taixable.com` apex/marketing domain: the
+hackathon requires *new* work, and serving it under the live commercial brand blurs that
+line. A clearly-scoped subdomain (or the `run.app` URL) keeps the "new project" boundary
+unambiguous.
+
 ## Tech stack
 
 Python · FastAPI · Elasticsearch (Elastic Cloud Serverless + Agent Builder/MCP) · Cloud SQL (MySQL) ·
