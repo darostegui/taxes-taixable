@@ -11,7 +11,10 @@ caller passes approved=true, so the agent can never silently commit a case.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 
 from taixable_copilot.api.deps import Deps, build_default_deps
 from taixable_copilot.api.schemas import (
@@ -25,6 +28,8 @@ from taixable_copilot.api.schemas import (
 from taixable_copilot.db import repository as repo
 from taixable_copilot.memo import render_memo
 from taixable_copilot.obligations import Assessment, assess_obligations
+
+_WEB_DIR = Path(__file__).resolve().parents[1] / "web"
 
 
 def _serialize(assessment: Assessment) -> AssessmentOut:
@@ -61,6 +66,10 @@ def create_app(deps: Deps) -> FastAPI:
     @app.get("/healthz")
     def healthz() -> dict:
         return {"status": "ok"}
+
+    @app.get("/")
+    def index() -> FileResponse:
+        return FileResponse(_WEB_DIR / "index.html")
 
     @app.post("/tools/assess_obligations", response_model=AssessmentOut)
     def assess(req: AssessRequest) -> AssessmentOut:

@@ -50,12 +50,47 @@ The domain logic (`src/taixable_copilot/`) is a pure-Python, modular layer desig
 
 ```bash
 make install      # create venv + install (editable) with dev deps
-make test         # run pytest
-make db-up        # start local MySQL (docker)
+make test         # run pytest (26 tests)
+make evals        # run the golden-case eval harness
+make run          # serve the agent tool service + demo UI on :8080
 ```
 
-Cloud credentials (Elastic, Google Cloud, MySQL) are read from `~/scratch/taixable-infra/secrets.env`
-and are **never committed**.
+Then open http://localhost:8080 — the demo UI runs the **whole flow locally**
+(assess → memo → approve & persist) backed by the curated corpus in
+`src/taixable_copilot/data/`, with **no cloud dependency**. Set `ELASTIC_URL`
+(+`ELASTIC_API_KEY`) to switch retrieval to Elastic, and `DATABASE_URL` to target
+Cloud SQL / MySQL instead of the local SQLite file.
+
+```bash
+make db-up        # optional: local MySQL (docker) for prod parity
+make es-up        # optional: local Elasticsearch (docker)
+```
+
+Cloud credentials (Elastic, Google Cloud, MySQL) are read from
+`~/scratch/taixable-infra/secrets.env` and are **never committed**.
+
+## Curated data & disclaimer
+
+The tax corpus (3 jurisdictions + 3 bilateral treaties) lives in
+`src/taixable_copilot/data/` with sources and a disclaimer in
+[`SOURCES.md`](src/taixable_copilot/data/SOURCES.md). **Figures are illustrative and
+must be verified against the primary legal texts before any real-world use** — the
+agent is decision support for a qualified professional, not autonomous tax advice.
+
+## Deploy (Cloud Run + Agent Builder)
+
+```bash
+make docker-build                       # build the container
+# push to Artifact Registry and deploy:
+gcloud run deploy taixable-copilot \
+  --source . --region <region> --allow-unauthenticated \
+  --set-env-vars ELASTIC_URL=...,ELASTIC_API_KEY=...,DATABASE_URL=mysql+pymysql://...
+```
+
+Then assemble the agent per [`agent/README.md`](agent/README.md): ingest the corpus
+into Elastic (`make ingest`), add the **Elastic MCP server** as a tool, and import
+[`agent/openapi.tools.json`](agent/openapi.tools.json) as the action tool set in
+**Google Cloud Agent Builder** (Gemini 3).
 
 ## Tech stack
 

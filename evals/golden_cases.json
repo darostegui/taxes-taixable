@@ -1,0 +1,75 @@
+{
+  "cases": [
+    {
+      "id": "uk-resident-es-rental",
+      "description": "UK resident with Spanish rental income",
+      "profile": {
+        "residence_country": "UK",
+        "days_present": {"UK": 320, "ES": 40},
+        "income": [{"type": "rental", "source_country": "ES", "amount": 12000}],
+        "customer_token": "CUST-EVAL01"
+      },
+      "tax_year": 2025,
+      "expect": {
+        "primary_residence": "UK",
+        "num_obligations": 1,
+        "must_cite": ["ES-UK#art6", "ES-UK#art6-rate", "UK#sa-deadline"],
+        "deadline_jurisdictions": ["UK"]
+      }
+    },
+    {
+      "id": "de-resident-es-rental-dividend",
+      "description": "German resident with Spanish rental + dividend income",
+      "profile": {
+        "residence_country": "DE",
+        "days_present": {"DE": 250, "ES": 60},
+        "income": [
+          {"type": "rental", "source_country": "ES", "amount": 18000},
+          {"type": "dividend", "source_country": "ES", "amount": 4000}
+        ],
+        "customer_token": "CUST-EVAL02"
+      },
+      "tax_year": 2025,
+      "expect": {
+        "primary_residence": "DE",
+        "num_obligations": 2,
+        "must_cite": ["DE-ES#art6", "DE-ES#art10", "DE#est-deadline"],
+        "deadline_jurisdictions": ["DE"]
+      }
+    },
+    {
+      "id": "es-resident-uk-pension",
+      "description": "Spanish resident with UK private pension",
+      "profile": {
+        "residence_country": "ES",
+        "days_present": {"ES": 300, "UK": 50},
+        "income": [{"type": "pension", "source_country": "UK", "amount": 22000}],
+        "customer_token": "CUST-EVAL03"
+      },
+      "tax_year": 2025,
+      "expect": {
+        "primary_residence": "ES",
+        "num_obligations": 1,
+        "must_cite": ["ES-UK#art17", "ES-UK#art17-rate", "ES#renta-deadline"],
+        "deadline_jurisdictions": ["ES"]
+      }
+    },
+    {
+      "id": "no-foreign-income",
+      "description": "UK resident with only UK income — no cross-border obligations",
+      "profile": {
+        "residence_country": "UK",
+        "days_present": {"UK": 365},
+        "income": [{"type": "employment", "source_country": "UK", "amount": 50000}],
+        "customer_token": "CUST-EVAL04"
+      },
+      "tax_year": 2025,
+      "expect": {
+        "primary_residence": "UK",
+        "num_obligations": 0,
+        "must_cite": ["UK#sa-deadline"],
+        "deadline_jurisdictions": ["UK"]
+      }
+    }
+  ]
+}

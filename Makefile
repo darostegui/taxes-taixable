@@ -3,10 +3,10 @@ VENV := .venv
 PY := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
 
-.PHONY: help venv install test lint run db-up db-down es-up
+.PHONY: help venv install test lint evals run docker-build db-up db-down es-up ingest
 
 help:
-	@echo "Targets: venv install test lint run db-up db-down es-up"
+	@echo "Targets: venv install test lint evals run docker-build db-up db-down es-up ingest"
 
 venv:
 	python3 -m venv $(VENV)
@@ -19,10 +19,19 @@ test:
 	$(VENV)/bin/pytest -q
 
 lint:
-	$(VENV)/bin/ruff check src tests
+	$(VENV)/bin/ruff check src tests scripts evals
+
+evals:
+	$(PY) evals/run_evals.py
 
 run:
 	$(VENV)/bin/uvicorn taixable_copilot.api.app:app --reload --port 8080
+
+docker-build:
+	docker build -t taixable-copilot .
+
+ingest:
+	$(PY) scripts/ingest_elastic.py
 
 db-up:
 	docker compose up -d mysql

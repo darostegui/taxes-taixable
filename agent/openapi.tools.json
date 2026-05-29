@@ -1,0 +1,546 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cross-Border Tax Copilot \u2014 Tools",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/tools/assess_obligations": {
+      "post": {
+        "summary": "Assess",
+        "operationId": "assess_tools_assess_obligations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssessRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssessmentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/generate_memo": {
+      "post": {
+        "summary": "Generate Memo",
+        "operationId": "generate_memo_tools_generate_memo_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemoResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/persist_case": {
+      "post": {
+        "summary": "Persist Case",
+        "operationId": "persist_case_tools_persist_case_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersistRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AssessRequest": {
+        "properties": {
+          "profile": {
+            "$ref": "#/components/schemas/CustomerProfile"
+          },
+          "tax_year": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 2000.0,
+            "title": "Tax Year"
+          }
+        },
+        "type": "object",
+        "required": [
+          "profile",
+          "tax_year"
+        ],
+        "title": "AssessRequest"
+      },
+      "AssessmentOut": {
+        "properties": {
+          "primary_residence": {
+            "type": "string",
+            "title": "Primary Residence"
+          },
+          "residence_confidence": {
+            "type": "number",
+            "title": "Residence Confidence"
+          },
+          "obligations": {
+            "items": {
+              "$ref": "#/components/schemas/ObligationOut"
+            },
+            "type": "array",
+            "title": "Obligations"
+          },
+          "deadlines": {
+            "items": {
+              "$ref": "#/components/schemas/DeadlineOut"
+            },
+            "type": "array",
+            "title": "Deadlines"
+          },
+          "citations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Citations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "primary_residence",
+          "residence_confidence",
+          "obligations",
+          "deadlines",
+          "citations"
+        ],
+        "title": "AssessmentOut"
+      },
+      "Country": {
+        "type": "string",
+        "enum": [
+          "ES",
+          "UK",
+          "DE"
+        ],
+        "title": "Country"
+      },
+      "CustomerProfile": {
+        "properties": {
+          "residence_country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "days_present": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/Country"
+            },
+            "type": "object",
+            "title": "Days Present"
+          },
+          "income": {
+            "items": {
+              "$ref": "#/components/schemas/IncomeSource"
+            },
+            "type": "array",
+            "title": "Income"
+          },
+          "customer_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "residence_country"
+        ],
+        "title": "CustomerProfile",
+        "description": "A tax-relevant, PII-free customer profile (identity is tokenized upstream)."
+      },
+      "DeadlineOut": {
+        "properties": {
+          "jurisdiction": {
+            "type": "string",
+            "title": "Jurisdiction"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "due_date": {
+            "type": "string",
+            "title": "Due Date"
+          },
+          "citation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Citation Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "jurisdiction",
+          "description",
+          "due_date"
+        ],
+        "title": "DeadlineOut"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "IncomeSource": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/IncomeType"
+          },
+          "source_country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Amount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "source_country",
+          "amount"
+        ],
+        "title": "IncomeSource"
+      },
+      "IncomeType": {
+        "type": "string",
+        "enum": [
+          "employment",
+          "rental",
+          "dividend",
+          "interest",
+          "pension",
+          "capital_gain"
+        ],
+        "title": "IncomeType"
+      },
+      "MemoRequest": {
+        "properties": {
+          "profile": {
+            "$ref": "#/components/schemas/CustomerProfile"
+          },
+          "tax_year": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 2000.0,
+            "title": "Tax Year"
+          },
+          "customer_token": {
+            "type": "string",
+            "title": "Customer Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "profile",
+          "tax_year",
+          "customer_token"
+        ],
+        "title": "MemoRequest"
+      },
+      "MemoResponse": {
+        "properties": {
+          "memo_markdown": {
+            "type": "string",
+            "title": "Memo Markdown"
+          }
+        },
+        "type": "object",
+        "required": [
+          "memo_markdown"
+        ],
+        "title": "MemoResponse"
+      },
+      "ObligationOut": {
+        "properties": {
+          "income_type": {
+            "type": "string",
+            "title": "Income Type"
+          },
+          "source_country": {
+            "type": "string",
+            "title": "Source Country"
+          },
+          "treaty_article": {
+            "type": "string",
+            "title": "Treaty Article"
+          },
+          "rate": {
+            "type": "number",
+            "title": "Rate"
+          },
+          "relief": {
+            "type": "string",
+            "title": "Relief"
+          },
+          "citation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Citation Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "income_type",
+          "source_country",
+          "treaty_article",
+          "rate",
+          "relief",
+          "citation_ids"
+        ],
+        "title": "ObligationOut"
+      },
+      "PersistDeadline": {
+        "properties": {
+          "jurisdiction": {
+            "type": "string",
+            "title": "Jurisdiction"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "due_date": {
+            "type": "string",
+            "title": "Due Date"
+          },
+          "citation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Citation Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "jurisdiction",
+          "description",
+          "due_date"
+        ],
+        "title": "PersistDeadline"
+      },
+      "PersistRequest": {
+        "properties": {
+          "approved": {
+            "type": "boolean",
+            "title": "Approved"
+          },
+          "approved_by": {
+            "type": "string",
+            "title": "Approved By"
+          },
+          "customer_token": {
+            "type": "string",
+            "title": "Customer Token"
+          },
+          "residence_country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "display_label": {
+            "type": "string",
+            "title": "Display Label",
+            "default": ""
+          },
+          "tax_year": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 2000.0,
+            "title": "Tax Year"
+          },
+          "primary_residence": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "default": ""
+          },
+          "deadlines": {
+            "items": {
+              "$ref": "#/components/schemas/PersistDeadline"
+            },
+            "type": "array",
+            "title": "Deadlines"
+          },
+          "citation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Citation Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "approved",
+          "approved_by",
+          "customer_token",
+          "residence_country",
+          "tax_year",
+          "primary_residence"
+        ],
+        "title": "PersistRequest"
+      },
+      "PersistResponse": {
+        "properties": {
+          "case_id": {
+            "type": "integer",
+            "title": "Case Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "case_id"
+        ],
+        "title": "PersistResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

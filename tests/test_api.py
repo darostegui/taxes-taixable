@@ -111,3 +111,9 @@ def test_persist_case_succeeds_when_approved():
 
 def test_healthz():
     assert _client().get("/healthz").json() == {"status": "ok"}
+
+
+def test_index_serves_html():
+    r = _client().get("/")
+    assert r.status_code == 200
+    assert "Cross-Border Tax Obligations Copilot" in r.text
