@@ -43,32 +43,18 @@ def _load_residency_rules() -> dict[Country, dict]:
     return {Country(k): v for k, v in raw.items()}
 
 
-def _unconfigured_retriever(*_args, **_kwargs):
-    raise RuntimeError(
-        "Elastic retriever is not configured. Set ELASTIC_URL/ELASTIC_API_KEY and "
-        "build the search provider (Phase 2/5), or inject a retriever for local runs."
-    )
-
-
 def build_default_deps() -> Deps:
     """Build production-style deps from the environment.
 
-    Elastic retrievers are wired in Phase 5; until then they raise a clear error
-    when invoked, while residency + persistence remain functional.
+    Retrievers are corpus-backed by default (fully local) and Elastic-backed when
+    ELASTIC_URL is set (the hosted demo). Persistence targets DATABASE_URL.
     """
     from taixable_copilot.db.repository import make_engine
+    from taixable_copilot.search import build_retrievers
 
     db_url = os.environ.get("DATABASE_URL", "sqlite:///taixable.db")
     engine = make_engine(db_url)
-
-    treaty_retriever: Retriever = _unconfigured_retriever
-    rate_lookup: RateLookup = _unconfigured_retriever
-    try:
-        from taixable_copilot.search import build_retrievers
-
-        treaty_retriever, rate_lookup = build_retrievers()
-    except Exception:  # noqa: BLE001 - search provider optional until Phase 5
-        pass
+    treaty_retriever, rate_lookup = build_retrievers()
 
     return Deps(
         residency_rules=_load_residency_rules(),
