@@ -129,6 +129,15 @@ function setDays(idx, val) {
   render();
 }
 
+function setCountry(idx, val) {
+  if (!SUPPORTED.includes(val)) return;
+  // Prevent picking a country already allocated in another row.
+  if (countries.some((c, j) => j !== idx && c.country === val)) { render(); return; }
+  countries[idx].country = val;
+  invalidate();
+  render();
+}
+
 function removeCountry(idx) {
   if (countries.length <= 1) return; // always keep at least one
   countries.splice(idx, 1);
@@ -158,7 +167,18 @@ function render() {
     row.className = "row";
 
     const cLabel = document.createElement("div");
-    cLabel.innerHTML = `<label>Country</label><input value="${c.country}" disabled />`;
+    cLabel.innerHTML = `<label>Country</label>`;
+    const cSel = document.createElement("select");
+    // Options: countries not used by any other row (current row's value always included).
+    SUPPORTED.filter(opt => opt === c.country || !countries.some((x, j) => j !== i && x.country === opt))
+      .forEach(opt => {
+        const o = document.createElement("option");
+        o.value = opt; o.textContent = opt;
+        if (opt === c.country) o.selected = true;
+        cSel.appendChild(o);
+      });
+    cSel.onchange = (e) => setCountry(i, e.target.value);
+    cLabel.appendChild(cSel);
 
     const dWrap = document.createElement("div");
     dWrap.innerHTML = `<label>Days</label>`;
