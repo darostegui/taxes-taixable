@@ -15,11 +15,32 @@ from taixable_copilot.residency import determine_residency
 from taixable_copilot.treaty import Retriever, resolve_treaty_article
 
 # Residence-country self-assessment filing deadlines (month, day) for the tax year
-# following the year of income, with a citation id resolved from the corpus.
+# following the year of income, with a citation id + human label + source URL.
 FILING_DEADLINES: dict[Country, dict] = {
-    Country.UK: {"month": 1, "day": 31, "offset_years": 1, "citation_id": "UK#sa-deadline"},
-    Country.ES: {"month": 6, "day": 30, "offset_years": 1, "citation_id": "ES#renta-deadline"},
-    Country.DE: {"month": 7, "day": 31, "offset_years": 1, "citation_id": "DE#est-deadline"},
+    Country.UK: {
+        "month": 1,
+        "day": 31,
+        "offset_years": 1,
+        "citation_id": "UK#sa-deadline",
+        "label": "UK Self Assessment online filing deadline (31 January)",
+        "url": "https://www.gov.uk/self-assessment-tax-returns/deadlines",
+    },
+    Country.ES: {
+        "month": 6,
+        "day": 30,
+        "offset_years": 1,
+        "citation_id": "ES#renta-deadline",
+        "label": "Spain Renta (IRPF) campaign filing deadline (to 30 June)",
+        "url": "https://sede.agenciatributaria.gob.es/",
+    },
+    Country.DE: {
+        "month": 7,
+        "day": 31,
+        "offset_years": 1,
+        "citation_id": "DE#est-deadline",
+        "label": "Germany Einkommensteuererklärung statutory deadline (31 July)",
+        "url": "https://www.bundesfinanzministerium.de/",
+    },
 }
 
 

@@ -25,6 +25,7 @@ from taixable_copilot.api.schemas import (
     PersistRequest,
     PersistResponse,
 )
+from taixable_copilot.citations import resolve_citations
 from taixable_copilot.db import repository as repo
 from taixable_copilot.guardrails import validate_citations
 from taixable_copilot.memo import render_memo
@@ -43,7 +44,8 @@ def _reject_unknown_citations(deps: Deps, cited: list[str]) -> None:
         )
 
 
-def _serialize(assessment: Assessment) -> AssessmentOut:
+def _serialize(assessment: Assessment, deps: Deps) -> AssessmentOut:
+    details = resolve_citations(assessment.citations, deps.citation_index)
     return AssessmentOut(
         primary_residence=str(assessment.primary_residence),
         residence_confidence=assessment.residence_confidence,
@@ -68,6 +70,9 @@ def _serialize(assessment: Assessment) -> AssessmentOut:
             for d in assessment.deadlines
         ],
         citations=assessment.citations,
+        citation_details=[
+            {"id": c.id, "label": c.label, "url": c.url} for c in details
+        ],
     )
 
 
@@ -95,7 +100,7 @@ def create_app(deps: Deps) -> FastAPI:
         except LookupError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         _reject_unknown_citations(deps, assessment.citations)
-        return _serialize(assessment)
+        return _serialize(assessment, deps)
 
     @app.post("/tools/generate_memo", response_model=MemoResponse)
     def generate_memo(req: MemoRequest) -> MemoResponse:
@@ -110,7 +115,11 @@ def create_app(deps: Deps) -> FastAPI:
         except LookupError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         _reject_unknown_citations(deps, assessment.citations)
-        return MemoResponse(memo_markdown=render_memo(assessment, req.customer_token))
+        return MemoResponse(
+            memo_markdown=render_memo(
+                assessment, req.customer_token, deps.citation_index
+            )
+        )
 
     @app.post("/tools/persist_case", response_model=PersistResponse)
     def persist_case(req: PersistRequest) -> PersistResponse:

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Cross-Border Tax Copilot</title>
 <style>
-  :root { --bg:#0f172a; --card:#1e293b; --ink:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --ok:#22c55e; --warn:#f59e0b; }
+  :root { --bg:#0f172a; --card:#1e293b; --ink:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; }
   * { box-sizing: border-box; }
   body { margin:0; font:15px/1.5 system-ui, sans-serif; background:var(--bg); color:var(--ink); }
   header { padding:20px 24px; border-bottom:1px solid #334155; }
@@ -19,47 +19,68 @@
   .row { display:flex; gap:8px; align-items:end; }
   .row > * { flex:1; }
   button { cursor:pointer; border:none; border-radius:8px; padding:10px 14px; font-weight:600; }
+  button:disabled { opacity:.45; cursor:not-allowed; }
   .primary { background:var(--accent); color:#04293b; }
   .ghost { background:transparent; border:1px solid #334155; color:var(--ink); }
   .approve { background:var(--ok); color:#052e16; }
   .danger { color:var(--warn); }
   #memo { white-space:pre-wrap; background:#0b1220; border-radius:8px; padding:14px; font:13px/1.5 ui-monospace, monospace; min-height:120px; }
-  .inc { border:1px dashed #334155; border-radius:8px; padding:10px; margin-bottom:8px; }
+  .inc, .ctry { border:1px dashed #334155; border-radius:8px; padding:10px; margin-bottom:8px; }
   .full { grid-column:1 / -1; }
   small { color:var(--muted); }
+  .meter { display:flex; justify-content:space-between; align-items:center; margin:8px 0; font-size:13px; }
+  .meter b { font-size:15px; }
+  .ok { color:var(--ok); } .warn { color:var(--warn); } .bad { color:var(--bad); }
+  .bar { height:8px; background:#0b1220; border-radius:6px; overflow:hidden; margin:6px 0 2px; }
+  .bar > div { height:100%; background:var(--accent); transition:width .2s; }
+  .sources a { color:var(--accent); }
+  .sources li { margin-bottom:4px; }
+  .pill { display:inline-block; font-size:11px; color:var(--muted); border:1px solid #334155; border-radius:6px; padding:1px 6px; margin-left:6px; }
 </style>
 </head>
 <body>
 <header>
   <h1>Cross-Border Tax Obligations Copilot</h1>
-  <p>Decision support for tax professionals — every figure is retrieved & cited. Not autonomous tax advice.</p>
+  <p>Decision support for tax professionals — every figure is retrieved &amp; cited. Not autonomous tax advice.</p>
 </header>
 <main>
   <section class="card">
     <h2>Client profile (synthetic)</h2>
     <label>Customer token</label>
     <input id="token" value="CUST-DEMO01" />
-    <label>Residence country</label>
-    <select id="residence"><option>UK</option><option>ES</option><option>DE</option></select>
-    <div class="row">
-      <div><label>Days in UK</label><input id="d_UK" type="number" value="320" /></div>
-      <div><label>Days in ES</label><input id="d_ES" type="number" value="30" /></div>
-      <div><label>Days in DE</label><input id="d_DE" type="number" value="15" /></div>
-    </div>
     <label>Tax year</label>
-    <input id="year" type="number" value="2025" />
+    <input id="year" type="number" value="2025" oninput="render()" />
+
+    <label>Days of presence by country (must total <span id="targetLbl">365</span>)</label>
+    <div id="countries"></div>
+
+    <div class="ctry" id="addRow">
+      <div class="row">
+        <div><label>Add country</label><select id="addCountry"></select></div>
+        <div><label>Days</label><input id="addDays" type="number" min="0" step="1" /></div>
+        <button class="ghost" id="addBtn" onclick="addCountry()">+ Add country</button>
+      </div>
+    </div>
+
+    <div class="bar"><div id="barFill" style="width:0%"></div></div>
+    <div class="meter">
+      <span>Allocated: <b id="totalDays">0</b> / <span id="targetVal">365</span></span>
+      <span id="dayStatus" class="warn">—</span>
+    </div>
+
     <label>Foreign income</label>
     <div id="incomes"></div>
     <button class="ghost" onclick="addIncome()">+ Add income</button>
+
     <div style="margin-top:14px; display:flex; gap:8px;">
-      <button class="primary" onclick="assess()">Assess obligations</button>
-      <button class="primary" onclick="memo()">Generate memo</button>
+      <button class="primary" id="assessBtn" onclick="assess()">Assess obligations</button>
+      <button class="primary" id="memoBtn" onclick="memo()">Generate memo</button>
     </div>
   </section>
 
   <section class="card">
     <h2>Assessment</h2>
-    <div id="assessment"><small>Run an assessment to see obligations & deadlines.</small></div>
+    <div id="assessment"><small>Allocate days across 1–3 countries (summing to 365), then run an assessment.</small></div>
   </section>
 
   <section class="card full">
@@ -73,59 +94,203 @@
 </main>
 
 <script>
-const INCOME_TYPES = ["rental","dividend","interest","employment","pension"];
+const SUPPORTED = ["UK", "ES", "DE"];
+const INCOME_TYPES = ["rental", "dividend", "interest", "employment", "pension"];
+
+// State: ordered list of {country, days}. The day-allocation rule lives here:
+// 1–3 countries whose days must sum to 365 (or 366 in a leap year).
+let countries = [{ country: "UK", days: 365 }];
 let lastAssessment = null;
 
-function addIncome(type="rental", src="ES", amt=12000) {
+function isLeap(y) { return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; }
+function year() { return +document.getElementById("year").value; }
+function maxDays() { return isLeap(year()) ? 366 : 365; }
+function total() { return countries.reduce((s, c) => s + (c.days || 0), 0); }
+function targetReached() { return total() === 365 || total() === maxDays(); }
+function available() { return SUPPORTED.filter(c => !countries.some(x => x.country === c)); }
+function canAddMore() { return countries.length < 3 && total() < maxDays() && available().length > 0; }
+
+// Primary residence = country with most days (stable on ties: first added wins).
+function residence() {
+  return countries.reduce((best, c) => (c.days > best.days ? c : best), countries[0]).country;
+}
+
+function invalidate() {
+  lastAssessment = null;
+  document.getElementById("persistMsg").textContent = "";
+}
+
+function setDays(idx, val) {
+  const v = Math.max(0, Math.floor(+val || 0));
+  // Clamp so the running total can never exceed the year's max (365/366).
+  const others = total() - (countries[idx].days || 0);
+  countries[idx].days = Math.min(v, maxDays() - others);
+  invalidate();
+  render();
+}
+
+function removeCountry(idx) {
+  if (countries.length <= 1) return; // always keep at least one
+  countries.splice(idx, 1);
+  invalidate();
+  render();
+}
+
+function addCountry() {
+  const sel = document.getElementById("addCountry").value;
+  const remaining = maxDays() - total();
+  let days = Math.floor(+document.getElementById("addDays").value || 0);
+  days = Math.max(0, Math.min(days, remaining));
+  if (!sel || days <= 0) return;
+  countries.push({ country: sel, days });
+  invalidate();
+  render();
+}
+
+function render() {
+  // Country rows
+  const wrap = document.getElementById("countries");
+  wrap.textContent = "";
+  countries.forEach((c, i) => {
+    const div = document.createElement("div");
+    div.className = "ctry";
+    const row = document.createElement("div");
+    row.className = "row";
+
+    const cLabel = document.createElement("div");
+    cLabel.innerHTML = `<label>Country</label><input value="${c.country}" disabled />`;
+
+    const dWrap = document.createElement("div");
+    dWrap.innerHTML = `<label>Days</label>`;
+    const dInput = document.createElement("input");
+    dInput.type = "number"; dInput.min = "0"; dInput.step = "1"; dInput.value = c.days;
+    dInput.onchange = (e) => setDays(i, e.target.value);
+    dWrap.appendChild(dInput);
+
+    const rm = document.createElement("button");
+    rm.className = "ghost"; rm.textContent = "✕";
+    rm.disabled = countries.length <= 1;
+    rm.onclick = () => removeCountry(i);
+
+    row.append(cLabel, dWrap, rm);
+    div.appendChild(row);
+    wrap.appendChild(div);
+  });
+
+  // Add-country control
+  const addSel = document.getElementById("addCountry");
+  addSel.textContent = "";
+  available().forEach(c => {
+    const o = document.createElement("option");
+    o.value = c; o.textContent = c; addSel.appendChild(o);
+  });
+  const remaining = maxDays() - total();
+  document.getElementById("addDays").value = Math.max(0, remaining);
+  document.getElementById("addBtn").disabled = !canAddMore();
+  document.getElementById("addRow").style.opacity = canAddMore() ? "1" : ".5";
+
+  // Meter + target
+  const t = total(), max = maxDays();
+  document.getElementById("targetLbl").textContent = max === 366 ? "365/366" : "365";
+  document.getElementById("targetVal").textContent = max === 366 ? "366" : "365";
+  document.getElementById("totalDays").textContent = t;
+  document.getElementById("barFill").style.width = Math.min(100, (t / max) * 100) + "%";
+
+  const status = document.getElementById("dayStatus");
+  if (targetReached()) {
+    status.className = "ok";
+    status.textContent = `✓ ${t} days — ${countries.length} ${countries.length === 1 ? "country" : "countries"}. Ready.`;
+  } else if (t > max) {
+    status.className = "bad";
+    status.textContent = `Over by ${t - max} day(s).`;
+  } else {
+    status.className = "warn";
+    status.textContent = `Add ${365 - t} more day(s)` + (canAddMore() ? " — pick another country." : ".");
+  }
+
+  // Gate assess/memo on a complete, valid allocation
+  const ready = targetReached();
+  document.getElementById("assessBtn").disabled = !ready;
+  document.getElementById("memoBtn").disabled = !ready;
+}
+
+function addIncome(type = "rental", src = "ES", amt = 12000) {
   const div = document.createElement("div");
   div.className = "inc";
+  // Income source is independent of day-presence (e.g. a UK resident with
+  // Spanish rental income and 0 days in Spain), so all jurisdictions are offered.
   div.innerHTML = `<div class="row">
-    <div><label>Type</label><select class="i_type">${INCOME_TYPES.map(t=>`<option ${t===type?'selected':''}>${t}</option>`).join('')}</select></div>
-    <div><label>Source</label><select class="i_src"><option ${src==='UK'?'selected':''}>UK</option><option ${src==='ES'?'selected':''}>ES</option><option ${src==='DE'?'selected':''}>DE</option></select></div>
+    <div><label>Type</label><select class="i_type">${INCOME_TYPES.map(t => `<option ${t === type ? "selected" : ""}>${t}</option>`).join("")}</select></div>
+    <div><label>Source</label><select class="i_src">${SUPPORTED.map(c => `<option ${c === src ? "selected" : ""}>${c}</option>`).join("")}</select></div>
     <div><label>Amount</label><input class="i_amt" type="number" value="${amt}" /></div>
     <button class="ghost" onclick="this.parentElement.parentElement.remove()">✕</button>
   </div>`;
   document.getElementById("incomes").appendChild(div);
 }
-addIncome();
 
 function profile() {
   const days = {};
-  for (const c of ["UK","ES","DE"]) { const v = +document.getElementById("d_"+c).value; if (v) days[c]=v; }
+  for (const c of countries) { if (c.days) days[c.country] = c.days; }
   const income = [...document.querySelectorAll(".inc")].map(el => ({
     type: el.querySelector(".i_type").value,
     source_country: el.querySelector(".i_src").value,
     amount: +el.querySelector(".i_amt").value,
   }));
   return {
-    residence_country: document.getElementById("residence").value,
-    days_present: days, income,
+    residence_country: residence(),
+    days_present: days,
+    income,
     customer_token: document.getElementById("token").value,
   };
 }
-function year() { return +document.getElementById("year").value; }
 
 async function post(path, body) {
-  const r = await fetch(path, {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify(body)});
-  return {status:r.status, body: await r.json()};
+  const r = await fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  return { status: r.status, body: await r.json() };
+}
+
+// Render the cited sources as real, clickable links (DOM-built + URL-validated).
+function renderSources(details) {
+  const ul = document.createElement("ul");
+  ul.className = "sources";
+  (details || []).forEach(d => {
+    const li = document.createElement("li");
+    if (d.url && /^https?:\/\//i.test(d.url)) {
+      const a = document.createElement("a");
+      a.href = d.url; a.target = "_blank"; a.rel = "noopener noreferrer";
+      a.textContent = d.label || d.id;
+      li.appendChild(a);
+    } else {
+      li.textContent = d.label || d.id;
+    }
+    const pill = document.createElement("span");
+    pill.className = "pill"; pill.textContent = d.id;
+    li.appendChild(pill);
+    ul.appendChild(li);
+  });
+  return ul;
 }
 
 async function assess() {
-  const {status, body} = await post("/tools/assess_obligations", {profile:profile(), tax_year:year()});
-  if (status !== 200) { document.getElementById("assessment").innerHTML = `<span class="danger">${JSON.stringify(body)}</span>`; return; }
+  if (!targetReached()) return;
+  const { status, body } = await post("/tools/assess_obligations", { profile: profile(), tax_year: year() });
+  const panel = document.getElementById("assessment");
+  if (status !== 200) { panel.innerHTML = `<span class="danger">${JSON.stringify(body)}</span>`; return; }
   lastAssessment = body;
-  const obs = body.obligations.map(o=>`<tr><td>${o.income_type}</td><td>${o.source_country}</td><td>${o.treaty_article}</td><td>${(o.rate*100).toFixed(0)}%</td><td>${o.relief}</td></tr>`).join("");
-  const dls = body.deadlines.map(d=>`<li><b>${d.jurisdiction}</b> — ${d.description}: <b>${d.due_date}</b></li>`).join("");
-  document.getElementById("assessment").innerHTML = `
-    <p>Primary residence: <b>${body.primary_residence}</b> (confidence ${(body.residence_confidence*100).toFixed(0)}%)</p>
+  const obs = body.obligations.map(o => `<tr><td>${o.income_type}</td><td>${o.source_country}</td><td>${o.treaty_article}</td><td>${(o.rate * 100).toFixed(0)}%</td><td>${o.relief}</td></tr>`).join("");
+  const dls = body.deadlines.map(d => `<li><b>${d.jurisdiction}</b> — ${d.description}: <b>${d.due_date}</b></li>`).join("");
+  panel.innerHTML = `
+    <p>Primary residence: <b>${body.primary_residence}</b> (confidence ${(body.residence_confidence * 100).toFixed(0)}%)</p>
     <table style="width:100%; font-size:13px;"><tr><th>Income</th><th>Src</th><th>Art.</th><th>Rate</th><th>Relief</th></tr>${obs}</table>
     <p>Deadlines:</p><ul>${dls}</ul>
-    <small>${body.citations.length} citations: ${body.citations.join(", ")}</small>`;
+    <p><b>Sources (${body.citation_details ? body.citation_details.length : 0})</b></p>`;
+  panel.appendChild(renderSources(body.citation_details));
 }
 
 async function memo() {
-  const {status, body} = await post("/tools/generate_memo", {profile:profile(), tax_year:year(), customer_token:document.getElementById("token").value});
-  document.getElementById("memo").textContent = status===200 ? body.memo_markdown : JSON.stringify(body);
+  if (!targetReached()) return;
+  const { status, body } = await post("/tools/generate_memo", { profile: profile(), tax_year: year(), customer_token: document.getElementById("token").value });
+  document.getElementById("memo").textContent = status === 200 ? body.memo_markdown : JSON.stringify(body);
 }
 
 async function persist() {
@@ -134,7 +299,7 @@ async function persist() {
     approved: true,
     approved_by: "advisor@firm.example",
     customer_token: document.getElementById("token").value,
-    residence_country: document.getElementById("residence").value,
+    residence_country: residence(),
     display_label: "demo client",
     tax_year: year(),
     primary_residence: lastAssessment.primary_residence,
@@ -142,10 +307,13 @@ async function persist() {
     deadlines: lastAssessment.deadlines,
     citation_ids: lastAssessment.citations,
   };
-  const {status, body} = await post("/tools/persist_case", req);
-  document.getElementById("persistMsg").style.color = status===200 ? "var(--ok)" : "var(--warn)";
-  document.getElementById("persistMsg").textContent = status===200 ? `Persisted as case #${body.case_id}` : JSON.stringify(body);
+  const { status, body } = await post("/tools/persist_case", req);
+  document.getElementById("persistMsg").style.color = status === 200 ? "var(--ok)" : "var(--warn)";
+  document.getElementById("persistMsg").textContent = status === 200 ? `Persisted as case #${body.case_id}` : JSON.stringify(body);
 }
+
+addIncome();
+render();
 </script>
 </body>
 </html>

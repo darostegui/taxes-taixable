@@ -5,10 +5,19 @@ Operates only on tokenized identifiers — never raw PII.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from taixable_copilot.obligations import Assessment
 
+if TYPE_CHECKING:
+    from taixable_copilot.citations import Citation
 
-def render_memo(assessment: Assessment, customer_token: str) -> str:
+
+def render_memo(
+    assessment: Assessment,
+    customer_token: str,
+    citation_index: "dict[str, Citation] | None" = None,
+) -> str:
     lines: list[str] = []
     lines.append(f"# Cross-Border Tax Compliance Memo — {customer_token}")
     lines.append("")
@@ -41,8 +50,13 @@ def render_memo(assessment: Assessment, customer_token: str) -> str:
     lines.append("")
 
     lines.append("## Sources")
-    for c in assessment.citations:
-        lines.append(f"- {c}")
+    from taixable_copilot.citations import resolve_citations
+
+    for c in resolve_citations(assessment.citations, citation_index):
+        if c.url:
+            lines.append(f"- [{c.label}]({c.url}) — `{c.id}`")
+        else:
+            lines.append(f"- {c.label} — `{c.id}`")
     lines.append("")
     lines.append(
         "> _Information and workflow support for a qualified tax professional. "

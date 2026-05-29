@@ -5,12 +5,15 @@
 ES:
   days_threshold: 183
   citation_id: "ES#residency-183"
-  basis: "More than 183 days in the calendar year in Spanish territory."
+  basis: "More than 183 days in the calendar year in Spanish territory (Ley 35/2006 IRPF, art. 9)."
+  url: "https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764"
 UK:
   days_threshold: 183
   citation_id: "UK#srt-183"
-  basis: "Automatic UK test: 183+ days in the tax year (SRT, simplified)."
+  basis: "Automatic UK test: 183+ days in the tax year (Statutory Residence Test, simplified)."
+  url: "https://www.gov.uk/government/publications/rdr3-statutory-residence-test-srt"
 DE:
   days_threshold: 183
   citation_id: "DE#residency-183"
-  basis: "Habitual abode / 183-day presence in Germany (simplified)."
+  basis: "Habitual abode / 183-day presence in Germany, Abgabenordnung §§8–9 (simplified)."
+  url: "https://www.gesetze-im-internet.de/ao_1977/"

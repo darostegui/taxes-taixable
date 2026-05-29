@@ -103,21 +103,11 @@ def build_retrievers() -> tuple[Retriever, RateLookup]:
 
 
 def all_citation_ids() -> set[str]:
-    """Every citation id present in the corpus — used by the guardrail."""
-    ids: set[str] = set()
-    for entry in _treaty_by_key().values():
-        ids.add(entry["citation_id"])
-    for entry in _rates_by_key().values():
-        ids.add(entry["citation_id"])
-    import yaml
+    """Every citation id present in the corpus — used by the guardrail.
 
-    rules = yaml.safe_load((DATA_DIR / "residency_rules.yaml").read_text()) or {}
-    for r in rules.values():
-        if "citation_id" in r:
-            ids.add(r["citation_id"])
-    # Filing-deadline citation ids defined in the obligations module.
-    from taixable_copilot.obligations import FILING_DEADLINES
+    Derived from the citation index so the guardrail's known-id set and the
+    id→URL resolution can never drift apart.
+    """
+    from taixable_copilot.citations import build_citation_index
 
-    for spec in FILING_DEADLINES.values():
-        ids.add(spec["citation_id"])
-    return ids
+    return set(build_citation_index().keys())

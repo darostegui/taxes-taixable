@@ -42,12 +42,21 @@ def test_full_flow_assess_then_memo_with_valid_citations():
     ok, invalid = validate_citations(body["citations"], all_citation_ids())
     assert ok, f"unknown citations: {invalid}"
 
+    # Every emitted citation resolves to a real, clickable source URL, in the same
+    # order as the citation ids.
+    details = body["citation_details"]
+    assert [d["id"] for d in details] == body["citations"]
+    assert details and all(d["url"] and d["url"].startswith("http") for d in details)
+
     m = client.post(
         "/tools/generate_memo",
         json={"profile": profile, "tax_year": 2025, "customer_token": "CUST-E2E001"},
     )
     assert m.status_code == 200, m.text
-    assert "DE-ES#art6" in m.json()["memo_markdown"]
+    memo = m.json()["memo_markdown"]
+    assert "DE-ES#art6" in memo
+    # memo Sources are rendered as markdown links to the primary source
+    assert "](http" in memo
 
 
 def test_guardrail_rejects_hallucinated_citation():

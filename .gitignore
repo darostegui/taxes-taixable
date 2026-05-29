@@ -22,3 +22,7 @@ secrets.env
 
 # Local data volumes
 mysql-data/
+
+# Local ephemeral SQLite (created by local runs)
+taixable.db
+*.db

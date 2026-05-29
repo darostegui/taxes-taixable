@@ -2,138 +2,183 @@
   "treaty_articles": [
     {
       "country_pair": "ES-UK",
-      "income_types": ["rental"],
+      "income_types": [
+        "rental"
+      ],
       "article_no": "6",
       "topic": "Income from immovable property",
       "text": "Income derived by a resident of a Contracting State from immovable property situated in the other Contracting State may be taxed in that other State.",
       "citation_id": "ES-UK#art6",
-      "source": "Spain–UK Double Taxation Convention (2013), Article 6"
+      "source": "Spain–UK Double Taxation Convention (2013), Article 6",
+      "url": "https://www.gov.uk/government/publications/spain-tax-treaties"
     },
     {
       "country_pair": "ES-UK",
-      "income_types": ["dividend"],
+      "income_types": [
+        "dividend"
+      ],
       "article_no": "10",
       "topic": "Dividends",
       "text": "Dividends may be taxed in the State of residence; the source State may also tax them at a reduced rate, with relief by credit in the residence State.",
       "citation_id": "ES-UK#art10",
-      "source": "Spain–UK Double Taxation Convention (2013), Article 10"
+      "source": "Spain–UK Double Taxation Convention (2013), Article 10",
+      "url": "https://www.gov.uk/government/publications/spain-tax-treaties"
     },
     {
       "country_pair": "ES-UK",
-      "income_types": ["interest"],
+      "income_types": [
+        "interest"
+      ],
       "article_no": "11",
       "topic": "Interest",
       "text": "Interest arising in a Contracting State and beneficially owned by a resident of the other State shall be taxable only in that other State.",
       "citation_id": "ES-UK#art11",
-      "source": "Spain–UK Double Taxation Convention (2013), Article 11"
+      "source": "Spain–UK Double Taxation Convention (2013), Article 11",
+      "url": "https://www.gov.uk/government/publications/spain-tax-treaties"
     },
     {
       "country_pair": "ES-UK",
-      "income_types": ["employment"],
+      "income_types": [
+        "employment"
+      ],
       "article_no": "14",
       "topic": "Income from employment",
       "text": "Salaries are taxable only in the State of residence unless the employment is exercised in the other State, subject to the 183-day exception.",
       "citation_id": "ES-UK#art14",
-      "source": "Spain–UK Double Taxation Convention (2013), Article 14"
+      "source": "Spain–UK Double Taxation Convention (2013), Article 14",
+      "url": "https://www.gov.uk/government/publications/spain-tax-treaties"
     },
     {
       "country_pair": "ES-UK",
-      "income_types": ["pension"],
+      "income_types": [
+        "pension"
+      ],
       "article_no": "17",
       "topic": "Pensions",
       "text": "Private pensions are taxable only in the State of residence of the recipient.",
       "citation_id": "ES-UK#art17",
-      "source": "Spain–UK Double Taxation Convention (2013), Article 17"
+      "source": "Spain–UK Double Taxation Convention (2013), Article 17",
+      "url": "https://www.gov.uk/government/publications/spain-tax-treaties"
     },
     {
       "country_pair": "DE-UK",
-      "income_types": ["rental"],
+      "income_types": [
+        "rental"
+      ],
       "article_no": "6",
       "topic": "Income from immovable property",
       "text": "Income from immovable property may be taxed in the State where the property is situated.",
       "citation_id": "DE-UK#art6",
-      "source": "Germany–UK Double Taxation Convention (2010), Article 6"
+      "source": "Germany–UK Double Taxation Convention (2010), Article 6",
+      "url": "https://www.gov.uk/government/publications/germany-tax-treaties"
     },
     {
       "country_pair": "DE-UK",
-      "income_types": ["dividend"],
+      "income_types": [
+        "dividend"
+      ],
       "article_no": "10",
       "topic": "Dividends",
       "text": "Dividends may be taxed in the residence State; the source State may levy a reduced withholding tax.",
       "citation_id": "DE-UK#art10",
-      "source": "Germany–UK Double Taxation Convention (2010), Article 10"
+      "source": "Germany–UK Double Taxation Convention (2010), Article 10",
+      "url": "https://www.gov.uk/government/publications/germany-tax-treaties"
     },
     {
       "country_pair": "DE-UK",
-      "income_types": ["interest"],
+      "income_types": [
+        "interest"
+      ],
       "article_no": "11",
       "topic": "Interest",
       "text": "Interest shall be taxable only in the State of residence of the beneficial owner.",
       "citation_id": "DE-UK#art11",
-      "source": "Germany–UK Double Taxation Convention (2010), Article 11"
+      "source": "Germany–UK Double Taxation Convention (2010), Article 11",
+      "url": "https://www.gov.uk/government/publications/germany-tax-treaties"
     },
     {
       "country_pair": "DE-UK",
-      "income_types": ["employment"],
+      "income_types": [
+        "employment"
+      ],
       "article_no": "14",
       "topic": "Income from employment",
       "text": "Employment income is taxable where the employment is exercised, subject to the 183-day exception.",
       "citation_id": "DE-UK#art14",
-      "source": "Germany–UK Double Taxation Convention (2010), Article 14"
+      "source": "Germany–UK Double Taxation Convention (2010), Article 14",
+      "url": "https://www.gov.uk/government/publications/germany-tax-treaties"
     },
     {
       "country_pair": "DE-UK",
-      "income_types": ["pension"],
+      "income_types": [
+        "pension"
+      ],
       "article_no": "17",
       "topic": "Pensions",
       "text": "Private pensions are taxable only in the State of residence of the recipient.",
       "citation_id": "DE-UK#art17",
-      "source": "Germany–UK Double Taxation Convention (2010), Article 17"
+      "source": "Germany–UK Double Taxation Convention (2010), Article 17",
+      "url": "https://www.gov.uk/government/publications/germany-tax-treaties"
     },
     {
       "country_pair": "DE-ES",
-      "income_types": ["rental"],
+      "income_types": [
+        "rental"
+      ],
       "article_no": "6",
       "topic": "Income from immovable property",
       "text": "Income from immovable property may be taxed in the State where the property is situated.",
       "citation_id": "DE-ES#art6",
-      "source": "Germany–Spain Double Taxation Convention (2011), Article 6"
+      "source": "Germany–Spain Double Taxation Convention (2011), Article 6",
+      "url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html"
     },
     {
       "country_pair": "DE-ES",
-      "income_types": ["dividend"],
+      "income_types": [
+        "dividend"
+      ],
       "article_no": "10",
       "topic": "Dividends",
       "text": "Dividends may be taxed in the residence State; the source State may levy a reduced withholding tax.",
       "citation_id": "DE-ES#art10",
-      "source": "Germany–Spain Double Taxation Convention (2011), Article 10"
+      "source": "Germany–Spain Double Taxation Convention (2011), Article 10",
+      "url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html"
     },
     {
       "country_pair": "DE-ES",
-      "income_types": ["interest"],
+      "income_types": [
+        "interest"
+      ],
       "article_no": "11",
       "topic": "Interest",
       "text": "Interest shall be taxable only in the State of residence of the beneficial owner.",
       "citation_id": "DE-ES#art11",
-      "source": "Germany–Spain Double Taxation Convention (2011), Article 11"
+      "source": "Germany–Spain Double Taxation Convention (2011), Article 11",
+      "url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html"
     },
     {
       "country_pair": "DE-ES",
-      "income_types": ["employment"],
+      "income_types": [
+        "employment"
+      ],
       "article_no": "14",
       "topic": "Income from employment",
       "text": "Employment income is taxable where the employment is exercised, subject to the 183-day exception.",
       "citation_id": "DE-ES#art14",
-      "source": "Germany–Spain Double Taxation Convention (2011), Article 14"
+      "source": "Germany–Spain Double Taxation Convention (2011), Article 14",
+      "url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html"
     },
     {
       "country_pair": "DE-ES",
-      "income_types": ["pension"],
+      "income_types": [
+        "pension"
+      ],
       "article_no": "17",
       "topic": "Pensions",
       "text": "Private pensions are taxable only in the State of residence of the recipient.",
       "citation_id": "DE-ES#art17",
-      "source": "Germany–Spain Double Taxation Convention (2011), Article 17"
+      "source": "Germany–Spain Double Taxation Convention (2011), Article 17",
+      "url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html"
     }
   ]
 }

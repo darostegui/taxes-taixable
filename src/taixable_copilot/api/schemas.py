@@ -31,12 +31,19 @@ class DeadlineOut(BaseModel):
     citation_id: str | None = None
 
 
+class CitationOut(BaseModel):
+    id: str
+    label: str
+    url: str | None = None
+
+
 class AssessmentOut(BaseModel):
     primary_residence: str
     residence_confidence: float
     obligations: list[ObligationOut]
     deadlines: list[DeadlineOut]
     citations: list[str]
+    citation_details: list[CitationOut] = Field(default_factory=list)
 
 
 class MemoRequest(BaseModel):

@@ -10,12 +10,16 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Engine
 
 from taixable_copilot.models import Country
 from taixable_copilot.rates import RateLookup
 from taixable_copilot.treaty import Retriever
+
+if TYPE_CHECKING:
+    from taixable_copilot.citations import Citation
 
 # Fallback day-count rules so residency works before the YAML corpus exists.
 DEFAULT_RESIDENCY_RULES: dict[Country, dict] = {
@@ -34,6 +38,8 @@ class Deps:
     # When set, the API rejects any citation id not in this set (guardrail against
     # hallucinated sources). None disables the check (e.g. tests with fake retrievers).
     known_citation_ids: set[str] | None = None
+    # id -> Citation (label + source URL); None resolves ids to themselves.
+    citation_index: "dict[str, Citation] | None" = None
 
 
 def _load_residency_rules() -> dict[Country, dict]:
@@ -52,6 +58,7 @@ def build_default_deps() -> Deps:
     Retrievers are corpus-backed by default (fully local) and Elastic-backed when
     ELASTIC_URL is set (the hosted demo). Persistence targets DATABASE_URL.
     """
+    from taixable_copilot.citations import build_citation_index
     from taixable_copilot.db.repository import make_engine
     from taixable_copilot.search import all_citation_ids, build_retrievers
 
@@ -65,4 +72,5 @@ def build_default_deps() -> Deps:
         rate_lookup=rate_lookup,
         engine=engine,
         known_citation_ids=all_citation_ids(),
+        citation_index=build_citation_index(),
     )
