@@ -116,4 +116,4 @@ def test_healthz():
 def test_index_serves_html():
     r = _client().get("/")
     assert r.status_code == 200
-    assert "Cross-Border Tax Obligations Copilot" in r.text
+    assert "Virtual Tax Advisor" in r.text

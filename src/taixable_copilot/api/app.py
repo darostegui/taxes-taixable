@@ -20,11 +20,14 @@ from taixable_copilot.api.deps import Deps, build_default_deps
 from taixable_copilot.api.schemas import (
     AssessmentOut,
     AssessRequest,
+    ChatRequest,
+    ChatResponse,
     MemoRequest,
     MemoResponse,
     PersistRequest,
     PersistResponse,
 )
+from taixable_copilot.chat import chat as run_chat
 from taixable_copilot.citations import resolve_citations
 from taixable_copilot.db import repository as repo
 from taixable_copilot.guardrails import validate_citations
@@ -127,6 +130,22 @@ def create_app(deps: Deps) -> FastAPI:
             narrative=narrative,
             narrative_source="gemini" if narrative else "deterministic",
         )
+
+    @app.post("/chat", response_model=ChatResponse)
+    def chat_endpoint(req: ChatRequest) -> ChatResponse:
+        result = run_chat(
+            deps,
+            history=[m.model_dump() for m in req.history],
+            message=req.message,
+            tax_year=req.tax_year,
+        )
+        # Defensive: a tool-produced assessment can only contain engine citations,
+        # but re-validate before returning to honour the no-hallucination contract.
+        assessment = result.get("assessment")
+        if assessment:
+            cited = [s["id"] for s in assessment.get("sources", []) if s.get("id")]
+            _reject_unknown_citations(deps, cited)
+        return ChatResponse(**result)
 
     @app.post("/tools/persist_case", response_model=PersistResponse)
     def persist_case(req: PersistRequest) -> PersistResponse:

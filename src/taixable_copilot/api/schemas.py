@@ -59,6 +59,24 @@ class MemoResponse(BaseModel):
     narrative_source: str = "deterministic"
 
 
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+
+class ChatRequest(BaseModel):
+    message: str
+    history: list[ChatMessage] = Field(default_factory=list)
+    tax_year: int = Field(default=2025, ge=2000, le=2100)
+
+
+class ChatResponse(BaseModel):
+    reply: str
+    available: bool = True
+    used_tool: bool = False
+    assessment: dict | None = None
+
+
 class PersistDeadline(BaseModel):
     jurisdiction: str
     description: str
