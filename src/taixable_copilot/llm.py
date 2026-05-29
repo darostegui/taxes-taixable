@@ -44,7 +44,7 @@ _SYSTEM_INSTRUCTION = (
     "support, not autonomous tax or legal advice."
 )
 
-_DEFAULT_MODEL = "gemini-2.5-flash"
+_DEFAULT_MODEL = "gemini-3-flash-preview"
 
 
 def build_narration_prompt(

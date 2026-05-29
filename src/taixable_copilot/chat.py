@@ -53,7 +53,7 @@ _SYSTEM_INSTRUCTION = (
     "replies concise and well-structured."
 )
 
-_DEFAULT_MODEL = "gemini-2.5-flash"
+_DEFAULT_MODEL = "gemini-3-flash-preview"
 
 _TOOL_DOC = (
     "Run the deterministic cross-border tax engine to compute obligations. Call "
