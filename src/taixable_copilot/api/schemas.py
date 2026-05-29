@@ -50,10 +50,13 @@ class MemoRequest(BaseModel):
     profile: CustomerProfile
     tax_year: int = Field(ge=2000, le=2100)
     customer_token: str
+    narrate: bool = True
 
 
 class MemoResponse(BaseModel):
     memo_markdown: str
+    narrative: str | None = None
+    narrative_source: str = "deterministic"
 
 
 class PersistDeadline(BaseModel):

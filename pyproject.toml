@@ -20,6 +20,7 @@ dependencies = [
     "python-dotenv>=1.0",
     "PyYAML>=6.0",
     "Jinja2>=3.1",
+    "google-genai>=0.3",
 ]
 
 [project.optional-dependencies]

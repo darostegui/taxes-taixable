@@ -28,6 +28,7 @@ from taixable_copilot.api.schemas import (
 from taixable_copilot.citations import resolve_citations
 from taixable_copilot.db import repository as repo
 from taixable_copilot.guardrails import validate_citations
+from taixable_copilot.llm import narrate_assessment
 from taixable_copilot.memo import render_memo
 from taixable_copilot.obligations import Assessment, assess_obligations
 
@@ -115,10 +116,16 @@ def create_app(deps: Deps) -> FastAPI:
         except LookupError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         _reject_unknown_citations(deps, assessment.citations)
-        return MemoResponse(
-            memo_markdown=render_memo(
+        markdown = render_memo(assessment, req.customer_token, deps.citation_index)
+        narrative = None
+        if req.narrate:
+            narrative = narrate_assessment(
                 assessment, req.customer_token, deps.citation_index
             )
+        return MemoResponse(
+            memo_markdown=markdown,
+            narrative=narrative,
+            narrative_source="gemini" if narrative else "deterministic",
         )
 
     @app.post("/tools/persist_case", response_model=PersistResponse)

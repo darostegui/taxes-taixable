@@ -85,6 +85,12 @@
 
   <section class="card full">
     <h2>Compliance memo</h2>
+    <div id="aiNarrative" style="display:none; background:#0b1220; border:1px solid #1e3a8a; border-radius:8px; padding:14px; margin-bottom:12px; line-height:1.55;">
+      <div style="font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:#60a5fa; margin-bottom:6px;">
+        <span id="aiBadge">✨ AI summary (Gemini)</span>
+      </div>
+      <div id="aiNarrativeText"></div>
+    </div>
     <div id="memo"><small>Generate a memo, review it, then approve to persist the case.</small></div>
     <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
       <button class="approve" onclick="persist()">✓ Approve &amp; persist case</button>
@@ -311,6 +317,15 @@ async function memo() {
   if (!targetReached()) return;
   const { status, body } = await post("/tools/generate_memo", { profile: profile(), tax_year: year(), customer_token: document.getElementById("token").value });
   document.getElementById("memo").textContent = status === 200 ? body.memo_markdown : JSON.stringify(body);
+  const box = document.getElementById("aiNarrative");
+  const txt = document.getElementById("aiNarrativeText");
+  if (status === 200 && body.narrative) {
+    txt.textContent = body.narrative;
+    box.style.display = "block";
+  } else {
+    txt.textContent = "";
+    box.style.display = "none";
+  }
 }
 
 async function persist() {
