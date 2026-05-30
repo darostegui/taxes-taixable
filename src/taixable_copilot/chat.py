@@ -124,6 +124,151 @@ _SYSTEM_INSTRUCTION = (
 
 _DEFAULT_MODEL = "gemini-3-flash-preview"
 
+# Display names for the languages the advisor can answer in. Keys are the codes
+# the UI sends; the value is what we tell the model to write in.
+_LANGUAGE_NAMES = {
+    "en": "English",
+    "es": "Spanish (Español)",
+    "fr": "French (Français)",
+    "de": "German (Deutsch)",
+    "ru": "Russian (Русский)",
+    "nl": "Dutch (Nederlands)",
+    "zh": "Chinese, Simplified (简体中文)",
+    "ar": "Arabic (العربية)",
+}
+
+# Localized UI fallbacks for when the model is offline/unreachable. These carry
+# NO tax facts, so translating them does not touch the no-hallucination contract.
+_FALLBACKS: dict[str, dict[str, str]] = {
+    "offline": {
+        "en": (
+            "The AI advisor is currently offline. Please use the structured form "
+            "to allocate days across countries and add income — it produces the "
+            "same cited assessment."
+        ),
+        "es": (
+            "El asesor con IA no está disponible en este momento. Utilice el "
+            "formulario estructurado para asignar días por país y añadir ingresos: "
+            "genera la misma evaluación con fuentes citadas."
+        ),
+        "fr": (
+            "Le conseiller IA est actuellement hors ligne. Veuillez utiliser le "
+            "formulaire structuré pour répartir les jours par pays et ajouter les "
+            "revenus : il produit la même évaluation sourcée."
+        ),
+        "de": (
+            "Der KI-Berater ist derzeit offline. Bitte nutzen Sie das strukturierte "
+            "Formular, um Tage auf Länder zu verteilen und Einkünfte hinzuzufügen – "
+            "es liefert dieselbe belegte Einschätzung."
+        ),
+        "ru": (
+            "ИИ-консультант сейчас недоступен. Воспользуйтесь структурированной "
+            "формой, чтобы распределить дни по странам и добавить доходы — она даёт "
+            "ту же оценку со ссылками на источники."
+        ),
+        "nl": (
+            "De AI-adviseur is momenteel offline. Gebruik het gestructureerde "
+            "formulier om dagen over landen te verdelen en inkomsten toe te voegen — "
+            "het levert dezelfde onderbouwde beoordeling."
+        ),
+        "zh": (
+            "AI 顾问当前不可用。请使用结构化表单按国家分配天数并添加收入——"
+            "它会生成同样带来源引用的评估。"
+        ),
+        "ar": (
+            "مستشار الذكاء الاصطناعي غير متاح حاليًا. يُرجى استخدام النموذج المنظَّم "
+            "لتوزيع الأيام على البلدان وإضافة الدخل، فهو ينتج التقييم نفسه مع ذكر "
+            "المصادر."
+        ),
+    },
+    "error": {
+        "en": (
+            "Sorry — I couldn't reach the AI advisor just now. Please try again, or "
+            "use the structured form for an immediate cited assessment."
+        ),
+        "es": (
+            "Lo sentimos: no se ha podido contactar con el asesor con IA en este "
+            "momento. Inténtelo de nuevo o utilice el formulario estructurado para "
+            "obtener una evaluación citada al instante."
+        ),
+        "fr": (
+            "Désolé — impossible de joindre le conseiller IA pour le moment. "
+            "Réessayez ou utilisez le formulaire structuré pour une évaluation "
+            "sourcée immédiate."
+        ),
+        "de": (
+            "Entschuldigung – der KI-Berater ist gerade nicht erreichbar. Bitte "
+            "versuchen Sie es erneut oder nutzen Sie das strukturierte Formular für "
+            "eine sofortige belegte Einschätzung."
+        ),
+        "ru": (
+            "Извините — не удалось связаться с ИИ-консультантом. Попробуйте ещё раз "
+            "или воспользуйтесь структурированной формой для мгновенной оценки со "
+            "ссылками."
+        ),
+        "nl": (
+            "Sorry — de AI-adviseur is nu niet bereikbaar. Probeer het opnieuw of "
+            "gebruik het gestructureerde formulier voor een directe onderbouwde "
+            "beoordeling."
+        ),
+        "zh": (
+            "抱歉，暂时无法连接 AI 顾问。请重试，或使用结构化表单立即获取"
+            "带来源的评估。"
+        ),
+        "ar": (
+            "عذرًا — تعذّر الوصول إلى مستشار الذكاء الاصطناعي الآن. حاول مرة أخرى أو "
+            "استخدم النموذج المنظَّم للحصول على تقييم موثَّق فوري."
+        ),
+    },
+    "more_detail": {
+        "en": "Could you share a little more detail so I can assess your situation?",
+        "es": "¿Podría darme algún detalle más para poder evaluar su situación?",
+        "fr": (
+            "Pourriez-vous me donner un peu plus de détails afin que je puisse "
+            "évaluer votre situation ?"
+        ),
+        "de": (
+            "Könnten Sie mir noch ein paar Details nennen, damit ich Ihre Situation "
+            "einschätzen kann?"
+        ),
+        "ru": (
+            "Не могли бы вы добавить немного деталей, чтобы я мог оценить вашу "
+            "ситуацию?"
+        ),
+        "nl": "Kunt u iets meer details geven zodat ik uw situatie kan beoordelen?",
+        "zh": "您能否再提供一些细节，以便我评估您的情况？",
+        "ar": "هل يمكنك تقديم مزيد من التفاصيل حتى أتمكّن من تقييم وضعك؟",
+    },
+}
+
+
+def _norm_lang(language: str) -> str:
+    code = (language or "en").lower()
+    return code if code in _LANGUAGE_NAMES else "en"
+
+
+def _fallback(key: str, language: str) -> str:
+    table = _FALLBACKS[key]
+    return table.get(_norm_lang(language), table["en"])
+
+
+def _language_directive(language: str) -> str:
+    code = _norm_lang(language)
+    if code == "en":
+        return ""
+    name = _LANGUAGE_NAMES[code]
+    return (
+        "\n\nLANGUAGE: Write your ENTIRE reply to the user in " + name + ". "
+        "Translate all explanatory prose, headings and labels into that language. "
+        "Keep the following UNCHANGED and do NOT translate them: citation "
+        "identifiers (e.g. ES#residency-183, ES-UK#art14), statute, treaty and "
+        "regime names together with their article numbers, official source URLs, "
+        "all numeric figures, percentages, dates and ISO currency codes. Use that "
+        "language's number and date formatting conventions. Every no-hallucination "
+        "rule above still applies — translating a cited fact is allowed, inventing "
+        "one is not."
+    )
+
 _TOOL_DOC = (
     "Run the deterministic cross-border tax engine to compute obligations. Call "
     "this ONLY once you know the days per country (summing to 365/366) and the "
@@ -398,6 +543,7 @@ def chat(
     history: list[dict],
     message: str,
     tax_year: int = 2025,
+    language: str = "en",
 ) -> dict[str, Any]:
     """Run one conversational turn. Returns reply text, tool-use flag, assessment.
 
@@ -408,11 +554,7 @@ def chat(
     client = _make_client()
     if client is None:
         return {
-            "reply": (
-                "The AI advisor is currently offline. Please use the structured "
-                "form to allocate days across countries and add income — it "
-                "produces the same cited assessment."
-            ),
+            "reply": _fallback("offline", language),
             "available": False,
             "used_tool": False,
             "used_search": False,
@@ -431,7 +573,7 @@ def chat(
             model=model,
             contents=_to_contents(history, message),
             config=types.GenerateContentConfig(
-                system_instruction=_SYSTEM_INSTRUCTION,
+                system_instruction=_SYSTEM_INSTRUCTION + _language_directive(language),
                 tools=[assess_tool, search_tool],
                 temperature=0.2,
                 thinking_config=types.ThinkingConfig(thinking_budget=0),
@@ -440,11 +582,7 @@ def chat(
         reply = (resp.text or "").strip()
     except Exception:  # noqa: BLE001 - network/model/quota error → graceful message
         return {
-            "reply": (
-                "Sorry — I couldn't reach the AI advisor just now. Please try "
-                "again, or use the structured form for an immediate cited "
-                "assessment."
-            ),
+            "reply": _fallback("error", language),
             "available": False,
             "used_tool": False,
             "used_search": False,
@@ -454,8 +592,7 @@ def chat(
         }
 
     return {
-        "reply": reply
-        or "Could you share a little more detail so I can assess your situation?",
+        "reply": reply or _fallback("more_detail", language),
         "available": True,
         "used_tool": "assessment" in captured,
         "used_search": captured_search["used"],

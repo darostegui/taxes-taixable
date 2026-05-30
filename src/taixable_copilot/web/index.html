@@ -43,6 +43,19 @@
     font-size:11px; color:#cfe0ff; background:rgba(94,155,255,.12);
     border:1px solid rgba(94,155,255,.35); border-radius:999px; padding:4px 10px; white-space:nowrap;
   }
+  .langwrap { display:flex; align-items:center; gap:6px; }
+  .langwrap .globe { font-size:14px; line-height:1; opacity:.85; }
+  #langSel {
+    width:auto; padding:6px 26px 6px 10px; font-size:12px; border-radius:999px;
+    background:var(--bg2) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 9px center;
+    -webkit-appearance:none; appearance:none; cursor:pointer;
+  }
+  html[dir="rtl"] header { flex-direction:row-reverse; }
+  html[dir="rtl"] .trust { margin-left:0; margin-right:auto; }
+  html[dir="rtl"] .row { direction:rtl; }
+  html[dir="rtl"] .msg.user { flex-direction:row-reverse; }
+  html[dir="rtl"] .md table { direction:rtl; }
+  html[dir="rtl"] #langSel { padding:6px 10px 6px 26px; background-position:left 9px center; }
   main { max-width:1080px; margin:0 auto; padding:24px; display:grid; gap:20px; grid-template-columns:1fr 1fr; }
   .card {
     background:linear-gradient(180deg, var(--card), var(--card2));
@@ -213,92 +226,740 @@
 <header>
   <div class="logo">t</div>
   <div>
-    <h1>t<span>AI</span>xable — Virtual Tax Advisor</h1>
-    <p>Cross-border tax obligations copilot for global mobility · decision support, not autonomous advice</p>
+    <h1 data-i18n-html="h1">t<span>AI</span>xable — Virtual Tax Advisor</h1>
+    <p data-i18n="tagline">Cross-border tax obligations copilot for global mobility · decision support, not autonomous advice</p>
   </div>
   <div class="trust">
-    <span class="badge">✓ Every figure cited</span>
-    <span class="badge">✓ No hallucination</span>
-    <span class="badge">⚡ Elastic hybrid search</span>
-    <span class="badge">ES · UK · DE + treaties</span>
+    <span class="badge" data-i18n="badge_cited">✓ Every figure cited</span>
+    <span class="badge" data-i18n="badge_nohall">✓ No hallucination</span>
+    <span class="badge" data-i18n="badge_elastic">⚡ Elastic hybrid search</span>
+    <span class="badge" data-i18n="badge_cov">ES · UK · DE + treaties</span>
+    <span class="langwrap"><span class="globe">🌐</span><select id="langSel" aria-label="Language" title="Language" onchange="applyLang(this.value)">
+      <option value="en">English</option>
+      <option value="es">Español</option>
+      <option value="fr">Français</option>
+      <option value="de">Deutsch</option>
+      <option value="ru">Русский</option>
+      <option value="nl">Nederlands</option>
+      <option value="zh">中文</option>
+      <option value="ar">العربية</option>
+    </select></span>
   </div>
 </header>
 <main>
   <section class="card advisor full">
-    <h2>💬 Ask the advisor
+    <h2><span data-i18n="ask">💬 Ask the advisor</span>
       <span class="live"><span class="dot"></span> <span id="liveStatus">Gemini · grounded on the tax engine</span></span>
     </h2>
     <div id="coveragePanel" class="coverage" style="display:none"></div>
     <div id="chatLog"></div>
-    <div class="chips" id="chatChips">
-      <span class="chip" onclick="sendExample(this)">I work remotely from Spain for a UK employer — where do I pay tax?</span>
-      <span class="chip" onclick="sendExample(this)">How is my German pension taxed if I move to the UK?</span>
-      <span class="chip" onclick="sendExample(this)">90 days UK, 185 in Germany, rest in Spain. 62000 EUR salary in Germany.</span>
-      <span class="chip" onclick="sendExample(this)">Can I be taxed twice on dividends between Spain and the UK?</span>
-    </div>
+    <div class="chips" id="chatChips"></div>
     <div class="chatInputRow">
-      <textarea id="chatInput" placeholder="Describe the client's situation — days per country, income sources…" rows="1"
+      <textarea id="chatInput" data-i18n-ph="chat_ph" placeholder="Describe the client's situation — days per country, income sources…" rows="1"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
-      <button class="primary" id="chatSend" onclick="sendChat()">Send</button>
+      <button class="primary" id="chatSend" data-i18n="send" onclick="sendChat()">Send</button>
     </div>
   </section>
 
   <section class="card">
-    <h2>📋 Structured intake</h2>
-    <label>Customer token</label>
+    <h2 data-i18n="intake">📋 Structured intake</h2>
+    <label data-i18n="token">Customer token</label>
     <input id="token" value="CUST-DEMO01" />
-    <label>Tax year</label>
+    <label data-i18n="year">Tax year</label>
     <input id="year" type="number" value="2025" oninput="render()" />
 
-    <label>Days of presence by country (must total <span id="targetLbl">365</span>)</label>
+    <label><span data-i18n="days_pre">Days of presence by country (must total </span><span id="targetLbl">365</span><span data-i18n="days_post">)</span></label>
     <div id="countries"></div>
 
     <div class="ctry" id="addRow">
       <div class="row">
-        <div><label>Add country</label><select id="addCountry"></select></div>
-        <div><label>Days</label><input id="addDays" type="number" min="0" step="1" /></div>
-        <button class="ghost" id="addBtn" onclick="addCountry()">+ Add country</button>
+        <div><label data-i18n="add_country">Add country</label><select id="addCountry"></select></div>
+        <div><label data-i18n="days">Days</label><input id="addDays" type="number" min="0" step="1" /></div>
+        <button class="ghost" id="addBtn" data-i18n="add_btn" onclick="addCountry()">+ Add country</button>
       </div>
     </div>
 
     <div class="bar"><div id="barFill" style="width:0%"></div></div>
     <div class="meter">
-      <span>Allocated: <b id="totalDays">0</b> / <span id="targetVal">365</span></span>
+      <span><span data-i18n="allocated">Allocated:</span> <b id="totalDays">0</b> / <span id="targetVal">365</span></span>
       <span id="dayStatus" class="warn">—</span>
     </div>
 
-    <label>Foreign income</label>
+    <label data-i18n="income">Foreign income</label>
     <div id="incomes"></div>
-    <button class="ghost" onclick="addIncome()">+ Add income</button>
+    <button class="ghost" data-i18n="add_income" onclick="addIncome()">+ Add income</button>
 
     <div style="margin-top:14px; display:flex; gap:8px;">
-      <button class="primary" id="assessBtn" onclick="assess()">Assess obligations</button>
-      <button class="primary" id="memoBtn" onclick="memo()">Generate memo</button>
+      <button class="primary" id="assessBtn" data-i18n="assess_btn" onclick="assess()">Assess obligations</button>
+      <button class="primary" id="memoBtn" data-i18n="memo_btn" onclick="memo()">Generate memo</button>
     </div>
   </section>
 
   <section class="card">
-    <h2>📊 Assessment</h2>
-    <div id="assessment"><small>Allocate days across 1–3 countries (summing to 365), then run an assessment.</small></div>
+    <h2 data-i18n="assessment">📊 Assessment</h2>
+    <div id="assessment"><small data-i18n="assessment_ph">Allocate days across 1–3 countries (summing to 365), then run an assessment.</small></div>
   </section>
 
   <section class="card full">
-    <h2>📄 Compliance memo</h2>
+    <h2 data-i18n="memo">📄 Compliance memo</h2>
     <div id="aiNarrative" style="display:none; background:#0b1220; border:1px solid #1e3a8a; border-radius:8px; padding:14px; margin-bottom:12px; line-height:1.55;">
       <div style="font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:#60a5fa; margin-bottom:6px;">
-        <span id="aiBadge">✨ AI summary (Gemini)</span>
+        <span id="aiBadge" data-i18n="ai_badge">✨ AI summary (Gemini)</span>
       </div>
       <div id="aiNarrativeText"></div>
     </div>
-    <div id="memo"><small>Generate a memo, review it, then approve to persist the case.</small></div>
+    <div id="memo"><small data-i18n="memo_ph">Generate a memo, review it, then approve to persist the case.</small></div>
     <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
-      <button class="approve" onclick="persist()">✓ Approve &amp; persist case</button>
+      <button class="approve" data-i18n="approve" onclick="persist()">✓ Approve &amp; persist case</button>
       <span id="persistMsg" class="danger"></span>
     </div>
   </section>
 </main>
 
 <script>
+// ── Internationalisation (UI chrome only) ──────────────────────────────────
+// The advisor's substantive replies are localised server-side by Gemini under a
+// strict directive that keeps citation IDs, statute/treaty names + article
+// numbers, source URLs and every numeric figure UNCHANGED. This dictionary only
+// translates the surrounding interface so the no-hallucination contract holds in
+// every language. Missing keys fall back to English.
+const I18N = {
+  en: {
+    title: "tAIxable — Virtual Tax Advisor",
+    h1: "t<span>AI</span>xable — Virtual Tax Advisor",
+    tagline: "Cross-border tax obligations copilot for global mobility · decision support, not autonomous advice",
+    badge_cited: "✓ Every figure cited", badge_nohall: "✓ No hallucination",
+    badge_elastic: "⚡ Elastic hybrid search", badge_cov: "ES · UK · DE + treaties",
+    ask: "💬 Ask the advisor", live_default: "Gemini · grounded on the tax engine",
+    live_elastic: "Gemini · Elastic {r}",
+    chat_ph: "Describe the client's situation — days per country, income sources…",
+    send: "Send",
+    greeting: "Hello — I'm your cross-border tax advisor. Tell me where the client spent the year (days per country) and any income sources, and I'll work out residence and obligations with cited legislation. I'll ask if I need more detail.",
+    dc1: "I work remotely from Spain for a UK employer — where do I pay tax?",
+    dc2: "How is my German pension taxed if I move to the UK?",
+    dc3: "90 days UK, 185 in Germany, rest in Spain. 62000 EUR salary in Germany.",
+    dc4: "Can I be taxed twice on dividends between Spain and the UK?",
+    intake: "📋 Structured intake", token: "Customer token", year: "Tax year",
+    days_pre: "Days of presence by country (must total ", days_post: ")",
+    add_country: "Add country", days: "Days", add_btn: "+ Add country",
+    allocated: "Allocated:", income: "Foreign income", add_income: "+ Add income",
+    assess_btn: "Assess obligations", memo_btn: "Generate memo",
+    assessment: "📊 Assessment",
+    assessment_ph: "Allocate days across 1–3 countries (summing to 365), then run an assessment.",
+    memo: "📄 Compliance memo", ai_badge: "✨ AI summary (Gemini)",
+    memo_ph: "Generate a memo, review it, then approve to persist the case.",
+    approve: "✓ Approve & persist case",
+    country: "Country", inc_type: "Type", inc_source: "Source", inc_amount: "Amount",
+    thinking: "Thinking…",
+    err_unavail: "⚠️ The advisor is unavailable right now. Please try again.",
+    err_unreach: "⚠️ Couldn't reach the advisor. Check your connection and retry.",
+    run_first: "Run an assessment first.", persisted: "✓ Persisted as case {id}",
+    st_ready: "✓ {n} days across {c}", w_country: "country", w_countries: "countries",
+    st_over: "Over by {n} — remove {n} day(s)",
+    st_add: "Add {n} more day(s)", st_add_dot: "Allocate days to begin",
+    fc_engine: "Engine result — cited", fc_primary: "Primary residence:", fc_conf: "confidence:",
+    conf_vh: "Very high", conf_h: "High", conf_m: "Moderate", conf_i: "Indicative",
+    th_income: "Income", th_src: "Src", th_art: "Art.", th_rate: "Rate", th_relief: "Relief",
+    fc_deadlines: "Deadlines:", fc_sources: "Sources",
+    not_modelled: "not modelled", not_modelled_title: "Treaty pair not curated — no rate asserted (fail-closed).",
+    tax_base: "Tax base:",
+    est_head: "Where you pay (approximate)", est_pill: "illustrative",
+    role_residence: "residence", role_source: "source",
+    amount_ni: "Amount not estimated", fig_net: "net", fig_gross: "gross",
+    fig_ftc: "foreign-tax credit", fig_due: "due at source",
+    leg_head: "Supporting legislation — curated summary, verify at source", leg_pill: "reference",
+    read_source: "Read source ↗",
+    ev_passages: "Elastic evidence · {n} passage(s)",
+    ev_hint: "Semantic + keyword search over the curated tax-knowledge index — supporting context only; all figures come from the engine.",
+    verify: "🔍 Verify in source", searching: "Searching…",
+    hl_failclosed: "This citation is not in the engine allowlist — refused (fail-closed).",
+    hl_nomatch: "No matching passage available.", hl_loaderr: "Couldn't load the source passage.",
+    hl_elastic: "Elastic highlight", hl_corpus: "offline corpus", hl_by: "retrieved by citation_id · ",
+    cov_title: "📚 Knowledge coverage", cov_corpus: "offline corpus",
+    cov_live: "live Elastic aggregations", cov_docs: "indexed passages",
+    cov_jur: "Jurisdictions", cov_treaties: "Treaty pairs", cov_ctypes: "Content types",
+    tool_engine: "🔢 Tax engine", tool_elastic: "⚡ Elastic search",
+    s_beckham: "What is the Beckham regime and could it apply to me?",
+    s_family: "Are there tax benefits for large families?",
+    s_family_c: "What family tax benefits exist in {c}?",
+    s_golden: "Has the golden visa route changed?",
+    s_wealth: "How does wealth tax work here?",
+    s_wealth_c: "How does wealth tax work in {c}?",
+    s_region: "Do regional taxes change my bill?",
+    s_region_c: "How do regional taxes differ within {c}?",
+    s_pension: "How is my pension taxed if I relocate?",
+    s_pension_c: "How are pensions taxed in {c}?",
+    s_treaty: "Which treaty article covers this income?",
+    s_special: "Is there a special expat regime I should know about?",
+    s_special_c: "Is there a special expat regime in {c}?",
+    s_save: "How could I legally reduce my tax?",
+    s_save_c: "How could I legally save tax in {c}?",
+    s_disc_c: "Are there any tax discounts in {c}?",
+    s_where: "So where exactly do I need to pay?",
+    s_deadlines: "What are the filing deadlines?",
+  },
+};
+// Localised overlays. Any key absent here inherits the English string above.
+I18N.es = {
+  title: "tAIxable — Asesor Fiscal Virtual",
+  h1: "t<span>AI</span>xable — Asesor Fiscal Virtual",
+  tagline: "Copiloto de obligaciones fiscales transfronterizas para movilidad global · apoyo a la decisión, no asesoramiento autónomo",
+  badge_cited: "✓ Cada cifra citada", badge_nohall: "✓ Sin alucinaciones",
+  badge_elastic: "⚡ Búsqueda híbrida Elastic", badge_cov: "ES · UK · DE + tratados",
+  ask: "💬 Pregunta al asesor", live_default: "Gemini · basado en el motor fiscal",
+  live_elastic: "Gemini · Elastic {r}",
+  chat_ph: "Describe la situación del cliente — días por país, fuentes de ingresos…",
+  send: "Enviar",
+  greeting: "Hola — soy tu asesor fiscal transfronterizo. Dime dónde pasó el año el cliente (días por país) y sus fuentes de ingresos, y determinaré la residencia y las obligaciones con legislación citada. Preguntaré si necesito más detalle.",
+  dc1: "Trabajo en remoto desde España para un empleador del Reino Unido — ¿dónde pago impuestos?",
+  dc2: "¿Cómo tributa mi pensión alemana si me mudo al Reino Unido?",
+  dc3: "90 días en RU, 185 en Alemania, el resto en España. 62000 EUR de salario en Alemania.",
+  dc4: "¿Pueden gravarme dos veces los dividendos entre España y el Reino Unido?",
+  intake: "📋 Datos estructurados", token: "Token del cliente", year: "Ejercicio fiscal",
+  days_pre: "Días de presencia por país (deben sumar ", days_post: ")",
+  add_country: "Añadir país", days: "Días", add_btn: "+ Añadir país",
+  allocated: "Asignados:", income: "Ingresos extranjeros", add_income: "+ Añadir ingreso",
+  assess_btn: "Evaluar obligaciones", memo_btn: "Generar informe",
+  assessment: "📊 Evaluación",
+  assessment_ph: "Reparte los días entre 1–3 países (que sumen 365) y luego ejecuta una evaluación.",
+  memo: "📄 Informe de cumplimiento", ai_badge: "✨ Resumen IA (Gemini)",
+  memo_ph: "Genera un informe, revísalo y apruébalo para guardar el caso.",
+  approve: "✓ Aprobar y guardar caso",
+  country: "País", inc_type: "Tipo", inc_source: "Fuente", inc_amount: "Importe",
+  thinking: "Pensando…",
+  err_unavail: "⚠️ El asesor no está disponible ahora mismo. Inténtalo de nuevo.",
+  err_unreach: "⚠️ No se pudo contactar con el asesor. Revisa tu conexión e inténtalo de nuevo.",
+  run_first: "Ejecuta primero una evaluación.", persisted: "✓ Guardado como caso {id}",
+  st_ready: "✓ {n} días en {c}", w_country: "país", w_countries: "países",
+  st_over: "Sobran {n} — elimina {n} día(s)",
+  st_add: "Añade {n} día(s) más", st_add_dot: "Asigna días para empezar",
+  fc_engine: "Resultado del motor — citado", fc_primary: "Residencia principal:", fc_conf: "confianza:",
+  conf_vh: "Muy alta", conf_h: "Alta", conf_m: "Moderada", conf_i: "Indicativa",
+  th_income: "Ingreso", th_src: "Fuente", th_art: "Art.", th_rate: "Tipo", th_relief: "Alivio",
+  fc_deadlines: "Plazos:", fc_sources: "Fuentes",
+  not_modelled: "no modelado", not_modelled_title: "Par de tratado no curado — no se afirma ningún tipo (fail-closed).",
+  tax_base: "Base imponible:",
+  est_head: "Dónde pagas (aproximado)", est_pill: "ilustrativo",
+  role_residence: "residencia", role_source: "fuente",
+  amount_ni: "Importe no estimado", fig_net: "neto", fig_gross: "bruto",
+  fig_ftc: "crédito por impuesto extranjero", fig_due: "debido en la fuente",
+  leg_head: "Legislación de apoyo — resumen curado, verifica en la fuente", leg_pill: "referencia",
+  read_source: "Ver fuente ↗",
+  ev_passages: "Evidencia Elastic · {n} pasaje(s)",
+  ev_hint: "Búsqueda semántica + por palabras clave sobre el índice fiscal curado — solo contexto de apoyo; todas las cifras vienen del motor.",
+  verify: "🔍 Verificar en la fuente", searching: "Buscando…",
+  hl_failclosed: "Esta cita no está en la lista del motor — rechazada (fail-closed).",
+  hl_nomatch: "No hay pasaje coincidente disponible.", hl_loaderr: "No se pudo cargar el pasaje fuente.",
+  hl_elastic: "resaltado Elastic", hl_corpus: "corpus sin conexión", hl_by: "recuperado por citation_id · ",
+  cov_title: "📚 Cobertura de conocimiento", cov_corpus: "corpus sin conexión",
+  cov_live: "agregaciones Elastic en vivo", cov_docs: "pasajes indexados",
+  cov_jur: "Jurisdicciones", cov_treaties: "Pares de tratados", cov_ctypes: "Tipos de contenido",
+  tool_engine: "🔢 Motor fiscal", tool_elastic: "⚡ Búsqueda Elastic",
+  s_beckham: "¿Qué es el régimen Beckham y podría aplicarme?",
+  s_family: "¿Hay beneficios fiscales para familias numerosas?",
+  s_family_c: "¿Qué beneficios fiscales familiares existen en {c}?",
+  s_golden: "¿Ha cambiado la vía de la golden visa?",
+  s_wealth: "¿Cómo funciona el impuesto sobre el patrimonio aquí?",
+  s_wealth_c: "¿Cómo funciona el impuesto sobre el patrimonio en {c}?",
+  s_region: "¿Los impuestos regionales cambian mi factura?",
+  s_region_c: "¿Cómo difieren los impuestos regionales dentro de {c}?",
+  s_pension: "¿Cómo tributa mi pensión si me traslado?",
+  s_pension_c: "¿Cómo tributan las pensiones en {c}?",
+  s_treaty: "¿Qué artículo del tratado cubre estos ingresos?",
+  s_special: "¿Hay un régimen especial para expatriados que deba conocer?",
+  s_special_c: "¿Hay un régimen especial para expatriados en {c}?",
+  s_save: "¿Cómo podría reducir legalmente mis impuestos?",
+  s_save_c: "¿Cómo podría ahorrar impuestos legalmente en {c}?",
+  s_disc_c: "¿Hay algún descuento fiscal en {c}?",
+  s_where: "Entonces, ¿dónde exactamente tengo que pagar?",
+  s_deadlines: "¿Cuáles son los plazos de presentación?",
+};
+I18N.fr = {
+  title: "tAIxable — Conseiller Fiscal Virtuel",
+  h1: "t<span>AI</span>xable — Conseiller Fiscal Virtuel",
+  tagline: "Copilote des obligations fiscales transfrontalières pour la mobilité mondiale · aide à la décision, pas un conseil autonome",
+  badge_cited: "✓ Chaque chiffre cité", badge_nohall: "✓ Sans hallucination",
+  badge_elastic: "⚡ Recherche hybride Elastic", badge_cov: "ES · UK · DE + conventions",
+  ask: "💬 Interroger le conseiller", live_default: "Gemini · fondé sur le moteur fiscal",
+  live_elastic: "Gemini · Elastic {r}",
+  chat_ph: "Décrivez la situation du client — jours par pays, sources de revenus…",
+  send: "Envoyer",
+  greeting: "Bonjour — je suis votre conseiller fiscal transfrontalier. Indiquez-moi où le client a passé l'année (jours par pays) et ses sources de revenus, et je déterminerai la résidence et les obligations avec la législation citée. Je demanderai s'il me faut plus de détails.",
+  dc1: "Je travaille à distance depuis l'Espagne pour un employeur britannique — où dois-je payer l'impôt ?",
+  dc2: "Comment ma pension allemande est-elle imposée si je m'installe au Royaume-Uni ?",
+  dc3: "90 jours au RU, 185 en Allemagne, le reste en Espagne. 62000 EUR de salaire en Allemagne.",
+  dc4: "Puis-je être imposé deux fois sur les dividendes entre l'Espagne et le Royaume-Uni ?",
+  intake: "📋 Saisie structurée", token: "Jeton client", year: "Année fiscale",
+  days_pre: "Jours de présence par pays (doivent totaliser ", days_post: ")",
+  add_country: "Ajouter un pays", days: "Jours", add_btn: "+ Ajouter un pays",
+  allocated: "Alloués :", income: "Revenus étrangers", add_income: "+ Ajouter un revenu",
+  assess_btn: "Évaluer les obligations", memo_btn: "Générer le mémo",
+  assessment: "📊 Évaluation",
+  assessment_ph: "Répartissez les jours entre 1 à 3 pays (total 365), puis lancez une évaluation.",
+  memo: "📄 Mémo de conformité", ai_badge: "✨ Résumé IA (Gemini)",
+  memo_ph: "Générez un mémo, vérifiez-le, puis approuvez pour enregistrer le dossier.",
+  approve: "✓ Approuver et enregistrer le dossier",
+  country: "Pays", inc_type: "Type", inc_source: "Source", inc_amount: "Montant",
+  thinking: "Réflexion…",
+  err_unavail: "⚠️ Le conseiller est indisponible pour le moment. Veuillez réessayer.",
+  err_unreach: "⚠️ Impossible de joindre le conseiller. Vérifiez votre connexion et réessayez.",
+  run_first: "Lancez d'abord une évaluation.", persisted: "✓ Enregistré comme dossier {id}",
+  st_ready: "✓ {n} jours sur {c}", w_country: "pays", w_countries: "pays",
+  st_over: "Excédent de {n} — retirez {n} jour(s)",
+  st_add: "Ajoutez {n} jour(s) de plus", st_add_dot: "Allouez des jours pour commencer",
+  fc_engine: "Résultat du moteur — cité", fc_primary: "Résidence principale :", fc_conf: "confiance :",
+  conf_vh: "Très élevée", conf_h: "Élevée", conf_m: "Modérée", conf_i: "Indicative",
+  th_income: "Revenu", th_src: "Src", th_art: "Art.", th_rate: "Taux", th_relief: "Dégrèvement",
+  fc_deadlines: "Échéances :", fc_sources: "Sources",
+  not_modelled: "non modélisé", not_modelled_title: "Paire de convention non curatée — aucun taux affirmé (fail-closed).",
+  tax_base: "Base imposable :",
+  est_head: "Où vous payez (approximatif)", est_pill: "indicatif",
+  role_residence: "résidence", role_source: "source",
+  amount_ni: "Montant non estimé", fig_net: "net", fig_gross: "brut",
+  fig_ftc: "crédit d'impôt étranger", fig_due: "dû à la source",
+  leg_head: "Législation à l'appui — résumé curaté, vérifiez à la source", leg_pill: "référence",
+  read_source: "Voir la source ↗",
+  ev_passages: "Preuves Elastic · {n} passage(s)",
+  ev_hint: "Recherche sémantique + mots-clés sur l'index fiscal curaté — contexte d'appui uniquement ; tous les chiffres proviennent du moteur.",
+  verify: "🔍 Vérifier à la source", searching: "Recherche…",
+  hl_failclosed: "Cette citation n'est pas dans la liste du moteur — refusée (fail-closed).",
+  hl_nomatch: "Aucun passage correspondant disponible.", hl_loaderr: "Impossible de charger le passage source.",
+  hl_elastic: "surlignage Elastic", hl_corpus: "corpus hors ligne", hl_by: "récupéré par citation_id · ",
+  cov_title: "📚 Couverture des connaissances", cov_corpus: "corpus hors ligne",
+  cov_live: "agrégations Elastic en direct", cov_docs: "passages indexés",
+  cov_jur: "Juridictions", cov_treaties: "Paires de conventions", cov_ctypes: "Types de contenu",
+  tool_engine: "🔢 Moteur fiscal", tool_elastic: "⚡ Recherche Elastic",
+  s_beckham: "Qu'est-ce que le régime Beckham et pourrait-il s'appliquer à moi ?",
+  s_family: "Existe-t-il des avantages fiscaux pour les familles nombreuses ?",
+  s_family_c: "Quels avantages fiscaux familiaux existent en {c} ?",
+  s_golden: "La voie du golden visa a-t-elle changé ?",
+  s_wealth: "Comment fonctionne l'impôt sur la fortune ici ?",
+  s_wealth_c: "Comment fonctionne l'impôt sur la fortune en {c} ?",
+  s_region: "Les impôts régionaux changent-ils ma facture ?",
+  s_region_c: "Comment les impôts régionaux diffèrent-ils en {c} ?",
+  s_pension: "Comment ma pension est-elle imposée si je déménage ?",
+  s_pension_c: "Comment les pensions sont-elles imposées en {c} ?",
+  s_treaty: "Quel article de la convention couvre ce revenu ?",
+  s_special: "Existe-t-il un régime spécial pour expatriés à connaître ?",
+  s_special_c: "Existe-t-il un régime spécial pour expatriés en {c} ?",
+  s_save: "Comment réduire légalement mon impôt ?",
+  s_save_c: "Comment économiser légalement de l'impôt en {c} ?",
+  s_disc_c: "Y a-t-il des réductions d'impôt en {c} ?",
+  s_where: "Alors, où dois-je exactement payer ?",
+  s_deadlines: "Quelles sont les échéances de déclaration ?",
+};
+I18N.de = {
+  title: "tAIxable — Virtueller Steuerberater",
+  h1: "t<span>AI</span>xable — Virtueller Steuerberater",
+  tagline: "Copilot für grenzüberschreitende Steuerpflichten bei globaler Mobilität · Entscheidungshilfe, keine autonome Beratung",
+  badge_cited: "✓ Jede Zahl belegt", badge_nohall: "✓ Keine Halluzination",
+  badge_elastic: "⚡ Elastic-Hybridsuche", badge_cov: "ES · UK · DE + Abkommen",
+  ask: "💬 Berater fragen", live_default: "Gemini · gestützt auf die Steuer-Engine",
+  live_elastic: "Gemini · Elastic {r}",
+  chat_ph: "Beschreiben Sie die Situation des Kunden — Tage pro Land, Einkommensquellen…",
+  send: "Senden",
+  greeting: "Hallo — ich bin Ihr grenzüberschreitender Steuerberater. Sagen Sie mir, wo der Kunde das Jahr verbracht hat (Tage pro Land) und welche Einkommensquellen es gibt, und ich ermittle Ansässigkeit und Pflichten mit belegter Gesetzgebung. Ich frage nach, falls ich mehr Details brauche.",
+  dc1: "Ich arbeite remote aus Spanien für einen britischen Arbeitgeber — wo zahle ich Steuern?",
+  dc2: "Wie wird meine deutsche Rente besteuert, wenn ich ins Vereinigte Königreich ziehe?",
+  dc3: "90 Tage UK, 185 in Deutschland, Rest in Spanien. 62000 EUR Gehalt in Deutschland.",
+  dc4: "Kann ich auf Dividenden zwischen Spanien und dem UK doppelt besteuert werden?",
+  intake: "📋 Strukturierte Erfassung", token: "Kunden-Token", year: "Steuerjahr",
+  days_pre: "Anwesenheitstage pro Land (müssen ergeben ", days_post: ")",
+  add_country: "Land hinzufügen", days: "Tage", add_btn: "+ Land hinzufügen",
+  allocated: "Zugewiesen:", income: "Ausländisches Einkommen", add_income: "+ Einkommen hinzufügen",
+  assess_btn: "Pflichten prüfen", memo_btn: "Memo erstellen",
+  assessment: "📊 Bewertung",
+  assessment_ph: "Verteilen Sie die Tage auf 1–3 Länder (Summe 365) und führen Sie dann eine Bewertung durch.",
+  memo: "📄 Compliance-Memo", ai_badge: "✨ KI-Zusammenfassung (Gemini)",
+  memo_ph: "Erstellen Sie ein Memo, prüfen Sie es und genehmigen Sie es, um den Fall zu speichern.",
+  approve: "✓ Genehmigen & Fall speichern",
+  country: "Land", inc_type: "Art", inc_source: "Quelle", inc_amount: "Betrag",
+  thinking: "Denke nach…",
+  err_unavail: "⚠️ Der Berater ist derzeit nicht verfügbar. Bitte erneut versuchen.",
+  err_unreach: "⚠️ Berater nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+  run_first: "Führen Sie zuerst eine Bewertung durch.", persisted: "✓ Als Fall {id} gespeichert",
+  st_ready: "✓ {n} Tage über {c}", w_country: "Land", w_countries: "Länder",
+  st_over: "Um {n} zu viel — entfernen Sie {n} Tag(e)",
+  st_add: "Fügen Sie {n} weitere(n) Tag(e) hinzu", st_add_dot: "Tage zuweisen, um zu beginnen",
+  fc_engine: "Engine-Ergebnis — belegt", fc_primary: "Hauptansässigkeit:", fc_conf: "Konfidenz:",
+  conf_vh: "Sehr hoch", conf_h: "Hoch", conf_m: "Moderat", conf_i: "Indikativ",
+  th_income: "Einkommen", th_src: "Quelle", th_art: "Art.", th_rate: "Satz", th_relief: "Entlastung",
+  fc_deadlines: "Fristen:", fc_sources: "Quellen",
+  not_modelled: "nicht modelliert", not_modelled_title: "Abkommenspaar nicht kuratiert — kein Satz behauptet (fail-closed).",
+  tax_base: "Bemessungsgrundlage:",
+  est_head: "Wo Sie zahlen (näherungsweise)", est_pill: "illustrativ",
+  role_residence: "Ansässigkeit", role_source: "Quelle",
+  amount_ni: "Betrag nicht geschätzt", fig_net: "netto", fig_gross: "brutto",
+  fig_ftc: "Anrechnung ausländischer Steuer", fig_due: "an der Quelle fällig",
+  leg_head: "Begleitende Gesetzgebung — kuratierte Zusammenfassung, an der Quelle prüfen", leg_pill: "Referenz",
+  read_source: "Quelle lesen ↗",
+  ev_passages: "Elastic-Belege · {n} Passage(n)",
+  ev_hint: "Semantische + Schlüsselwortsuche über den kuratierten Steuer-Wissensindex — nur unterstützender Kontext; alle Zahlen stammen aus der Engine.",
+  verify: "🔍 In Quelle prüfen", searching: "Suche…",
+  hl_failclosed: "Diese Zitat-ID ist nicht in der Engine-Allowlist — abgelehnt (fail-closed).",
+  hl_nomatch: "Keine passende Passage verfügbar.", hl_loaderr: "Quellpassage konnte nicht geladen werden.",
+  hl_elastic: "Elastic-Hervorhebung", hl_corpus: "Offline-Korpus", hl_by: "abgerufen per citation_id · ",
+  cov_title: "📚 Wissensabdeckung", cov_corpus: "Offline-Korpus",
+  cov_live: "Live-Elastic-Aggregationen", cov_docs: "indexierte Passagen",
+  cov_jur: "Jurisdiktionen", cov_treaties: "Abkommenspaare", cov_ctypes: "Inhaltstypen",
+  tool_engine: "🔢 Steuer-Engine", tool_elastic: "⚡ Elastic-Suche",
+  s_beckham: "Was ist das Beckham-Regime und könnte es auf mich zutreffen?",
+  s_family: "Gibt es Steuervorteile für kinderreiche Familien?",
+  s_family_c: "Welche familienbezogenen Steuervorteile gibt es in {c}?",
+  s_golden: "Hat sich der Golden-Visa-Weg geändert?",
+  s_wealth: "Wie funktioniert die Vermögensteuer hier?",
+  s_wealth_c: "Wie funktioniert die Vermögensteuer in {c}?",
+  s_region: "Ändern regionale Steuern meine Rechnung?",
+  s_region_c: "Wie unterscheiden sich regionale Steuern innerhalb von {c}?",
+  s_pension: "Wie wird meine Rente bei einem Umzug besteuert?",
+  s_pension_c: "Wie werden Renten in {c} besteuert?",
+  s_treaty: "Welcher Abkommensartikel deckt dieses Einkommen ab?",
+  s_special: "Gibt es ein spezielles Expat-Regime, das ich kennen sollte?",
+  s_special_c: "Gibt es ein spezielles Expat-Regime in {c}?",
+  s_save: "Wie kann ich meine Steuer legal senken?",
+  s_save_c: "Wie kann ich in {c} legal Steuern sparen?",
+  s_disc_c: "Gibt es Steuerermäßigungen in {c}?",
+  s_where: "Wo genau muss ich also zahlen?",
+  s_deadlines: "Wann sind die Abgabefristen?",
+};
+I18N.ru = {
+  title: "tAIxable — Виртуальный налоговый консультант",
+  h1: "t<span>AI</span>xable — Виртуальный налоговый консультант",
+  tagline: "Помощник по трансграничным налоговым обязательствам для глобальной мобильности · поддержка решений, не автономная консультация",
+  badge_cited: "✓ Каждая цифра с источником", badge_nohall: "✓ Без галлюцинаций",
+  badge_elastic: "⚡ Гибридный поиск Elastic", badge_cov: "ES · UK · DE + договоры",
+  ask: "💬 Спросить консультанта", live_default: "Gemini · на основе налогового движка",
+  live_elastic: "Gemini · Elastic {r}",
+  chat_ph: "Опишите ситуацию клиента — дни по странам, источники дохода…",
+  send: "Отправить",
+  greeting: "Здравствуйте — я ваш консультант по трансграничным налогам. Сообщите, где клиент провёл год (дни по странам) и источники дохода, и я определю резидентство и обязательства со ссылками на законодательство. Я уточню, если потребуется больше деталей.",
+  dc1: "Я работаю удалённо из Испании на работодателя из Великобритании — где платить налог?",
+  dc2: "Как облагается моя немецкая пенсия, если я перееду в Великобританию?",
+  dc3: "90 дней в Великобритании, 185 в Германии, остальное в Испании. Зарплата 62000 EUR в Германии.",
+  dc4: "Могут ли меня дважды обложить налогом на дивиденды между Испанией и Великобританией?",
+  intake: "📋 Структурированный ввод", token: "Токен клиента", year: "Налоговый год",
+  days_pre: "Дни присутствия по странам (должны составлять ", days_post: ")",
+  add_country: "Добавить страну", days: "Дни", add_btn: "+ Добавить страну",
+  allocated: "Распределено:", income: "Иностранный доход", add_income: "+ Добавить доход",
+  assess_btn: "Оценить обязательства", memo_btn: "Создать памятку",
+  assessment: "📊 Оценка",
+  assessment_ph: "Распределите дни по 1–3 странам (в сумме 365), затем выполните оценку.",
+  memo: "📄 Памятка о соответствии", ai_badge: "✨ Сводка ИИ (Gemini)",
+  memo_ph: "Создайте памятку, проверьте её и утвердите, чтобы сохранить дело.",
+  approve: "✓ Утвердить и сохранить дело",
+  country: "Страна", inc_type: "Тип", inc_source: "Источник", inc_amount: "Сумма",
+  thinking: "Думаю…",
+  err_unavail: "⚠️ Консультант сейчас недоступен. Пожалуйста, повторите попытку.",
+  err_unreach: "⚠️ Не удалось связаться с консультантом. Проверьте соединение и повторите.",
+  run_first: "Сначала выполните оценку.", persisted: "✓ Сохранено как дело {id}",
+  st_ready: "✓ {n} дней по {c}", w_country: "стране", w_countries: "странам",
+  st_over: "Превышение на {n} — удалите {n} дн.",
+  st_add: "Добавьте ещё {n} дн.", st_add_dot: "Распределите дни, чтобы начать",
+  fc_engine: "Результат движка — с источником", fc_primary: "Основное резидентство:", fc_conf: "уверенность:",
+  conf_vh: "Очень высокая", conf_h: "Высокая", conf_m: "Умеренная", conf_i: "Ориентировочная",
+  th_income: "Доход", th_src: "Ист.", th_art: "Ст.", th_rate: "Ставка", th_relief: "Льгота",
+  fc_deadlines: "Сроки:", fc_sources: "Источники",
+  not_modelled: "не смоделировано", not_modelled_title: "Пара договора не курирована — ставка не утверждается (fail-closed).",
+  tax_base: "Налоговая база:",
+  est_head: "Где вы платите (приблизительно)", est_pill: "иллюстративно",
+  role_residence: "резидентство", role_source: "источник",
+  amount_ni: "Сумма не оценена", fig_net: "нетто", fig_gross: "брутто",
+  fig_ftc: "зачёт иностранного налога", fig_due: "к уплате у источника",
+  leg_head: "Сопроводительное законодательство — курированная сводка, проверьте в источнике", leg_pill: "справка",
+  read_source: "Открыть источник ↗",
+  ev_passages: "Доказательства Elastic · {n} фрагм.",
+  ev_hint: "Семантический и ключевой поиск по курированному налоговому индексу — только вспомогательный контекст; все цифры из движка.",
+  verify: "🔍 Проверить в источнике", searching: "Поиск…",
+  hl_failclosed: "Эта ссылка не в списке движка — отклонено (fail-closed).",
+  hl_nomatch: "Подходящий фрагмент недоступен.", hl_loaderr: "Не удалось загрузить исходный фрагмент.",
+  hl_elastic: "подсветка Elastic", hl_corpus: "офлайн-корпус", hl_by: "получено по citation_id · ",
+  cov_title: "📚 Охват знаний", cov_corpus: "офлайн-корпус",
+  cov_live: "живые агрегации Elastic", cov_docs: "индексированных фрагментов",
+  cov_jur: "Юрисдикции", cov_treaties: "Пары договоров", cov_ctypes: "Типы контента",
+  tool_engine: "🔢 Налоговый движок", tool_elastic: "⚡ Поиск Elastic",
+  s_beckham: "Что такое режим Бекхэма и может ли он применяться ко мне?",
+  s_family: "Есть ли налоговые льготы для многодетных семей?",
+  s_family_c: "Какие семейные налоговые льготы есть в {c}?",
+  s_golden: "Изменился ли путь золотой визы?",
+  s_wealth: "Как здесь работает налог на богатство?",
+  s_wealth_c: "Как работает налог на богатство в {c}?",
+  s_region: "Меняют ли региональные налоги мой счёт?",
+  s_region_c: "Чем отличаются региональные налоги внутри {c}?",
+  s_pension: "Как облагается моя пенсия при переезде?",
+  s_pension_c: "Как облагаются пенсии в {c}?",
+  s_treaty: "Какая статья договора покрывает этот доход?",
+  s_special: "Есть ли специальный режим для экспатов, о котором стоит знать?",
+  s_special_c: "Есть ли специальный режим для экспатов в {c}?",
+  s_save: "Как законно снизить мой налог?",
+  s_save_c: "Как законно сэкономить на налогах в {c}?",
+  s_disc_c: "Есть ли налоговые скидки в {c}?",
+  s_where: "Так где именно мне нужно платить?",
+  s_deadlines: "Каковы сроки подачи?",
+};
+I18N.nl = {
+  title: "tAIxable — Virtuele belastingadviseur",
+  h1: "t<span>AI</span>xable — Virtuele belastingadviseur",
+  tagline: "Copiloot voor grensoverschrijdende belastingverplichtingen bij wereldwijde mobiliteit · beslissingsondersteuning, geen autonoom advies",
+  badge_cited: "✓ Elk cijfer met bron", badge_nohall: "✓ Geen hallucinatie",
+  badge_elastic: "⚡ Elastic hybride zoeken", badge_cov: "ES · UK · DE + verdragen",
+  ask: "💬 Vraag de adviseur", live_default: "Gemini · gebaseerd op de belastingengine",
+  live_elastic: "Gemini · Elastic {r}",
+  chat_ph: "Beschrijf de situatie van de klant — dagen per land, inkomstenbronnen…",
+  send: "Versturen",
+  greeting: "Hallo — ik ben uw grensoverschrijdende belastingadviseur. Vertel me waar de klant het jaar doorbracht (dagen per land) en welke inkomstenbronnen er zijn, en ik bepaal de woonplaats en verplichtingen met geciteerde wetgeving. Ik vraag door als ik meer details nodig heb.",
+  dc1: "Ik werk op afstand vanuit Spanje voor een Britse werkgever — waar betaal ik belasting?",
+  dc2: "Hoe wordt mijn Duitse pensioen belast als ik naar het VK verhuis?",
+  dc3: "90 dagen VK, 185 in Duitsland, de rest in Spanje. 62000 EUR salaris in Duitsland.",
+  dc4: "Kan ik dubbel worden belast op dividenden tussen Spanje en het VK?",
+  intake: "📋 Gestructureerde invoer", token: "Klanttoken", year: "Belastingjaar",
+  days_pre: "Aanwezigheidsdagen per land (moeten optellen tot ", days_post: ")",
+  add_country: "Land toevoegen", days: "Dagen", add_btn: "+ Land toevoegen",
+  allocated: "Toegewezen:", income: "Buitenlands inkomen", add_income: "+ Inkomen toevoegen",
+  assess_btn: "Verplichtingen beoordelen", memo_btn: "Memo genereren",
+  assessment: "📊 Beoordeling",
+  assessment_ph: "Verdeel de dagen over 1–3 landen (samen 365) en voer dan een beoordeling uit.",
+  memo: "📄 Compliance-memo", ai_badge: "✨ AI-samenvatting (Gemini)",
+  memo_ph: "Genereer een memo, controleer het en keur goed om de zaak op te slaan.",
+  approve: "✓ Goedkeuren & zaak opslaan",
+  country: "Land", inc_type: "Type", inc_source: "Bron", inc_amount: "Bedrag",
+  thinking: "Aan het nadenken…",
+  err_unavail: "⚠️ De adviseur is momenteel niet beschikbaar. Probeer het opnieuw.",
+  err_unreach: "⚠️ Kon de adviseur niet bereiken. Controleer uw verbinding en probeer opnieuw.",
+  run_first: "Voer eerst een beoordeling uit.", persisted: "✓ Opgeslagen als zaak {id}",
+  st_ready: "✓ {n} dagen over {c}", w_country: "land", w_countries: "landen",
+  st_over: "{n} te veel — verwijder {n} dag(en)",
+  st_add: "Voeg {n} dag(en) meer toe", st_add_dot: "Wijs dagen toe om te beginnen",
+  fc_engine: "Engine-resultaat — geciteerd", fc_primary: "Primaire woonplaats:", fc_conf: "vertrouwen:",
+  conf_vh: "Zeer hoog", conf_h: "Hoog", conf_m: "Matig", conf_i: "Indicatief",
+  th_income: "Inkomen", th_src: "Bron", th_art: "Art.", th_rate: "Tarief", th_relief: "Verlichting",
+  fc_deadlines: "Deadlines:", fc_sources: "Bronnen",
+  not_modelled: "niet gemodelleerd", not_modelled_title: "Verdragspaar niet samengesteld — geen tarief beweerd (fail-closed).",
+  tax_base: "Heffingsgrondslag:",
+  est_head: "Waar u betaalt (bij benadering)", est_pill: "illustratief",
+  role_residence: "woonplaats", role_source: "bron",
+  amount_ni: "Bedrag niet geschat", fig_net: "netto", fig_gross: "bruto",
+  fig_ftc: "verrekening buitenlandse belasting", fig_due: "verschuldigd aan de bron",
+  leg_head: "Ondersteunende wetgeving — samengevatte samenvatting, controleer bij de bron", leg_pill: "referentie",
+  read_source: "Bron lezen ↗",
+  ev_passages: "Elastic-bewijs · {n} passage(s)",
+  ev_hint: "Semantisch + trefwoordzoeken over de samengestelde belastingkennisindex — alleen ondersteunende context; alle cijfers komen uit de engine.",
+  verify: "🔍 Verifieer in bron", searching: "Zoeken…",
+  hl_failclosed: "Deze citatie staat niet in de engine-allowlist — geweigerd (fail-closed).",
+  hl_nomatch: "Geen overeenkomende passage beschikbaar.", hl_loaderr: "Kon de bronpassage niet laden.",
+  hl_elastic: "Elastic-markering", hl_corpus: "offline corpus", hl_by: "opgehaald via citation_id · ",
+  cov_title: "📚 Kennisdekking", cov_corpus: "offline corpus",
+  cov_live: "live Elastic-aggregaties", cov_docs: "geïndexeerde passages",
+  cov_jur: "Jurisdicties", cov_treaties: "Verdragsparen", cov_ctypes: "Inhoudstypen",
+  tool_engine: "🔢 Belastingengine", tool_elastic: "⚡ Elastic-zoeken",
+  s_beckham: "Wat is het Beckham-regime en kan het op mij van toepassing zijn?",
+  s_family: "Zijn er belastingvoordelen voor grote gezinnen?",
+  s_family_c: "Welke belastingvoordelen voor gezinnen bestaan er in {c}?",
+  s_golden: "Is de golden-visa-route veranderd?",
+  s_wealth: "Hoe werkt vermogensbelasting hier?",
+  s_wealth_c: "Hoe werkt vermogensbelasting in {c}?",
+  s_region: "Veranderen regionale belastingen mijn rekening?",
+  s_region_c: "Hoe verschillen regionale belastingen binnen {c}?",
+  s_pension: "Hoe wordt mijn pensioen belast als ik verhuis?",
+  s_pension_c: "Hoe worden pensioenen belast in {c}?",
+  s_treaty: "Welk verdragsartikel dekt dit inkomen?",
+  s_special: "Is er een speciaal expatregime dat ik moet kennen?",
+  s_special_c: "Is er een speciaal expatregime in {c}?",
+  s_save: "Hoe kan ik legaal mijn belasting verlagen?",
+  s_save_c: "Hoe kan ik legaal belasting besparen in {c}?",
+  s_disc_c: "Zijn er belastingkortingen in {c}?",
+  s_where: "Waar moet ik dus precies betalen?",
+  s_deadlines: "Wat zijn de indieningstermijnen?",
+};
+I18N.zh = {
+  title: "tAIxable — 虚拟税务顾问",
+  h1: "t<span>AI</span>xable — 虚拟税务顾问",
+  tagline: "面向全球流动的跨境税务义务副驾 · 决策支持，而非自主咨询",
+  badge_cited: "✓ 每个数字均有出处", badge_nohall: "✓ 无幻觉",
+  badge_elastic: "⚡ Elastic 混合搜索", badge_cov: "ES · UK · DE + 协定",
+  ask: "💬 询问顾问", live_default: "Gemini · 基于税务引擎",
+  live_elastic: "Gemini · Elastic {r}",
+  chat_ph: "描述客户情况——各国天数、收入来源……",
+  send: "发送",
+  greeting: "您好——我是您的跨境税务顾问。请告诉我客户全年在何处（各国天数）及收入来源，我将依据有出处的法规确定税务居民身份与义务。如需更多细节我会询问。",
+  dc1: "我在西班牙远程为英国雇主工作——我在哪里纳税？",
+  dc2: "如果我搬到英国，我的德国养老金如何征税？",
+  dc3: "英国90天，德国185天，其余在西班牙。德国工资62000欧元。",
+  dc4: "西班牙和英国之间的股息会被双重征税吗？",
+  intake: "📋 结构化录入", token: "客户令牌", year: "纳税年度",
+  days_pre: "各国停留天数（合计须为 ", days_post: "）",
+  add_country: "添加国家", days: "天数", add_btn: "+ 添加国家",
+  allocated: "已分配：", income: "境外收入", add_income: "+ 添加收入",
+  assess_btn: "评估义务", memo_btn: "生成备忘录",
+  assessment: "📊 评估",
+  assessment_ph: "将天数分配到1–3个国家（合计365），然后运行评估。",
+  memo: "📄 合规备忘录", ai_badge: "✨ AI 摘要（Gemini）",
+  memo_ph: "生成备忘录，审阅后批准以保存案例。",
+  approve: "✓ 批准并保存案例",
+  country: "国家", inc_type: "类型", inc_source: "来源", inc_amount: "金额",
+  thinking: "思考中……",
+  err_unavail: "⚠️ 顾问当前不可用，请重试。",
+  err_unreach: "⚠️ 无法连接顾问。请检查网络后重试。",
+  run_first: "请先运行评估。", persisted: "✓ 已保存为案例 {id}",
+  st_ready: "✓ {c} 共 {n} 天", w_country: "个国家", w_countries: "个国家",
+  st_over: "超出 {n}——请删除 {n} 天",
+  st_add: "再添加 {n} 天", st_add_dot: "分配天数以开始",
+  fc_engine: "引擎结果——有出处", fc_primary: "主要税务居民地：", fc_conf: "置信度：",
+  conf_vh: "极高", conf_h: "高", conf_m: "中等", conf_i: "指示性",
+  th_income: "收入", th_src: "来源", th_art: "条", th_rate: "税率", th_relief: "减免",
+  fc_deadlines: "截止日期：", fc_sources: "来源",
+  not_modelled: "未建模", not_modelled_title: "协定对未整理——不主张税率（fail-closed）。",
+  tax_base: "计税基础：",
+  est_head: "您在何处缴税（约略）", est_pill: "示意",
+  role_residence: "居民地", role_source: "来源地",
+  amount_ni: "金额未估算", fig_net: "净额", fig_gross: "总额",
+  fig_ftc: "境外税收抵免", fig_due: "在来源地应缴",
+  leg_head: "支持性法规——整理摘要，请核对原文", leg_pill: "参考",
+  read_source: "阅读来源 ↗",
+  ev_passages: "Elastic 证据 · {n} 段",
+  ev_hint: "在整理的税务知识索引上进行语义+关键词搜索——仅作辅助背景；所有数字均来自引擎。",
+  verify: "🔍 在来源中核实", searching: "搜索中……",
+  hl_failclosed: "该引用不在引擎许可列表中——已拒绝（fail-closed）。",
+  hl_nomatch: "无匹配段落。", hl_loaderr: "无法加载来源段落。",
+  hl_elastic: "Elastic 高亮", hl_corpus: "离线语料", hl_by: "按 citation_id 检索 · ",
+  cov_title: "📚 知识覆盖", cov_corpus: "离线语料",
+  cov_live: "实时 Elastic 聚合", cov_docs: "条已索引段落",
+  cov_jur: "辖区", cov_treaties: "协定对", cov_ctypes: "内容类型",
+  tool_engine: "🔢 税务引擎", tool_elastic: "⚡ Elastic 搜索",
+  s_beckham: "什么是贝克汉姆制度，它适用于我吗？",
+  s_family: "大家庭有税收优惠吗？",
+  s_family_c: "{c} 有哪些家庭税收优惠？",
+  s_golden: "黄金签证途径有变化吗？",
+  s_wealth: "这里的财富税如何运作？",
+  s_wealth_c: "{c} 的财富税如何运作？",
+  s_region: "地区税会改变我的税额吗？",
+  s_region_c: "{c} 内部的地区税有何不同？",
+  s_pension: "如果我搬迁，我的养老金如何征税？",
+  s_pension_c: "{c} 的养老金如何征税？",
+  s_treaty: "哪条协定条款涵盖此项收入？",
+  s_special: "有我应了解的特殊外派制度吗？",
+  s_special_c: "{c} 有特殊的外派制度吗？",
+  s_save: "我如何合法降低税负？",
+  s_save_c: "我如何在 {c} 合法节税？",
+  s_disc_c: "{c} 有任何税收折扣吗？",
+  s_where: "那么我究竟需要在哪里缴税？",
+  s_deadlines: "申报截止日期是什么时候？",
+};
+I18N.ar = {
+  title: "tAIxable — مستشار ضريبي افتراضي",
+  h1: "t<span>AI</span>xable — مستشار ضريبي افتراضي",
+  tagline: "مساعد للالتزامات الضريبية العابرة للحدود للتنقل العالمي · دعم القرار وليس استشارة مستقلة",
+  badge_cited: "✓ كل رقم موثَّق", badge_nohall: "✓ بلا هلوسة",
+  badge_elastic: "⚡ بحث Elastic الهجين", badge_cov: "ES · UK · DE + المعاهدات",
+  ask: "💬 اسأل المستشار", live_default: "Gemini · مستند إلى محرك الضرائب",
+  live_elastic: "Gemini · Elastic {r}",
+  chat_ph: "صِف وضع العميل — الأيام لكل دولة، مصادر الدخل…",
+  send: "إرسال",
+  greeting: "مرحبًا — أنا مستشارك الضريبي العابر للحدود. أخبرني أين قضى العميل العام (الأيام لكل دولة) ومصادر الدخل، وسأحدد الإقامة والالتزامات مع تشريعات موثَّقة. سأسأل إذا احتجت مزيدًا من التفاصيل.",
+  dc1: "أعمل عن بُعد من إسبانيا لصاحب عمل بريطاني — أين أدفع الضريبة؟",
+  dc2: "كيف يُفرض الضريبة على معاشي الألماني إذا انتقلت إلى المملكة المتحدة؟",
+  dc3: "90 يومًا في المملكة المتحدة، 185 في ألمانيا، والباقي في إسبانيا. راتب 62000 يورو في ألمانيا.",
+  dc4: "هل يمكن فرض ضريبة مزدوجة على أرباح الأسهم بين إسبانيا والمملكة المتحدة؟",
+  intake: "📋 إدخال منظَّم", token: "رمز العميل", year: "السنة الضريبية",
+  days_pre: "أيام التواجد لكل دولة (يجب أن يكون المجموع ", days_post: ")",
+  add_country: "إضافة دولة", days: "الأيام", add_btn: "+ إضافة دولة",
+  allocated: "المخصَّص:", income: "الدخل الأجنبي", add_income: "+ إضافة دخل",
+  assess_btn: "تقييم الالتزامات", memo_btn: "إنشاء مذكرة",
+  assessment: "📊 التقييم",
+  assessment_ph: "وزِّع الأيام على 1–3 دول (بمجموع 365)، ثم نفِّذ تقييمًا.",
+  memo: "📄 مذكرة الامتثال", ai_badge: "✨ ملخص الذكاء الاصطناعي (Gemini)",
+  memo_ph: "أنشئ مذكرة، راجِعها، ثم اعتمدها لحفظ الحالة.",
+  approve: "✓ اعتماد وحفظ الحالة",
+  country: "الدولة", inc_type: "النوع", inc_source: "المصدر", inc_amount: "المبلغ",
+  thinking: "جارٍ التفكير…",
+  err_unavail: "⚠️ المستشار غير متاح حاليًا. يُرجى المحاولة مرة أخرى.",
+  err_unreach: "⚠️ تعذَّر الوصول إلى المستشار. تحقَّق من اتصالك وأعد المحاولة.",
+  run_first: "نفِّذ تقييمًا أولًا.", persisted: "✓ حُفِظ كحالة {id}",
+  st_ready: "✓ {n} يومًا عبر {c}", w_country: "دولة", w_countries: "دول",
+  st_over: "زيادة بمقدار {n} — احذف {n} يومًا", 
+  st_add: "أضِف {n} يومًا آخر", st_add_dot: "وزِّع الأيام للبدء",
+  fc_engine: "نتيجة المحرك — موثَّقة", fc_primary: "الإقامة الرئيسية:", fc_conf: "الثقة:",
+  conf_vh: "عالية جدًا", conf_h: "عالية", conf_m: "متوسطة", conf_i: "إرشادية",
+  th_income: "الدخل", th_src: "المصدر", th_art: "مادة", th_rate: "المعدل", th_relief: "الإعفاء",
+  fc_deadlines: "المواعيد النهائية:", fc_sources: "المصادر",
+  not_modelled: "غير مُنمذج", not_modelled_title: "زوج المعاهدة غير مُنسَّق — لا يُؤكَّد أي معدل (fail-closed).",
+  tax_base: "الوعاء الضريبي:",
+  est_head: "أين تدفع (تقريبي)", est_pill: "توضيحي",
+  role_residence: "الإقامة", role_source: "المصدر",
+  amount_ni: "المبلغ غير مُقدَّر", fig_net: "صافٍ", fig_gross: "إجمالي",
+  fig_ftc: "ائتمان ضريبي أجنبي", fig_due: "مستحق عند المصدر",
+  leg_head: "تشريعات داعمة — ملخص مُنسَّق، تحقَّق من المصدر", leg_pill: "مرجع",
+  read_source: "قراءة المصدر ↗",
+  ev_passages: "أدلة Elastic · {n} مقطع",
+  ev_hint: "بحث دلالي + بالكلمات المفتاحية في فهرس المعرفة الضريبية المُنسَّق — سياق داعم فقط؛ كل الأرقام من المحرك.",
+  verify: "🔍 تحقَّق في المصدر", searching: "جارٍ البحث…",
+  hl_failclosed: "هذا الاستشهاد ليس في قائمة المحرك المسموح بها — مرفوض (fail-closed).",
+  hl_nomatch: "لا يوجد مقطع مطابق.", hl_loaderr: "تعذَّر تحميل مقطع المصدر.",
+  hl_elastic: "تمييز Elastic", hl_corpus: "مجموعة دون اتصال", hl_by: "مُسترجَع عبر citation_id · ",
+  cov_title: "📚 تغطية المعرفة", cov_corpus: "مجموعة دون اتصال",
+  cov_live: "تجميعات Elastic المباشرة", cov_docs: "مقطعًا مُفهرسًا",
+  cov_jur: "الولايات القضائية", cov_treaties: "أزواج المعاهدات", cov_ctypes: "أنواع المحتوى",
+  tool_engine: "🔢 محرك الضرائب", tool_elastic: "⚡ بحث Elastic",
+  s_beckham: "ما هو نظام بيكهام وهل قد ينطبق عليّ؟",
+  s_family: "هل توجد مزايا ضريبية للعائلات الكبيرة؟",
+  s_family_c: "ما المزايا الضريبية العائلية في {c}؟",
+  s_golden: "هل تغيَّر مسار التأشيرة الذهبية؟",
+  s_wealth: "كيف تعمل ضريبة الثروة هنا؟",
+  s_wealth_c: "كيف تعمل ضريبة الثروة في {c}؟",
+  s_region: "هل تُغيِّر الضرائب الإقليمية فاتورتي؟",
+  s_region_c: "كيف تختلف الضرائب الإقليمية داخل {c}؟",
+  s_pension: "كيف يُفرض الضريبة على معاشي إذا انتقلت؟",
+  s_pension_c: "كيف تُفرض الضريبة على المعاشات في {c}؟",
+  s_treaty: "أي مادة من المعاهدة تغطي هذا الدخل؟",
+  s_special: "هل هناك نظام خاص للمغتربين ينبغي أن أعرفه؟",
+  s_special_c: "هل يوجد نظام خاص للمغتربين في {c}؟",
+  s_save: "كيف يمكنني تقليل ضريبتي بشكل قانوني؟",
+  s_save_c: "كيف يمكنني توفير الضريبة قانونيًا في {c}؟",
+  s_disc_c: "هل توجد خصومات ضريبية في {c}؟",
+  s_where: "إذن أين عليّ أن أدفع بالضبط؟",
+  s_deadlines: "ما هي مواعيد التقديم النهائية؟",
+};
+
+const RTL_LANGS = ["ar"];
+let currentLang = "en";
+try {
+  const saved = localStorage.getItem("lang");
+  if (saved && I18N[saved]) currentLang = saved;
+} catch (_) { /* localStorage may be unavailable */ }
+
+// Translate a key for the active language, falling back to English, with
+// {placeholder} substitution from `vars`.
+function t(key, vars) {
+  const lang = I18N[currentLang] ? currentLang : "en";
+  let s = (I18N[lang] && I18N[lang][key] != null) ? I18N[lang][key] : I18N.en[key];
+  if (s == null) s = key;
+  if (vars) {
+    for (const k in vars) s = s.split("{" + k + "}").join(String(vars[k]));
+  }
+  return s;
+}
+
+// Apply the chosen language: retranslate every tagged static node, set lang/dir
+// (RTL for Arabic), persist the choice and re-render all dynamic regions.
+function applyLang(lang) {
+  if (!I18N[lang]) lang = "en";
+  currentLang = lang;
+  try { localStorage.setItem("lang", lang); } catch (_) { /* ignore */ }
+  const root = document.documentElement;
+  root.setAttribute("lang", lang);
+  root.setAttribute("dir", RTL_LANGS.includes(lang) ? "rtl" : "ltr");
+  document.title = t("title");
+  const sel = document.getElementById("langSel");
+  if (sel) sel.value = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.getAttribute("data-i18n")); });
+  document.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = t(el.getAttribute("data-i18n-html")); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.setAttribute("placeholder", t(el.getAttribute("data-i18n-ph"))); });
+  // Re-render dynamic regions so JS-generated strings pick up the new language.
+  try { render(); } catch (_) {}
+  try { renderChips(lastSuggestions); } catch (_) {}
+  try { loadCoverage(); } catch (_) {}
+  try { refreshLiveStatus(); } catch (_) {}
+}
+
 // Residence countries the engine can model (day-count rule or coverage-only).
 // Ordered: the four fully-computable EUR/GBP economies first, then the rest of
 // the 30-country coverage matrix alphabetically.
@@ -384,7 +1045,7 @@ function render() {
     row.className = "row";
 
     const cLabel = document.createElement("div");
-    cLabel.innerHTML = `<label>Country</label>`;
+    cLabel.innerHTML = `<label>${t("country")}</label>`;
     const cSel = document.createElement("select");
     // Options: countries not used by any other row (current row's value always included).
     SUPPORTED.filter(opt => opt === c.country || !countries.some((x, j) => j !== i && x.country === opt))
@@ -398,7 +1059,7 @@ function render() {
     cLabel.appendChild(cSel);
 
     const dWrap = document.createElement("div");
-    dWrap.innerHTML = `<label>Days</label>`;
+    dWrap.innerHTML = `<label>${t("days")}</label>`;
     const dInput = document.createElement("input");
     dInput.type = "number"; dInput.min = "0"; dInput.step = "1"; dInput.value = c.days;
     dInput.onchange = (e) => setDays(i, e.target.value);
@@ -427,22 +1088,23 @@ function render() {
   document.getElementById("addRow").style.opacity = canAddMore() ? "1" : ".5";
 
   // Meter + target
-  const t = total(), max = maxDays();
+  const tot = total(), max = maxDays();
   document.getElementById("targetLbl").textContent = max === 366 ? "365/366" : "365";
   document.getElementById("targetVal").textContent = max === 366 ? "366" : "365";
-  document.getElementById("totalDays").textContent = t;
-  document.getElementById("barFill").style.width = Math.min(100, (t / max) * 100) + "%";
+  document.getElementById("totalDays").textContent = tot;
+  document.getElementById("barFill").style.width = Math.min(100, (tot / max) * 100) + "%";
 
   const status = document.getElementById("dayStatus");
   if (targetReached()) {
     status.className = "ok";
-    status.textContent = `✓ ${t} days — ${countries.length} ${countries.length === 1 ? "country" : "countries"}. Ready.`;
-  } else if (t > max) {
+    const w = countries.length === 1 ? t("w_country") : t("w_countries");
+    status.textContent = t("st_ready", { n: tot, c: countries.length + " " + w });
+  } else if (tot > max) {
     status.className = "bad";
-    status.textContent = `Over by ${t - max} day(s).`;
+    status.textContent = t("st_over", { n: (tot - max) + " day(s)" });
   } else {
     status.className = "warn";
-    status.textContent = `Add ${365 - t} more day(s)` + (canAddMore() ? " — pick another country." : ".");
+    status.textContent = t("st_add", { n: 365 - tot });
   }
 
   // Gate assess/memo on a complete, valid allocation
@@ -457,9 +1119,9 @@ function addIncome(type = "rental", src = "ES", amt = 12000) {
   // Income source is independent of day-presence (e.g. a UK resident with
   // Spanish rental income and 0 days in Spain), so all jurisdictions are offered.
   div.innerHTML = `<div class="row">
-    <div><label>Type</label><select class="i_type">${INCOME_TYPES.map(t => `<option ${t === type ? "selected" : ""}>${t}</option>`).join("")}</select></div>
-    <div><label>Source</label><select class="i_src">${SUPPORTED.map(c => `<option ${c === src ? "selected" : ""}>${c}</option>`).join("")}</select></div>
-    <div><label>Amount</label><input class="i_amt" type="number" value="${amt}" /></div>
+    <div><label>${t("inc_type")}</label><select class="i_type">${INCOME_TYPES.map(it => `<option ${it === type ? "selected" : ""}>${it}</option>`).join("")}</select></div>
+    <div><label>${t("inc_source")}</label><select class="i_src">${SUPPORTED.map(c => `<option ${c === src ? "selected" : ""}>${c}</option>`).join("")}</select></div>
+    <div><label>${t("inc_amount")}</label><input class="i_amt" type="number" value="${amt}" /></div>
     <button class="ghost" onclick="this.parentElement.parentElement.remove()">✕</button>
   </div>`;
   document.getElementById("incomes").appendChild(div);
@@ -489,17 +1151,17 @@ async function post(path, body) {
 // Render the cited sources as real, clickable links (DOM-built + URL-validated).
 function confidenceBand(c) {
   const v = typeof c === "number" ? c : 0;
-  if (v >= 0.9) return "Very high";
-  if (v >= 0.75) return "High";
-  if (v >= 0.6) return "Moderate";
-  return "Indicative";
+  if (v >= 0.9) return t("conf_vh");
+  if (v >= 0.75) return t("conf_h");
+  if (v >= 0.6) return t("conf_m");
+  return t("conf_i");
 }
 
 // Honest rate cell: the engine returns rate=null / status="not_modelled" for any
 // treaty pair we have not curated. Never render "0%" or a fabricated figure.
 function obRateCell(o) {
   if (o.rate === null || o.rate === undefined || o.status === "not_modelled") {
-    return `<span class="muted" title="${o.reason || "treaty pair not yet modelled"}">not modelled</span>`;
+    return `<span class="muted" title="${o.reason || t("not_modelled_title")}">${t("not_modelled")}</span>`;
   }
   return `${(o.rate * 100).toFixed(0)}%`;
 }
@@ -516,7 +1178,7 @@ function scopeBanner(a) {
   }
   if (a.scope_note) bits.push(`<span class="muted">${a.scope_note}</span>`);
   else if (a.tax_base_scope && a.tax_base_scope !== "worldwide") {
-    bits.push(`<span class="muted">Tax base: ${a.tax_base_scope.replace(/_/g, " ")}.</span>`);
+    bits.push(`<span class="muted">${t("tax_base")}: ${a.tax_base_scope.replace(/_/g, " ")}.</span>`);
   }
   if (!bits.length) return "";
   return `<div class="scope-note">${bits.join(" ")}</div>`;
@@ -549,7 +1211,7 @@ function renderLegislation(items) {
   wrap.className = "legislation";
   const h = document.createElement("p");
   h.className = "leg-head";
-  h.innerHTML = `Supporting legislation <span class="pill">curated summary — verify at source</span>`;
+  h.innerHTML = `${t("leg_head")} <span class="pill">${t("leg_pill")}</span>`;
   wrap.appendChild(h);
   items.forEach(it => {
     const card = document.createElement("div");
@@ -558,7 +1220,7 @@ function renderLegislation(items) {
     const art = it.article ? ` · ${it.article}` : "";
     let link = "";
     if (it.source_url && /^https?:\/\//i.test(it.source_url)) {
-      link = ` <a href="${it.source_url}" target="_blank" rel="noopener noreferrer">Read source ↗</a>`;
+      link = ` <a href="${it.source_url}" target="_blank" rel="noopener noreferrer">${t("read_source")}</a>`;
     }
     card.innerHTML = `<div class="leg-title"><b>${title}</b>${art}` +
       ` <span class="pill">${it.jurisdiction || ""}</span></div>` +
@@ -606,25 +1268,25 @@ function renderEstimates(estimates) {
   wrap.className = "estimates";
   const h = document.createElement("p");
   h.className = "est-head";
-  h.innerHTML = `Where you pay — approximate <span class="pill">illustrative · excludes deductions, regional variation &amp; social security</span>`;
+  h.innerHTML = `${t("est_head")} <span class="pill">${t("est_pill")}</span>`;
   wrap.appendChild(h);
   estimates.forEach(e => {
     const card = document.createElement("div");
     card.className = "est-item";
-    const roleLabel = e.role === "residence" ? "Residence — worldwide income" : "Source country";
+    const roleLabel = e.role === "residence" ? t("role_residence") : t("role_source");
     let figure;
     if (e.role === "residence") {
       const g = money(e.gross_tax, e.currency);
       if (g === null) {
-        figure = `Amount not estimated — ${e.note || "bands in a different currency from the income"}`;
+        figure = `${t("amount_ni")} — ${e.note || "bands in a different currency from the income"}`;
       } else {
         const credit = money(e.credit, e.currency);
         const net = money(e.net_tax, e.currency);
-        figure = `<b>${net}</b> net` +
-          (e.credit ? ` <span class="muted">(${g} gross − ${credit} foreign-tax credit)</span>` : ` <span class="muted">(${g} gross)</span>`);
+        figure = `<b>${net}</b> ${t("fig_net")}` +
+          (e.credit ? ` <span class="muted">(${g} ${t("fig_gross")} − ${credit} ${t("fig_ftc")})</span>` : ` <span class="muted">(${g} ${t("fig_gross")})</span>`);
       }
     } else {
-      figure = `<b>${money(e.gross_tax, e.currency)}</b> due at source`;
+      figure = `<b>${money(e.gross_tax, e.currency)}</b> ${t("fig_due")}`;
     }
     card.innerHTML =
       `<div class="est-row"><span class="est-country">${e.country}</span>` +
@@ -645,13 +1307,13 @@ async function assess() {
   const obs = body.obligations.map(o => `<tr><td>${o.income_type}</td><td>${o.source_country}</td><td>${obArtCell(o)}</td><td>${obRateCell(o)}</td><td>${obReliefCell(o)}</td></tr>`).join("");
   const dls = body.deadlines.map(d => `<li><b>${d.jurisdiction}</b> — ${d.description}: <b>${d.due_date}</b></li>`).join("");
   panel.innerHTML = `
-    <p>Primary residence: <b>${body.primary_residence}</b> <span class="pill">confidence: ${confidenceBand(body.residence_confidence)}</span></p>` + scopeBanner(body);
+    <p>${t("fc_primary")} <b>${body.primary_residence}</b> <span class="pill">${t("fc_conf")} ${confidenceBand(body.residence_confidence)}</span></p>` + scopeBanner(body);
   panel.appendChild(renderEstimates(body.estimates));
   const tbl = document.createElement("div");
   tbl.innerHTML = `
-    <table style="width:100%; font-size:13px;"><tr><th>Income</th><th>Src</th><th>Art.</th><th>Rate</th><th>Relief</th></tr>${obs}</table>
-    <p>Deadlines:</p><ul>${dls}</ul>
-    <p><b>Sources (${body.citation_details ? body.citation_details.length : 0})</b></p>`;
+    <table style="width:100%; font-size:13px;"><tr><th>${t("th_income")}</th><th>${t("th_src")}</th><th>${t("th_art")}</th><th>${t("th_rate")}</th><th>${t("th_relief")}</th></tr>${obs}</table>
+    <p>${t("fc_deadlines")}</p><ul>${dls}</ul>
+    <p><b>${t("fc_sources")} (${body.citation_details ? body.citation_details.length : 0})</b></p>`;
   panel.appendChild(tbl);
   panel.appendChild(renderSources(body.citation_details));
   panel.appendChild(renderLegislation(relevantLegislation(body.legislation, body)));
@@ -673,7 +1335,7 @@ async function memo() {
 }
 
 async function persist() {
-  if (!lastAssessment) { document.getElementById("persistMsg").textContent = "Run an assessment first."; return; }
+  if (!lastAssessment) { document.getElementById("persistMsg").textContent = t("run_first"); return; }
   const req = {
     approved: true,
     approved_by: "advisor@firm.example",
@@ -688,13 +1350,14 @@ async function persist() {
   };
   const { status, body } = await post("/tools/persist_case", req);
   document.getElementById("persistMsg").style.color = status === 200 ? "var(--ok)" : "var(--warn)";
-  document.getElementById("persistMsg").textContent = status === 200 ? `Persisted as case #${body.case_id}` : JSON.stringify(body);
+  document.getElementById("persistMsg").textContent = status === 200 ? t("persisted", { id: body.case_id }) : JSON.stringify(body);
 }
 
 // ---- Conversational advisor ----
 let chatHistory = [];
 let chatBusy = false;
 let lastUserQuery = "";
+let lastSuggestions = null;
 
 function escapeHtml(s) {
   const d = document.createElement("div"); d.textContent = s; return d.innerHTML;
@@ -800,14 +1463,14 @@ function appendFacts(a) {
     `<tr><td>${o.income_type}</td><td>${o.source_country}</td><td>${obArtCell(o)}</td><td>${obRateCell(o)}</td><td>${obReliefCell(o)}</td></tr>`).join("");
   const dls = (a.deadlines || []).map(d => `<li><b>${d.jurisdiction}</b> — ${d.description}: <b>${d.due_date}</b></li>`).join("");
   card.innerHTML = `
-    <h4>Engine result — cited</h4>
-    <p style="margin:0 0 8px">Primary residence: <b>${a.primary_residence}</b> <span class="pill">confidence: ${confidenceBand(a.residence_confidence)}</span></p>` + scopeBanner(a);
+    <h4>${t("fc_engine")}</h4>
+    <p style="margin:0 0 8px">${t("fc_primary")} <b>${a.primary_residence}</b> <span class="pill">${t("fc_conf")} ${confidenceBand(a.residence_confidence)}</span></p>` + scopeBanner(a);
   card.appendChild(renderEstimates(a.estimates));
   const body = document.createElement("div");
   body.innerHTML = `
-    ${obs ? `<table style="width:100%; font-size:12.5px;"><tr><th>Income</th><th>Src</th><th>Art.</th><th>Rate</th><th>Relief</th></tr>${obs}</table>` : ""}
-    ${dls ? `<p style="margin:8px 0 4px">Deadlines:</p><ul style="margin:0; padding-left:18px">${dls}</ul>` : ""}
-    <p style="margin:8px 0 4px"><b>Sources (${(a.sources || []).length})</b></p>`;
+    ${obs ? `<table style="width:100%; font-size:12.5px;"><tr><th>${t("th_income")}</th><th>${t("th_src")}</th><th>${t("th_art")}</th><th>${t("th_rate")}</th><th>${t("th_relief")}</th></tr>${obs}</table>` : ""}
+    ${dls ? `<p style="margin:8px 0 4px">${t("fc_deadlines")}</p><ul style="margin:0; padding-left:18px">${dls}</ul>` : ""}
+    <p style="margin:8px 0 4px"><b>${t("fc_sources")} (${(a.sources || []).length})</b></p>`;
   card.appendChild(body);
   card.appendChild(renderSources(a.sources));
   card.appendChild(renderLegislation(relevantLegislation(a.legislation, a)));
@@ -825,12 +1488,12 @@ async function sendChat(presetText) {
   lastUserQuery = text;
   chatBusy = true;
   document.getElementById("chatSend").disabled = true;
-  const thinking = appendMsg("bot", "Thinking…");
+  const thinking = appendMsg("bot", t("thinking"));
   thinking.classList.add("thinking");
   try {
-    const { status, body } = await post("/chat", { message: text, history: chatHistory, tax_year: year() });
+    const { status, body } = await post("/chat", { message: text, history: chatHistory, tax_year: year(), language: currentLang });
     thinking.parentElement.remove();
-    if (status !== 200) { appendMsg("bot", "Sorry — the advisor is unavailable right now."); renderChips([]); return; }
+    if (status !== 200) { appendMsg("bot", t("err_unavail")); lastSuggestions = null; renderChips(null); return; }
     const bubble = appendMsg("bot", body.reply);
     chatHistory.push({ role: "user", content: text });
     chatHistory.push({ role: "assistant", content: body.reply });
@@ -838,11 +1501,13 @@ async function sendChat(presetText) {
     if (body.used_tool && body.assessment) appendFacts(body.assessment);
     const drawer = renderKnowledge(body.knowledge, body.search_meta);
     if (drawer) bubble.appendChild(drawer);
-    renderChips(buildSuggestions(body.reply, body.knowledge, body.assessment));
+    lastSuggestions = buildSuggestions(body.reply, body.knowledge, body.assessment);
+    renderChips(lastSuggestions);
   } catch (e) {
     thinking.parentElement.remove();
-    appendMsg("bot", "Sorry — I couldn't reach the advisor. Please try again.");
-    renderChips([]);
+    appendMsg("bot", t("err_unreach"));
+    lastSuggestions = null;
+    renderChips(null);
   } finally {
     chatBusy = false;
     document.getElementById("chatSend").disabled = false;
@@ -910,51 +1575,43 @@ function buildSuggestions(reply, knowledge, assessment) {
   const pname = countries.length ? COUNTRY_NAMES[countries[0]] : null;
 
   const out = [];
-  const push = t => { if (t && !out.includes(t) && out.length < SUGG_MAX) out.push(t); };
+  const push = txt => { if (txt && !out.includes(txt) && out.length < SUGG_MAX) out.push(txt); };
 
-  if (has("beckham")) push("What is the Beckham regime and would I qualify?");
+  if (has("beckham")) push(t("s_beckham"));
   if (has("familia numerosa", "familia-numerosa", "large family", "numerosa", "per child", "dependent child", "child benefit"))
-    push(pname ? `What family and child tax benefits apply in ${pname}?` : "What family or child tax benefits could apply to me?");
-  if (has("golden visa")) push("Is the golden visa still available, and what are the alternatives?");
+    push(pname ? t("s_family_c", { c: pname }) : t("s_family"));
+  if (has("golden visa")) push(t("s_golden"));
   if (has("wealth tax", "patrimonio", "solidarity tax", "net worth"))
-    push(pname ? `How much wealth tax would I pay in ${pname}?` : "How much wealth tax would I owe?");
+    push(pname ? t("s_wealth_c", { c: pname }) : t("s_wealth"));
   if (has("region", "catalu", "catalon", "foral", "basque", "navarr", "autonomous communit"))
-    push(pname ? `How do regional taxes differ within ${pname}?` : "How do regional taxes change the result?");
+    push(pname ? t("s_region_c", { c: pname }) : t("s_region"));
   if (has("pension", "retire", "retirement"))
-    push(pname ? `How will my pension be taxed if I retire in ${pname}?` : "How will my pension be taxed if I retire abroad?");
+    push(pname ? t("s_pension_c", { c: pname }) : t("s_pension"));
   if (has("treaty", "double tax", "double-tax", "foreign tax credit", "relief from double"))
-    push("How do I make sure I'm not taxed twice on this income?");
+    push(t("s_treaty"));
   if (has("nhr", "non-habitual", "impatriate", "non-dom", "inpatriate", "special regime", "preferential regime"))
-    push(pname ? `Which special tax regimes could I use in ${pname}?` : "Which special tax regimes might I qualify for?");
+    push(pname ? t("s_special_c", { c: pname }) : t("s_special"));
   if (has("deduction", "relief", "exempt", "discount", "incentive", "tax credit", "allowance", "rebate", "save tax", "reduce your tax"))
-    push(pname ? `How can I legally lower my tax bill in ${pname}?` : "How can I legally lower my tax bill?");
+    push(pname ? t("s_save_c", { c: pname }) : t("s_save"));
 
-  countries.slice(0, 2).forEach(c => push(`Can I get any tax discounts or special regimes in ${COUNTRY_NAMES[c]}?`));
+  countries.slice(0, 2).forEach(c => push(t("s_disc_c", { c: COUNTRY_NAMES[c] })));
 
   // Always leave the client with at least a couple of high-value next steps.
-  push("Where exactly do I have to pay tax, and how much?");
-  push("What are my filing deadlines and obligations?");
+  push(t("s_where"));
+  push(t("s_deadlines"));
   return out.slice(0, SUGG_MAX);
 }
-
-// Default chips shown before the conversation starts / after an error.
-const DEFAULT_CHIPS = [
-  "I work remotely from Spain for a UK employer — where do I pay tax?",
-  "How is my German pension taxed if I move to the UK?",
-  "90 days UK, 185 in Germany, rest in Spain. 62000 EUR salary in Germany.",
-  "Can I be taxed twice on dividends between Spain and the UK?",
-];
 
 function renderChips(list) {
   const box = document.getElementById("chatChips");
   if (!box) return;
-  const items = (list && list.length) ? list : DEFAULT_CHIPS;
+  const items = (list && list.length) ? list : [t("dc1"), t("dc2"), t("dc3"), t("dc4")];
   box.innerHTML = "";
-  items.forEach(t => {
+  items.forEach(txt => {
     const s = document.createElement("span");
     s.className = "chip";
-    s.textContent = t;
-    s.addEventListener("click", () => sendChat(t));
+    s.textContent = txt;
+    s.addEventListener("click", () => sendChat(txt));
     box.appendChild(s);
   });
 }
@@ -977,14 +1634,14 @@ function renderKnowledge(passages, meta) {
   det.className = "evidence";
   det.open = false;
   const sum = document.createElement("summary");
-  sum.innerHTML = `Elastic evidence · ${items.length} passage${items.length > 1 ? "s" : ""}` +
+  sum.innerHTML = `${t("ev_passages", { n: items.length })}` +
     `<span class="retr${isCorpus ? " corpus" : ""}">${RETRIEVAL_LABEL[retr] || retr}</span>`;
   det.appendChild(sum);
   const body = document.createElement("div");
   body.className = "ev-body";
   const hint = document.createElement("p");
   hint.className = "ev-hint";
-  hint.textContent = "Semantic + keyword search over the curated tax-knowledge index — supporting context only; all figures come from the engine.";
+  hint.textContent = t("ev_hint");
   body.appendChild(hint);
   items.forEach(p => {
     const card = document.createElement("div");
@@ -993,7 +1650,7 @@ function renderKnowledge(passages, meta) {
     const art = p.article ? ` · ${p.article}` : "";
     let link = "";
     if (p.source_url && /^https?:\/\//i.test(p.source_url)) {
-      link = ` <a href="${p.source_url}" target="_blank" rel="noopener noreferrer">Read source ↗</a>`;
+      link = ` <a href="${p.source_url}" target="_blank" rel="noopener noreferrer">${t("read_source")}</a>`;
     }
     const jur = p.jurisdiction || p.country_pair || "";
     card.innerHTML =
@@ -1014,8 +1671,8 @@ function renderToolbar(usedTool, usedSearch) {
   const bar = document.createElement("div");
   bar.className = "toolbar";
   bar.innerHTML =
-    `<span class="toolbadge engine${usedTool ? " on" : ""}">🔢 Tax engine</span>` +
-    `<span class="toolbadge elastic${usedSearch ? " on" : ""}">⚡ Elastic search</span>`;
+    `<span class="toolbadge engine${usedTool ? " on" : ""}">${t("tool_engine")}</span>` +
+    `<span class="toolbadge elastic${usedSearch ? " on" : ""}">${t("tool_elastic")}</span>`;
   return bar;
 }
 
@@ -1028,14 +1685,14 @@ function attachVerify(card, citationId) {
   const btn = document.createElement("button");
   btn.className = "verify-btn";
   btn.type = "button";
-  btn.textContent = "🔍 Verify in source";
+  btn.textContent = t("verify");
   const reveal = document.createElement("div");
   reveal.className = "hl-reveal";
   reveal.style.display = "none";
   card.appendChild(reveal);
   btn.onclick = async () => {
     if (reveal.style.display === "block") { reveal.style.display = "none"; return; }
-    btn.disabled = true; btn.textContent = "Searching…";
+    btn.disabled = true; btn.textContent = t("searching");
     try {
       const qs = new URLSearchParams({ citation_id: citationId, query: lastUserQuery || "" });
       const r = await fetch(`/tools/highlight_citation?${qs.toString()}`);
@@ -1045,18 +1702,18 @@ function attachVerify(card, citationId) {
         // Source text is curated (never user input); the API escapes it and only
         // injects <mark> tags, so rendering fragments as HTML is safe here.
         reveal.innerHTML = h.fragments.map(f => `<div>${f}</div>`).join("") +
-          `<span class="hl-mode">retrieved by citation_id · ${mode === "elastic" ? "Elastic highlight" : "offline corpus"}</span>`;
+          `<span class="hl-mode">${t("hl_by")}${mode === "elastic" ? t("hl_elastic") : t("hl_corpus")}</span>`;
       } else if (r.status === 422) {
-        reveal.innerHTML = `<div>This citation is not in the engine allowlist — refused (fail-closed).</div>`;
+        reveal.innerHTML = `<div>${t("hl_failclosed")}</div>`;
       } else {
-        reveal.innerHTML = `<div>No matching passage available.</div>`;
+        reveal.innerHTML = `<div>${t("hl_nomatch")}</div>`;
       }
       reveal.style.display = "block";
     } catch (_) {
-      reveal.innerHTML = `<div>Couldn't load the source passage.</div>`;
+      reveal.innerHTML = `<div>${t("hl_loaderr")}</div>`;
       reveal.style.display = "block";
     } finally {
-      btn.disabled = false; btn.textContent = "🔍 Verify in source";
+      btn.disabled = false; btn.textContent = t("verify");
     }
   };
   meta.appendChild(btn);
@@ -1072,21 +1729,21 @@ async function loadCoverage() {
     if (c.mode === "disabled") return;
     const panel = document.getElementById("coveragePanel");
     if (!panel) return;
-    const t = c.totals || {};
-    const docCount = Object.values(t).reduce((a, b) => a + (b || 0), 0);
+    const tot = c.totals || {};
+    const docCount = Object.values(tot).reduce((a, b) => a + (b || 0), 0);
     const isCorpus = c.mode !== "elastic";
     const chip = (txt, n) => `<span class="cchip">${txt}${n != null ? ` <b>${n}</b>` : ""}</span>`;
     const jur = (c.by_jurisdiction || []).map(b => chip(b.key, b.doc_count)).join("");
     const ctype = (c.by_content_type || []).map(b => chip(b.key, b.doc_count)).join("");
     const treaties = (c.treaty_pairs || []).map(p => chip(p)).join("");
     panel.innerHTML =
-      `<details class="cov-details"><summary class="cov-head"><b>📚 Knowledge coverage</b>` +
-      `<span class="cov-mode${isCorpus ? " corpus" : ""}">${isCorpus ? "offline corpus" : "live Elastic aggregations"}</span>` +
-      `<span>${docCount} indexed passages</span></summary>` +
+      `<details class="cov-details"><summary class="cov-head"><b>${t("cov_title")}</b>` +
+      `<span class="cov-mode${isCorpus ? " corpus" : ""}">${isCorpus ? t("cov_corpus") : t("cov_live")}</span>` +
+      `<span>${docCount} ${t("cov_docs")}</span></summary>` +
       `<div class="cov-body">` +
-      (jur ? `<div class="cov-row"><span class="lbl">Jurisdictions</span>${jur}</div>` : "") +
-      (treaties ? `<div class="cov-row"><span class="lbl">Treaty pairs</span>${treaties}</div>` : "") +
-      (ctype ? `<div class="cov-row"><span class="lbl">Content types</span>${ctype}</div>` : "") +
+      (jur ? `<div class="cov-row"><span class="lbl">${t("cov_jur")}</span>${jur}</div>` : "") +
+      (treaties ? `<div class="cov-row"><span class="lbl">${t("cov_treaties")}</span>${treaties}</div>` : "") +
+      (ctype ? `<div class="cov-row"><span class="lbl">${t("cov_ctypes")}</span>${ctype}</div>` : "") +
       `</div></details>`;
     panel.style.display = "block";
   } catch (_) { /* non-fatal */ }
@@ -1100,19 +1757,20 @@ async function refreshLiveStatus() {
     const el = document.getElementById("liveStatus");
     if (!el) return;
     if (h.elastic && h.mode === "elastic") {
-      el.textContent = `Gemini · Elastic ${RETRIEVAL_LABEL[h.retrieval] || h.retrieval}`;
+      el.textContent = t("live_elastic", { r: RETRIEVAL_LABEL[h.retrieval] || h.retrieval });
     } else {
-      el.textContent = "Gemini · grounded on the tax engine";
+      el.textContent = t("live_default");
     }
   } catch (_) { /* non-fatal */ }
 }
 
-appendMsg("bot", "Hello — I'm your cross-border tax advisor. Tell me where the client spent the year (days per country) and any income sources, and I'll work out residence and obligations with cited legislation. I'll ask if I need more detail.");
+appendMsg("bot", t("greeting"));
 
 refreshLiveStatus();
 loadCoverage();
 addIncome();
 render();
+applyLang(currentLang);
 </script>
 </body>
 </html>

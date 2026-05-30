@@ -90,6 +90,7 @@ class ChatRequest(BaseModel):
     message: str
     history: list[ChatMessage] = Field(default_factory=list)
     tax_year: int = Field(default=2025, ge=2000, le=2100)
+    language: str = Field(default="en", max_length=8)
 
 
 class ChatResponse(BaseModel):

@@ -230,6 +230,7 @@ def create_app(deps: Deps) -> FastAPI:
             history=[m.model_dump() for m in req.history],
             message=req.message,
             tax_year=req.tax_year,
+            language=req.language,
         )
         # Defensive: a tool-produced assessment can only contain engine citations,
         # but re-validate before returning to honour the no-hallucination contract.
