@@ -22,6 +22,8 @@ from taixable_copilot.api.schemas import (
     AssessRequest,
     ChatRequest,
     ChatResponse,
+    CoverageResponse,
+    HighlightResponse,
     MemoRequest,
     MemoResponse,
     PersistRequest,
@@ -145,6 +147,27 @@ def create_app(deps: Deps) -> FastAPI:
             deps, [r["citation_id"] for r in out.get("results", []) if r.get("citation_id")]
         )
         return SearchResponse(results=out.get("results", []), meta=out.get("meta", {}))
+
+    @app.get("/tools/highlight_citation", response_model=HighlightResponse)
+    def highlight_citation(citation_id: str, query: str = "") -> HighlightResponse:
+        """Return the exact cited passage with the question's terms highlighted.
+
+        The "verifiable AI" feature: retrieval is by ``citation_id`` (a
+        deterministic term filter), and the citation is re-validated against the
+        engine's allowlist, so only citable source text can ever be returned.
+        """
+        if deps.knowledge_highlight is None:
+            return HighlightResponse(found=False, citation_id=citation_id, meta={"mode": "disabled"})
+        _reject_unknown_citations(deps, [citation_id])
+        out = deps.knowledge_highlight(citation_id, query)
+        return HighlightResponse(**out)
+
+    @app.get("/tools/coverage", response_model=CoverageResponse)
+    def coverage() -> CoverageResponse:
+        """Knowledge-coverage dashboard via Elasticsearch aggregations."""
+        if deps.coverage is None:
+            return CoverageResponse(mode="disabled")
+        return CoverageResponse(**deps.coverage())
 
     @app.get("/")
     def index() -> FileResponse:

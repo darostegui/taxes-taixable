@@ -107,6 +107,26 @@ class SearchResponse(BaseModel):
     meta: dict = Field(default_factory=dict)
 
 
+class HighlightResponse(BaseModel):
+    found: bool
+    citation_id: str
+    title: str = ""
+    jurisdiction: str = ""
+    article: str = ""
+    source_url: str = ""
+    fragments: list[str] = Field(default_factory=list)
+    meta: dict = Field(default_factory=dict)
+
+
+class CoverageResponse(BaseModel):
+    mode: str = "corpus"
+    totals: dict = Field(default_factory=dict)
+    by_jurisdiction: list[dict] = Field(default_factory=list)
+    by_content_type: list[dict] = Field(default_factory=list)
+    treaty_pairs: list[str] = Field(default_factory=list)
+    rate_pairs: list[str] = Field(default_factory=list)
+
+
 class PersistDeadline(BaseModel):
     jurisdiction: str
     description: str

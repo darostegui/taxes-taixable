@@ -67,3 +67,34 @@ def test_lexical_search_returns_only_allowlisted_ids():
     out = search("double taxation relief pension dividends rental", k=10)
     for r in out["results"]:
         assert r["citation_id"] in allow
+
+
+def test_corpus_highlight_marks_query_terms():
+    from taixable_copilot.knowledge import corpus_highlight
+
+    hl = corpus_highlight()
+    out = hl("ES#residency-183", "183 day residency Spain")
+    assert out["found"] is True
+    assert out["citation_id"] == "ES#residency-183"
+    assert out["source_url"].startswith("http")
+    assert any("<mark>" in f for f in out["fragments"])
+    assert out["meta"]["mode"] == "corpus"
+
+
+def test_corpus_highlight_without_query_returns_passage_verbatim():
+    from taixable_copilot.knowledge import corpus_highlight
+
+    hl = corpus_highlight()
+    out = hl("ES#residency-183")
+    assert out["found"] is True
+    assert out["fragments"] and out["fragments"][0]
+
+
+def test_corpus_highlight_fails_closed_on_unknown_id():
+    from taixable_copilot.knowledge import corpus_highlight
+
+    hl = corpus_highlight()
+    out = hl("FR#made-up", "anything")
+    assert out["found"] is False
+    assert out["fragments"] == []
+    assert out["meta"]["reason"] == "not_allowlisted"

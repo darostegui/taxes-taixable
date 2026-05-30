@@ -160,6 +160,25 @@
   .jbadge { display:inline-block; font-size:10.5px; font-weight:700; color:#04111f; background:linear-gradient(135deg,var(--accent),#4f86e8); border-radius:5px; padding:1px 7px; }
   .ev-hint { font-size:11px; color:var(--muted); margin:2px 0 0; }
 
+  /* Citation → Elastic highlight reveal */
+  .verify-btn { background:none; border:1px solid rgba(34,211,238,.4); color:var(--accent2); border-radius:6px; font-size:10.5px; padding:1px 7px; cursor:pointer; }
+  .verify-btn:hover { background:rgba(34,211,238,.1); }
+  .verify-btn[disabled] { opacity:.55; cursor:default; }
+  .hl-reveal { margin-top:6px; font-size:12px; line-height:1.5; border-left:2px solid var(--accent2); padding:6px 9px; background:rgba(34,211,238,.06); border-radius:6px; }
+  .hl-reveal mark { background:rgba(250,204,21,.32); color:inherit; border-radius:3px; padding:0 1px; }
+  .hl-reveal .hl-mode { display:block; margin-top:5px; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+
+  /* Knowledge-coverage dashboard (ES aggregations) */
+  .coverage { margin:6px 0 2px; border:1px solid rgba(34,211,238,.22); background:var(--bg2); border-radius:10px; padding:8px 12px; font-size:11.5px; }
+  .coverage .cov-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; color:var(--muted); margin-bottom:6px; }
+  .coverage .cov-head b { color:var(--ink); font-size:12px; }
+  .coverage .cov-mode { font-size:10px; font-weight:700; border-radius:5px; padding:1px 7px; color:#04111f; background:linear-gradient(135deg,var(--accent2),#0891b2); }
+  .coverage .cov-mode.corpus { background:linear-gradient(135deg,var(--warn),#d97706); }
+  .coverage .cov-row { display:flex; gap:5px; flex-wrap:wrap; align-items:center; margin:3px 0; }
+  .coverage .cov-row > span.lbl { color:var(--muted); min-width:84px; }
+  .coverage .cchip { font-size:10.5px; border:1px solid var(--line); border-radius:6px; padding:1px 7px; color:var(--ink); background:rgba(34,211,238,.05); }
+  .coverage .cchip b { color:var(--accent2); }
+
   @media (max-width:760px){ main{ grid-template-columns:1fr; } .trust{ display:none; } }
 </style>
 </head>
@@ -182,6 +201,7 @@
     <h2>💬 Ask the advisor
       <span class="live"><span class="dot"></span> <span id="liveStatus">Gemini · grounded on the tax engine</span></span>
     </h2>
+    <div id="coveragePanel" class="coverage" style="display:none"></div>
     <div id="chatLog"></div>
     <div class="chips" id="chatChips">
       <span class="chip" onclick="sendExample(this)">I work remotely from Spain for a UK employer — where do I pay tax?</span>
@@ -478,6 +498,7 @@ function renderLegislation(items) {
       ` <span class="pill">${it.jurisdiction || ""}</span></div>` +
       `<div class="leg-summary">${it.summary || ""}</div>` +
       `<div class="leg-meta">${it.citation_id}${link}</div>`;
+    if (it.citation_id) attachVerify(card, it.citation_id);
     wrap.appendChild(card);
   });
   return wrap;
@@ -607,6 +628,7 @@ async function persist() {
 // ---- Conversational advisor ----
 let chatHistory = [];
 let chatBusy = false;
+let lastUserQuery = "";
 
 function escapeHtml(s) {
   const d = document.createElement("div"); d.textContent = s; return d.innerHTML;
@@ -661,6 +683,7 @@ async function sendChat(presetText) {
   if (!text) return;
   input.value = "";
   appendMsg("user", text);
+  lastUserQuery = text;
   chatBusy = true;
   document.getElementById("chatSend").disabled = true;
   const thinking = appendMsg("bot", "Thinking…");
@@ -730,6 +753,7 @@ function renderKnowledge(passages, meta) {
       `<div class="ev-sum">${p.summary || ""}</div>` +
       `<div class="ev-meta">${jur ? `<span class="jbadge">${jur}</span>` : ""}` +
       `<span class="pill">${p.citation_id || ""}</span>${link}</div>`;
+    if (p.citation_id) attachVerify(card, p.citation_id);
     body.appendChild(card);
   });
   det.appendChild(body);
@@ -745,6 +769,77 @@ function renderToolbar(usedTool, usedSearch) {
     `<span class="toolbadge engine${usedTool ? " on" : ""}">🔢 Tax engine</span>` +
     `<span class="toolbadge elastic${usedSearch ? " on" : ""}">⚡ Elastic search</span>`;
   return bar;
+}
+
+// Citation → Elastic highlight: fetch the exact cited passage (retrieved by
+// citation_id, re-validated against the engine allowlist) with the question's
+// terms marked, and reveal it inline under the evidence card.
+function attachVerify(card, citationId) {
+  const meta = card.querySelector(".ev-meta") || card.querySelector(".leg-meta");
+  if (!meta) return;
+  const btn = document.createElement("button");
+  btn.className = "verify-btn";
+  btn.type = "button";
+  btn.textContent = "🔍 Verify in source";
+  const reveal = document.createElement("div");
+  reveal.className = "hl-reveal";
+  reveal.style.display = "none";
+  card.appendChild(reveal);
+  btn.onclick = async () => {
+    if (reveal.style.display === "block") { reveal.style.display = "none"; return; }
+    btn.disabled = true; btn.textContent = "Searching…";
+    try {
+      const qs = new URLSearchParams({ citation_id: citationId, query: lastUserQuery || "" });
+      const r = await fetch(`/tools/highlight_citation?${qs.toString()}`);
+      const h = await r.json();
+      if (r.status === 200 && h.found && (h.fragments || []).length) {
+        const mode = (h.meta && h.meta.mode) || "";
+        // Source text is curated (never user input); the API escapes it and only
+        // injects <mark> tags, so rendering fragments as HTML is safe here.
+        reveal.innerHTML = h.fragments.map(f => `<div>${f}</div>`).join("") +
+          `<span class="hl-mode">retrieved by citation_id · ${mode === "elastic" ? "Elastic highlight" : "offline corpus"}</span>`;
+      } else if (r.status === 422) {
+        reveal.innerHTML = `<div>This citation is not in the engine allowlist — refused (fail-closed).</div>`;
+      } else {
+        reveal.innerHTML = `<div>No matching passage available.</div>`;
+      }
+      reveal.style.display = "block";
+    } catch (_) {
+      reveal.innerHTML = `<div>Couldn't load the source passage.</div>`;
+      reveal.style.display = "block";
+    } finally {
+      btn.disabled = false; btn.textContent = "🔍 Verify in source";
+    }
+  };
+  meta.appendChild(btn);
+}
+
+// Knowledge-coverage dashboard: Elastic terms aggregations over the curated
+// indices, reframing "narrow but trustworthy" as a measurable, fresh corpus.
+async function loadCoverage() {
+  try {
+    const r = await fetch("/tools/coverage");
+    if (!r.ok) return;
+    const c = await r.json();
+    if (c.mode === "disabled") return;
+    const panel = document.getElementById("coveragePanel");
+    if (!panel) return;
+    const t = c.totals || {};
+    const docCount = Object.values(t).reduce((a, b) => a + (b || 0), 0);
+    const isCorpus = c.mode !== "elastic";
+    const chip = (txt, n) => `<span class="cchip">${txt}${n != null ? ` <b>${n}</b>` : ""}</span>`;
+    const jur = (c.by_jurisdiction || []).map(b => chip(b.key, b.doc_count)).join("");
+    const ctype = (c.by_content_type || []).map(b => chip(b.key, b.doc_count)).join("");
+    const treaties = (c.treaty_pairs || []).map(p => chip(p)).join("");
+    panel.innerHTML =
+      `<div class="cov-head"><b>📚 Knowledge coverage</b>` +
+      `<span class="cov-mode${isCorpus ? " corpus" : ""}">${isCorpus ? "offline corpus" : "live Elastic aggregations"}</span>` +
+      `<span>${docCount} indexed passages</span></div>` +
+      (jur ? `<div class="cov-row"><span class="lbl">Jurisdictions</span>${jur}</div>` : "") +
+      (treaties ? `<div class="cov-row"><span class="lbl">Treaty pairs</span>${treaties}</div>` : "") +
+      (ctype ? `<div class="cov-row"><span class="lbl">Content types</span>${ctype}</div>` : "");
+    panel.style.display = "block";
+  } catch (_) { /* non-fatal */ }
 }
 
 async function refreshLiveStatus() {
@@ -765,6 +860,7 @@ async function refreshLiveStatus() {
 appendMsg("bot", "Hello — I'm your cross-border tax advisor. Tell me where the client spent the year (days per country) and any income sources, and I'll work out residence and obligations with cited legislation. I'll ask if I need more detail.");
 
 refreshLiveStatus();
+loadCoverage();
 addIncome();
 render();
 </script>

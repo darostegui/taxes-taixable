@@ -20,7 +20,8 @@ from taixable_copilot.treaty import Retriever
 
 if TYPE_CHECKING:
     from taixable_copilot.citations import Citation
-    from taixable_copilot.knowledge import KnowledgeSearch
+    from taixable_copilot.coverage import Coverage
+    from taixable_copilot.knowledge import KnowledgeHighlight, KnowledgeSearch
     from taixable_copilot.legislation import LegislationLookup
 
 # Fallback day-count rules so residency works before the YAML corpus exists.
@@ -52,6 +53,11 @@ class Deps:
     # Progressive tax bands per country code, backing the illustrative liability
     # estimates. None disables estimates (e.g. tests with fake retrievers).
     tax_bands: dict[str, dict] | None = None
+    # Citation -> Elastic-highlighted source passage (the "verifiable AI" feature).
+    # None disables highlighting (e.g. tests with fakes).
+    knowledge_highlight: "KnowledgeHighlight | None" = None
+    # Elastic aggregations coverage dashboard. None disables the endpoint.
+    coverage: "Coverage | None" = None
 
 
 def _load_residency_rules() -> dict[Country, dict]:
@@ -71,8 +77,9 @@ def build_default_deps() -> Deps:
     ELASTIC_URL is set (the hosted demo). Persistence targets DATABASE_URL.
     """
     from taixable_copilot.citations import build_citation_index
+    from taixable_copilot.coverage import build_coverage
     from taixable_copilot.db.repository import make_engine
-    from taixable_copilot.knowledge import build_knowledge_search
+    from taixable_copilot.knowledge import build_knowledge_highlight, build_knowledge_search
     from taixable_copilot.legislation import build_legislation_lookup
     from taixable_copilot.search import all_citation_ids, build_retrievers
     from taixable_copilot.taxbands import load_tax_bands
@@ -91,4 +98,6 @@ def build_default_deps() -> Deps:
         legislation_lookup=build_legislation_lookup(),
         knowledge_search=build_knowledge_search(),
         tax_bands=load_tax_bands(),
+        knowledge_highlight=build_knowledge_highlight(),
+        coverage=build_coverage(),
     )

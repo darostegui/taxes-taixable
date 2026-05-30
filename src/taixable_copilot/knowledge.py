@@ -314,3 +314,158 @@ def build_knowledge_search() -> KnowledgeSearch:
     if url:
         return elastic_knowledge_search(url, os.environ.get("ELASTIC_API_KEY"))
     return corpus_knowledge_search()
+
+
+# --------------------------------------------------------------------------- #
+# Citation -> source-passage highlighting                                     #
+#                                                                             #
+# The "verifiable AI" feature: clicking a citation retrieves the *exact*       #
+# allowlisted passage by id and asks Elasticsearch to mark the spans that      #
+# match the question, so a reviewer can see word-for-word why the engine cited #
+# it. Retrieval is by ``citation_id`` (a deterministic term filter) — never a  #
+# fresh fuzzy search — so the highlighted passage is always the cited one.     #
+# --------------------------------------------------------------------------- #
+# Highlight a single passage: ``highlight(citation_id, query) -> envelope``.
+KnowledgeHighlight = Callable[..., dict[str, Any]]
+
+_HIGHLIGHT_PRE = "<mark>"
+_HIGHLIGHT_POST = "</mark>"
+_SENTENCE_RE = re.compile(r"[^.!?]+[.!?]?")
+
+
+@lru_cache(maxsize=1)
+def _corpus_by_id() -> dict[str, dict[str, Any]]:
+    return {d["citation_id"]: d for d in build_knowledge_corpus()}
+
+
+def _not_found(citation_id: str, mode: str, reason: str) -> dict[str, Any]:
+    return {
+        "found": False,
+        "citation_id": citation_id,
+        "fragments": [],
+        "meta": {"mode": mode, "reason": reason},
+    }
+
+
+def _highlight_terms(text: str, query: str) -> list[str]:
+    """Offline highlighter: wrap query terms in the sentences that contain them."""
+    q_tokens = _content_tokens(query)
+    if not text:
+        return []
+    fragments: list[str] = []
+    for sentence in _SENTENCE_RE.findall(text):
+        stripped = sentence.strip()
+        if not stripped:
+            continue
+        s_tokens = _content_tokens(stripped)
+        if not (q_tokens & s_tokens):
+            continue
+        marked = re.sub(
+            r"\b(" + "|".join(re.escape(t) for t in sorted(q_tokens & s_tokens)) + r")\b",
+            lambda m: f"{_HIGHLIGHT_PRE}{m.group(0)}{_HIGHLIGHT_POST}",
+            stripped,
+            flags=re.IGNORECASE,
+        )
+        fragments.append(marked)
+        if len(fragments) >= 3:
+            break
+    return fragments
+
+
+def corpus_highlight() -> KnowledgeHighlight:
+    """Offline citation highlighter over the in-process corpus."""
+
+    def highlight(citation_id: str, query: str = "") -> dict[str, Any]:
+        doc = _corpus_by_id().get(citation_id)
+        if doc is None:
+            return _not_found(citation_id, "corpus", "not_allowlisted")
+        body = doc.get("summary") or doc.get("text") or ""
+        fragments = _highlight_terms(body, query) if query else []
+        if not fragments and body:
+            # No query overlap (or no query): show the passage verbatim so the
+            # reviewer still sees the cited source text.
+            fragments = [body]
+        return {
+            "found": True,
+            "citation_id": citation_id,
+            "title": doc.get("title", ""),
+            "jurisdiction": doc.get("jurisdiction", "") or doc.get("country_pair", ""),
+            "article": doc.get("article", ""),
+            "source_url": doc.get("source_url", ""),
+            "fragments": fragments,
+            "meta": {"mode": "corpus", "retrieval": "lexical-highlight", "query": query},
+        }
+
+    return highlight
+
+
+def elastic_highlight(url: str, api_key: str | None) -> KnowledgeHighlight:
+    """Elasticsearch highlighter: fetch the cited doc by id and mark query spans."""
+    from elasticsearch import Elasticsearch
+
+    es = Elasticsearch(url, api_key=api_key) if api_key else Elasticsearch(url)
+    allow = known_knowledge_ids()
+    fallback = corpus_highlight()
+
+    def highlight(citation_id: str, query: str = "") -> dict[str, Any]:
+        # Fail closed: only allowlisted citation ids can ever be returned.
+        if citation_id not in allow:
+            return _not_found(citation_id, "elastic", "not_allowlisted")
+        try:
+            should = (
+                [{"multi_match": {"query": query, "fields": ["title^2", "text", "summary"]}}]
+                if query
+                else []
+            )
+            resp = es.search(
+                index=KNOWLEDGE_INDEX,
+                query={"bool": {"filter": [{"term": {"citation_id": citation_id}}], "should": should}},
+                highlight={
+                    "pre_tags": [_HIGHLIGHT_PRE],
+                    "post_tags": [_HIGHLIGHT_POST],
+                    "number_of_fragments": 3,
+                    "fragment_size": 240,
+                    "fields": {"text": {}, "summary": {}, "title": {}},
+                },
+                size=1,
+            )
+            hits = resp["hits"]["hits"]
+            if not hits:
+                return fallback(citation_id, query)
+            hit = hits[0]
+            src = hit.get("_source", {})
+            hl = hit.get("highlight", {})
+            fragments: list[str] = []
+            for field in ("summary", "text", "title"):
+                fragments.extend(hl.get(field, []))
+            if not fragments:
+                fragments = [src.get("summary") or src.get("text") or ""]
+            return {
+                "found": True,
+                "citation_id": citation_id,
+                "title": src.get("title", ""),
+                "jurisdiction": src.get("jurisdiction", "") or src.get("country_pair", ""),
+                "article": src.get("article", ""),
+                "source_url": src.get("source_url", ""),
+                "fragments": [f for f in fragments if f][:3],
+                "meta": {
+                    "mode": "elastic",
+                    "retrieval": "highlight",
+                    "query": query,
+                    "score": hit.get("_score"),
+                },
+            }
+        except Exception:  # noqa: BLE001 - Elastic unreachable -> offline highlighter
+            out = fallback(citation_id, query)
+            out["meta"]["mode"] = "corpus_fallback"
+            return out
+
+    return highlight
+
+
+def build_knowledge_highlight() -> KnowledgeHighlight:
+    """Pick the Elastic highlighter when ``ELASTIC_URL`` is set, else corpus."""
+    url = os.environ.get("ELASTIC_URL")
+    if url:
+        return elastic_highlight(url, os.environ.get("ELASTIC_API_KEY"))
+    return corpus_highlight()

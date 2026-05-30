@@ -175,3 +175,59 @@ def test_index_serves_html():
     r = _client().get("/")
     assert r.status_code == 200
     assert "Virtual Tax Advisor" in r.text
+
+
+def _deps_with_elastic_features():
+    from taixable_copilot.coverage import corpus_coverage
+    from taixable_copilot.knowledge import corpus_highlight
+    from taixable_copilot.search import all_citation_ids
+
+    return Deps(
+        residency_rules=DEFAULT_RESIDENCY_RULES,
+        treaty_retriever=_fake_treaty,
+        rate_lookup=_fake_rate,
+        engine=make_engine("sqlite:///:memory:"),
+        known_citation_ids=all_citation_ids(),
+        knowledge_highlight=corpus_highlight(),
+        coverage=corpus_coverage(),
+    )
+
+
+def test_highlight_citation_marks_terms():
+    client = TestClient(create_app(_deps_with_elastic_features()))
+    r = client.get(
+        "/tools/highlight_citation",
+        params={"citation_id": "ES#residency-183", "query": "183 day Spain residency"},
+    )
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["found"] is True
+    assert body["citation_id"] == "ES#residency-183"
+    assert any("<mark>" in f for f in body["fragments"])
+
+
+def test_highlight_citation_rejects_unknown_id():
+    client = TestClient(create_app(_deps_with_elastic_features()))
+    r = client.get(
+        "/tools/highlight_citation", params={"citation_id": "FR#made-up", "query": "x"}
+    )
+    # Unknown ids are rejected by the engine guardrail before highlighting.
+    assert r.status_code == 422
+
+
+def test_highlight_citation_disabled_without_backend():
+    r = _client().get(
+        "/tools/highlight_citation", params={"citation_id": "ES#residency-183"}
+    )
+    assert r.status_code == 200
+    assert r.json()["meta"]["mode"] == "disabled"
+
+
+def test_coverage_dashboard_reports_buckets():
+    client = TestClient(create_app(_deps_with_elastic_features()))
+    r = client.get("/tools/coverage")
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["mode"] == "corpus"
+    assert body["totals"]["tax-knowledge"] > 0
+    assert body["by_jurisdiction"]
