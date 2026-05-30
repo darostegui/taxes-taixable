@@ -24,6 +24,7 @@ class Citation:
     id: str
     label: str
     url: str | None = None
+    category: str = "engine"
 
 
 @lru_cache(maxsize=1)
@@ -67,6 +68,24 @@ def build_citation_index() -> dict[str, Citation]:
     for entry in bands["tax_bands"]:
         cid = entry["citation_id"]
         index[cid] = Citation(cid, entry.get("title", entry.get("source", cid)), entry.get("url"))
+
+    # Expanded cited reference corpus (PwC Worldwide Tax Summaries + tax-authority
+    # pointers). These are evidence-only: searchable, clickable, and verifiable at
+    # source, but the deterministic engine does NOT compute these jurisdictions.
+    # Curated engine entries above win on id collision (loaded first, not clobbered).
+    legislation = json.loads((DATA_DIR / "legislation.json").read_text())
+    for entry in legislation["legislation"]:
+        cid = entry["citation_id"]
+        if cid in index:
+            continue
+        category = (
+            "curated_reference"
+            if entry.get("content_type") == "curated_reference"
+            else "engine"
+        )
+        index[cid] = Citation(
+            cid, entry.get("title", cid), entry.get("source_url"), category
+        )
 
     return index
 

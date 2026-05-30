@@ -42,6 +42,11 @@ def _buckets(counter: Counter[str]) -> list[dict[str, Any]]:
     ]
 
 
+def _distinct_jurisdictions(counter: Counter[str]) -> int:
+    """Count single-country jurisdictions, excluding treaty-pair keys (``ES-UK``)."""
+    return sum(1 for key in counter if key and "-" not in key)
+
+
 @lru_cache(maxsize=1)
 def _treaty_pairs() -> list[str]:
     raw = json.loads((DATA_DIR / "treaty_articles.json").read_text())
@@ -72,6 +77,7 @@ def corpus_coverage() -> Coverage:
                 KNOWLEDGE_INDEX: len(corpus),
                 TREATY_INDEX: len(treaty_pairs),
                 RATES_INDEX: len(rate_pairs),
+                "distinct_jurisdictions": _distinct_jurisdictions(by_jur),
             },
             "by_jurisdiction": _buckets(by_jur),
             "by_content_type": _buckets(by_type),
@@ -95,7 +101,7 @@ def elastic_coverage(url: str, api_key: str | None) -> Coverage:
                 index=KNOWLEDGE_INDEX,
                 size=0,
                 aggs={
-                    "by_jurisdiction": {"terms": {"field": "jurisdiction", "size": 50}},
+                    "by_jurisdiction": {"terms": {"field": "jurisdiction", "size": 300}},
                     "by_content_type": {"terms": {"field": "content_type", "size": 50}},
                 },
             )
@@ -103,14 +109,18 @@ def elastic_coverage(url: str, api_key: str | None) -> Coverage:
             knowledge_total = resp["hits"]["total"]["value"]
             treaty_pairs = _agg_keys(es, TREATY_INDEX, "country_pair")
             rate_pairs = _agg_keys(es, RATES_INDEX, "country_pair")
+            by_jurisdiction = _normalise_buckets(aggs.get("by_jurisdiction"))
             return {
                 "mode": "elastic",
                 "totals": {
                     KNOWLEDGE_INDEX: knowledge_total,
                     TREATY_INDEX: _count(es, TREATY_INDEX),
                     RATES_INDEX: _count(es, RATES_INDEX),
+                    "distinct_jurisdictions": sum(
+                        1 for b in by_jurisdiction if "-" not in b["key"]
+                    ),
                 },
-                "by_jurisdiction": _normalise_buckets(aggs.get("by_jurisdiction")),
+                "by_jurisdiction": by_jurisdiction,
                 "by_content_type": _normalise_buckets(aggs.get("by_content_type")),
                 "treaty_pairs": treaty_pairs,
                 "rate_pairs": rate_pairs,
