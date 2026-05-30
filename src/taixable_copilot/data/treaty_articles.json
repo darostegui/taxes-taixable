@@ -179,6 +179,114 @@
       "citation_id": "DE-ES#art17",
       "source": "Germany–Spain Double Taxation Convention (2011), Article 17",
       "url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html"
+    },
+    {
+      "country_pair": "FR-UK",
+      "income_types": [
+        "interest"
+      ],
+      "article_no": "12",
+      "topic": "Interest",
+      "text": "Interest arising in a Contracting State and beneficially owned by a resident of the other State shall be taxable only in that other State.",
+      "citation_id": "FR-UK#art12",
+      "source": "UK–France Double Taxation Convention (2008), Article 12",
+      "url": "https://www.gov.uk/government/publications/france-tax-treaties/2008-uk-and-france-double-taxation-convention-in-force"
+    },
+    {
+      "country_pair": "FR-UK",
+      "income_types": [
+        "employment"
+      ],
+      "article_no": "15",
+      "topic": "Income from employment",
+      "text": "Salaries are taxable only in the State of residence unless the employment is exercised in the other State, subject to the 183-day exception.",
+      "citation_id": "FR-UK#art15",
+      "source": "UK–France Double Taxation Convention (2008), Article 15",
+      "url": "https://www.gov.uk/government/publications/france-tax-treaties/2008-uk-and-france-double-taxation-convention-in-force"
+    },
+    {
+      "country_pair": "FR-UK",
+      "income_types": [
+        "pension"
+      ],
+      "article_no": "18",
+      "topic": "Pensions",
+      "text": "Private pensions are taxable only in the State of residence of the recipient.",
+      "citation_id": "FR-UK#art18",
+      "source": "UK–France Double Taxation Convention (2008), Article 18",
+      "url": "https://www.gov.uk/government/publications/france-tax-treaties/2008-uk-and-france-double-taxation-convention-in-force"
+    },
+    {
+      "country_pair": "NL-UK",
+      "income_types": [
+        "interest"
+      ],
+      "article_no": "11",
+      "topic": "Interest",
+      "text": "Interest arising in a Contracting State and beneficially owned by a resident of the other State shall be taxable only in that other State.",
+      "citation_id": "NL-UK#art11",
+      "source": "UK–Netherlands Double Taxation Convention (2008), Article 11",
+      "url": "https://www.gov.uk/government/publications/netherlands-tax-treaties/2008-uk-netherlands-double-taxation-convention-and-protocol-in-force"
+    },
+    {
+      "country_pair": "NL-UK",
+      "income_types": [
+        "employment"
+      ],
+      "article_no": "14",
+      "topic": "Income from employment",
+      "text": "Salaries are taxable only in the State of residence unless the employment is exercised in the other State, subject to the 183-day exception.",
+      "citation_id": "NL-UK#art14",
+      "source": "UK–Netherlands Double Taxation Convention (2008), Article 14",
+      "url": "https://www.gov.uk/government/publications/netherlands-tax-treaties/2008-uk-netherlands-double-taxation-convention-and-protocol-in-force"
+    },
+    {
+      "country_pair": "NL-UK",
+      "income_types": [
+        "pension"
+      ],
+      "article_no": "17",
+      "topic": "Pensions",
+      "text": "Private pensions are taxable only in the State of residence of the recipient.",
+      "citation_id": "NL-UK#art17",
+      "source": "UK–Netherlands Double Taxation Convention (2008), Article 17",
+      "url": "https://www.gov.uk/government/publications/netherlands-tax-treaties/2008-uk-netherlands-double-taxation-convention-and-protocol-in-force"
+    },
+    {
+      "country_pair": "IE-UK",
+      "income_types": [
+        "interest"
+      ],
+      "article_no": "12",
+      "topic": "Interest",
+      "text": "Interest arising in a Contracting State and beneficially owned by a resident of the other State shall be taxable only in that other State.",
+      "citation_id": "IE-UK#art12",
+      "source": "UK–Ireland Double Taxation Convention (1976, as amended), Article 12",
+      "url": "https://www.gov.uk/government/publications/ireland-tax-treaties/1976-uk-ireland-double-taxation-convention-as-amended-by-the-1998-protocol-in-force"
+    },
+    {
+      "country_pair": "IE-UK",
+      "income_types": [
+        "employment"
+      ],
+      "article_no": "15",
+      "topic": "Income from employment",
+      "text": "Salaries are taxable only in the State of residence unless the employment is exercised in the other State, subject to the 183-day exception.",
+      "citation_id": "IE-UK#art15",
+      "source": "UK–Ireland Double Taxation Convention (1976, as amended), Article 15",
+      "url": "https://www.gov.uk/government/publications/ireland-tax-treaties/1976-uk-ireland-double-taxation-convention-as-amended-by-the-1998-protocol-in-force"
+    },
+    {
+      "country_pair": "IE-UK",
+      "income_types": [
+        "pension"
+      ],
+      "article_no": "17",
+      "topic": "Pensions",
+      "text": "Private pensions are taxable only in the State of residence of the recipient.",
+      "citation_id": "IE-UK#art17",
+      "source": "UK–Ireland Double Taxation Convention (1976, as amended), Article 17",
+      "url": "https://www.gov.uk/government/publications/ireland-tax-treaties/1976-uk-ireland-double-taxation-convention-as-amended-by-the-1998-protocol-in-force"
     }
   ]
 }

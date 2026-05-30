@@ -134,6 +134,87 @@
       "citation_id": "DE-ES#art17-rate",
       "source": "Germany–Spain DTC (2011) Art. 17",
       "url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html"
+    },
+    {
+      "country_pair": "FR-UK",
+      "income_type": "interest",
+      "rate": 0.0,
+      "relief": "exempt at source; taxed in residence State",
+      "citation_id": "FR-UK#art12-rate",
+      "source": "UK–France DTC (2008) Art. 12",
+      "url": "https://www.gov.uk/government/publications/france-tax-treaties/2008-uk-and-france-double-taxation-convention-in-force"
+    },
+    {
+      "country_pair": "FR-UK",
+      "income_type": "employment",
+      "rate": 0.0,
+      "relief": "taxable in residence State (183-day rule applies)",
+      "citation_id": "FR-UK#art15-rate",
+      "source": "UK–France DTC (2008) Art. 15",
+      "url": "https://www.gov.uk/government/publications/france-tax-treaties/2008-uk-and-france-double-taxation-convention-in-force"
+    },
+    {
+      "country_pair": "FR-UK",
+      "income_type": "pension",
+      "rate": 0.0,
+      "relief": "private pension taxable only in residence State",
+      "citation_id": "FR-UK#art18-rate",
+      "source": "UK–France DTC (2008) Art. 18",
+      "url": "https://www.gov.uk/government/publications/france-tax-treaties/2008-uk-and-france-double-taxation-convention-in-force"
+    },
+    {
+      "country_pair": "NL-UK",
+      "income_type": "interest",
+      "rate": 0.0,
+      "relief": "exempt at source; taxed in residence State",
+      "citation_id": "NL-UK#art11-rate",
+      "source": "UK–Netherlands DTC (2008) Art. 11",
+      "url": "https://www.gov.uk/government/publications/netherlands-tax-treaties/2008-uk-netherlands-double-taxation-convention-and-protocol-in-force"
+    },
+    {
+      "country_pair": "NL-UK",
+      "income_type": "employment",
+      "rate": 0.0,
+      "relief": "taxable in residence State (183-day rule applies)",
+      "citation_id": "NL-UK#art14-rate",
+      "source": "UK–Netherlands DTC (2008) Art. 14",
+      "url": "https://www.gov.uk/government/publications/netherlands-tax-treaties/2008-uk-netherlands-double-taxation-convention-and-protocol-in-force"
+    },
+    {
+      "country_pair": "NL-UK",
+      "income_type": "pension",
+      "rate": 0.0,
+      "relief": "private pension taxable only in residence State",
+      "citation_id": "NL-UK#art17-rate",
+      "source": "UK–Netherlands DTC (2008) Art. 17",
+      "url": "https://www.gov.uk/government/publications/netherlands-tax-treaties/2008-uk-netherlands-double-taxation-convention-and-protocol-in-force"
+    },
+    {
+      "country_pair": "IE-UK",
+      "income_type": "interest",
+      "rate": 0.0,
+      "relief": "exempt at source; taxed in residence State",
+      "citation_id": "IE-UK#art12-rate",
+      "source": "UK–Ireland DTC (1976, amended) Art. 12",
+      "url": "https://www.gov.uk/government/publications/ireland-tax-treaties/1976-uk-ireland-double-taxation-convention-as-amended-by-the-1998-protocol-in-force"
+    },
+    {
+      "country_pair": "IE-UK",
+      "income_type": "employment",
+      "rate": 0.0,
+      "relief": "taxable in residence State (183-day rule applies)",
+      "citation_id": "IE-UK#art15-rate",
+      "source": "UK–Ireland DTC (1976, amended) Art. 15",
+      "url": "https://www.gov.uk/government/publications/ireland-tax-treaties/1976-uk-ireland-double-taxation-convention-as-amended-by-the-1998-protocol-in-force"
+    },
+    {
+      "country_pair": "IE-UK",
+      "income_type": "pension",
+      "rate": 0.0,
+      "relief": "private pension taxable only in residence State",
+      "citation_id": "IE-UK#art17-rate",
+      "source": "UK–Ireland DTC (1976, amended) Art. 17",
+      "url": "https://www.gov.uk/government/publications/ireland-tax-treaties/1976-uk-ireland-double-taxation-convention-as-amended-by-the-1998-protocol-in-force"
     }
   ]
 }

@@ -139,3 +139,49 @@ def test_assessment_citations_are_all_in_allowlist():
     assessment = _assess(profile, deps)
     unknown = [c for c in assessment.citations if c not in known]
     assert unknown == []
+
+def test_new_treaty_pairs_model_safe_income_and_fail_closed_on_rest():
+    """FR-UK / NL-UK / IE-UK: interest, employment and (private) pension are
+    curated from primary gov.uk treaty text and resolve as *modelled* with the
+    verified article + a 0% source rate; dividend and rental are deliberately
+    omitted (direction-dependent) and must fail closed."""
+    from taixable_copilot.api.deps import build_default_deps
+    from taixable_copilot.crossborder import resolve_cross_border
+
+    deps = build_default_deps()
+    known = set(deps.known_citation_ids)
+    # (residence, source, {income_type: expected_article_no})
+    expected = {
+        (Country.FR, Country.UK): {
+            IncomeType.INTEREST: "12",
+            IncomeType.EMPLOYMENT: "15",
+            IncomeType.PENSION: "18",
+        },
+        (Country.NL, Country.UK): {
+            IncomeType.INTEREST: "11",
+            IncomeType.EMPLOYMENT: "14",
+            IncomeType.PENSION: "17",
+        },
+        (Country.IE, Country.UK): {
+            IncomeType.INTEREST: "12",
+            IncomeType.EMPLOYMENT: "15",
+            IncomeType.PENSION: "17",
+        },
+    }
+    for (res, src), arts in expected.items():
+        for income, article_no in arts.items():
+            t = resolve_cross_border(
+                res, src, income, deps.treaty_retriever, deps.rate_lookup, known
+            )
+            assert t.modelled is True, (res, src, income)
+            assert t.article_no == article_no, (res, src, income, t.article_no)
+            assert t.rate == 0.0
+            assert all(c in known for c in t.citation_ids)
+        # direction-dependent flows must fail closed (no fabricated rate)
+        for income in (IncomeType.DIVIDEND, IncomeType.RENTAL):
+            t = resolve_cross_border(
+                res, src, income, deps.treaty_retriever, deps.rate_lookup, known
+            )
+            assert t.modelled is False, (res, src, income)
+            assert t.rate is None
+            assert t.article_no is None
