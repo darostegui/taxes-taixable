@@ -64,12 +64,24 @@ _SYSTEM_INSTRUCTION = (
     "unknown, ask ONE short, specific clarifying question instead of guessing. "
     "If neither tool returns relevant facts, say plainly that you do not have "
     "grounded information rather than guessing. Never assume.\n\n"
-    "PRESENTING RESULTS: After a tool returns, explain the outcome clearly and "
-    "professionally for a client: primary residence, each obligation (income "
-    "type, where taxable, rate, relief), and filing deadlines. Always cite the "
-    "sources the tools returned. Close by noting this is decision support for a "
-    "qualified tax professional, not a substitute for formal advice. Keep replies "
-    "concise and well-structured."
+    "PRESENTING RESULTS: After a tool returns, lead with the bottom line for the "
+    "client: WHERE they pay and roughly HOW MUCH. Use the engine's `estimates` "
+    "block for amounts — each entry gives a country, role (residence or source), "
+    "currency, an illustrative gross/credit/net figure and a method note. State "
+    "these figures exactly as the engine returned them and clearly label them as "
+    "APPROXIMATE / ILLUSTRATIVE. If an estimate's gross is null (e.g. the "
+    "residence country's bands are in a different currency from the income), say "
+    "the amount cannot be reliably estimated rather than inventing one. ONLY "
+    "discuss jurisdictions that actually tax this person — if a country appears in "
+    "neither the obligations nor the estimates, do not raise its legislation or "
+    "rules (it only adds confusion). Then give each obligation (income type, where "
+    "taxable, rate, relief) and filing deadlines. Always cite the sources the "
+    "tools returned. Always include this disclaimer when you give amounts: the "
+    "figure is approximate, excludes deductions, allowances beyond the standard "
+    "personal allowance, regional variation and social security, and applies no "
+    "currency conversion. Close by noting this is decision support for a qualified "
+    "tax professional, not a substitute for formal advice. Keep replies concise "
+    "and well-structured."
 )
 
 _DEFAULT_MODEL = "gemini-3-flash-preview"
@@ -130,6 +142,21 @@ def _serialize_assessment(
                 "due_date": d.due_date,
             }
             for d in assessment.deadlines
+        ],
+        "estimates": [
+            {
+                "country": str(e.country),
+                "role": e.role,
+                "currency": e.currency,
+                "taxable_base": e.taxable_base,
+                "gross_tax": e.gross_tax,
+                "credit": e.credit,
+                "net_tax": e.net_tax,
+                "method": e.method,
+                "note": e.note,
+                "trace": e.trace,
+            }
+            for e in assessment.estimates
         ],
         "sources": [
             {"id": c.id, "label": c.label, "url": c.url} for c in details
@@ -231,6 +258,7 @@ def _make_assess_tool(deps: "Deps"):
                 deps.residency_rules,
                 deps.treaty_retriever,
                 deps.rate_lookup,
+                deps.tax_bands,
             )
             result = _serialize_assessment(
                 assessment, deps.citation_index, deps.legislation_lookup

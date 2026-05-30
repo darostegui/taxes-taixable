@@ -37,11 +37,26 @@ class CitationOut(BaseModel):
     url: str | None = None
 
 
+class EstimateOut(BaseModel):
+    country: str
+    role: str
+    currency: str
+    taxable_base: float
+    gross_tax: float | None = None
+    credit: float = 0.0
+    net_tax: float | None = None
+    method: str
+    note: str
+    citation_ids: list[str] = Field(default_factory=list)
+    trace: list[str] = Field(default_factory=list)
+
+
 class AssessmentOut(BaseModel):
     primary_residence: str
     residence_confidence: float
     obligations: list[ObligationOut]
     deadlines: list[DeadlineOut]
+    estimates: list[EstimateOut] = Field(default_factory=list)
     citations: list[str]
     citation_details: list[CitationOut] = Field(default_factory=list)
     legislation: list[dict] = Field(default_factory=list)

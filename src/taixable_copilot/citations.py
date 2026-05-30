@@ -62,6 +62,12 @@ def build_citation_index() -> dict[str, Citation]:
         cid = spec["citation_id"]
         index[cid] = Citation(cid, spec.get("label", cid), spec.get("url"))
 
+    # Progressive tax-band citation ids back the illustrative liability estimates.
+    bands = json.loads((DATA_DIR / "tax_bands.json").read_text())
+    for entry in bands["tax_bands"]:
+        cid = entry["citation_id"]
+        index[cid] = Citation(cid, entry.get("title", entry.get("source", cid)), entry.get("url"))
+
     return index
 
 

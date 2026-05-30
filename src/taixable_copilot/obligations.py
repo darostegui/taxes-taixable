@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from taixable_copilot.models import Country, CustomerProfile, IncomeType
 from taixable_copilot.rates import RateLookup, get_withholding_rate
 from taixable_copilot.residency import determine_residency
+from taixable_copilot.taxbands import CountryEstimate, estimate_liabilities
 from taixable_copilot.treaty import Retriever, resolve_treaty_article
 
 # Residence-country self-assessment filing deadlines (month, day) for the tax year
@@ -68,6 +69,7 @@ class Assessment:
     residence_confidence: float
     obligations: list[Obligation] = field(default_factory=list)
     deadlines: list[Deadline] = field(default_factory=list)
+    estimates: list[CountryEstimate] = field(default_factory=list)
     citations: list[str] = field(default_factory=list)
 
 
@@ -77,6 +79,7 @@ def assess_obligations(
     residency_rules: dict[Country, dict],
     treaty_retriever: Retriever,
     rate_lookup: RateLookup,
+    tax_bands: dict[str, dict] | None = None,
 ) -> Assessment:
     residency = determine_residency(profile.days_present, residency_rules)
     primary = residency.primary_residence
@@ -108,11 +111,16 @@ def assess_obligations(
         if d.citation_id:
             citations.append(d.citation_id)
 
+    estimates = estimate_liabilities(profile, primary, rate_lookup, tax_bands)
+    for est in estimates:
+        citations.extend(est.citation_ids)
+
     return Assessment(
         primary_residence=primary,
         residence_confidence=residency.confidence,
         obligations=obligations,
         deadlines=deadlines,
+        estimates=estimates,
         citations=sorted(set(citations)),
     )
 

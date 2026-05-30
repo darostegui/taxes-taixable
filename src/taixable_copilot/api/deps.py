@@ -49,6 +49,9 @@ class Deps:
     # used by the conversational agent's search_tax_knowledge tool. None disables
     # it (the tool then returns no passages).
     knowledge_search: "KnowledgeSearch | None" = None
+    # Progressive tax bands per country code, backing the illustrative liability
+    # estimates. None disables estimates (e.g. tests with fake retrievers).
+    tax_bands: dict[str, dict] | None = None
 
 
 def _load_residency_rules() -> dict[Country, dict]:
@@ -72,6 +75,7 @@ def build_default_deps() -> Deps:
     from taixable_copilot.knowledge import build_knowledge_search
     from taixable_copilot.legislation import build_legislation_lookup
     from taixable_copilot.search import all_citation_ids, build_retrievers
+    from taixable_copilot.taxbands import load_tax_bands
 
     db_url = os.environ.get("DATABASE_URL", "sqlite:///taixable.db")
     engine = make_engine(db_url)
@@ -86,4 +90,5 @@ def build_default_deps() -> Deps:
         citation_index=build_citation_index(),
         legislation_lookup=build_legislation_lookup(),
         knowledge_search=build_knowledge_search(),
+        tax_bands=load_tax_bands(),
     )

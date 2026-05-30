@@ -89,6 +89,14 @@
   .leg-meta { margin-top:5px; font-size:11px; color:var(--muted); }
   .leg-meta a { color:var(--accent); text-decoration:none; margin-left:8px; }
   .leg-meta a:hover { text-decoration:underline; }
+  .estimates { margin:6px 0 12px; }
+  .est-head { margin:0 0 8px; font-size:12.5px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+  .est-item { border:1px solid var(--line); border-left:3px solid #34d399; border-radius:8px; padding:10px 12px; margin-bottom:8px; background:rgba(16,72,56,.18); }
+  .est-row { font-size:13px; margin-bottom:4px; }
+  .est-country { font-weight:700; font-size:15px; letter-spacing:.02em; }
+  .est-figure { font-size:14px; line-height:1.5; }
+  .est-figure .muted { color:var(--muted); font-weight:400; font-size:12.5px; }
+  .est-meta { margin-top:5px; font-size:11px; color:var(--muted); line-height:1.45; }
   table { border-collapse:collapse; }
   table th { text-align:left; color:var(--muted); font-weight:600; border-bottom:1px solid var(--line); padding:6px 8px; }
   table td { padding:6px 8px; border-bottom:1px solid rgba(38,50,77,.5); }
@@ -475,6 +483,72 @@ function renderLegislation(items) {
   return wrap;
 }
 
+// Jurisdictions that actually tax this person: primary residence + every source
+// country that appears in an obligation. Used to hide irrelevant legislation so a
+// UK-only client isn't shown ES/DE rules.
+function relevantJurisdictions(a) {
+  const set = new Set();
+  if (a.primary_residence) set.add(a.primary_residence);
+  (a.obligations || []).forEach(o => { if (o.source_country) set.add(o.source_country); });
+  (a.estimates || []).forEach(e => { if (e.country) set.add(e.country); });
+  return set;
+}
+
+function relevantLegislation(items, a) {
+  if (!items || !items.length) return items;
+  const keep = relevantJurisdictions(a);
+  return items.filter(it => {
+    const j = it.jurisdiction || "";
+    if (!j) return true;
+    // Treaty rows like "ES-UK" stay if either side is relevant.
+    return j.split("-").some(part => keep.has(part.trim()));
+  });
+}
+
+function money(v, ccy) {
+  if (v === null || v === undefined) return null;
+  const sym = ccy === "GBP" ? "£" : ccy === "EUR" ? "€" : "";
+  return sym + Math.round(v).toLocaleString();
+}
+
+// Lead block: where you pay and roughly how much (deterministic, cited, labelled
+// approximate). Residence rows show gross/credit/net; source rows show the amount.
+function renderEstimates(estimates) {
+  const wrap = document.createElement("div");
+  if (!estimates || !estimates.length) return wrap;
+  wrap.className = "estimates";
+  const h = document.createElement("p");
+  h.className = "est-head";
+  h.innerHTML = `Where you pay — approximate <span class="pill">illustrative · excludes deductions, regional variation &amp; social security</span>`;
+  wrap.appendChild(h);
+  estimates.forEach(e => {
+    const card = document.createElement("div");
+    card.className = "est-item";
+    const roleLabel = e.role === "residence" ? "Residence — worldwide income" : "Source country";
+    let figure;
+    if (e.role === "residence") {
+      const g = money(e.gross_tax, e.currency);
+      if (g === null) {
+        figure = `Amount not estimated — ${e.note || "bands in a different currency from the income"}`;
+      } else {
+        const credit = money(e.credit, e.currency);
+        const net = money(e.net_tax, e.currency);
+        figure = `<b>${net}</b> net` +
+          (e.credit ? ` <span class="muted">(${g} gross − ${credit} foreign-tax credit)</span>` : ` <span class="muted">(${g} gross)</span>`);
+      }
+    } else {
+      figure = `<b>${money(e.gross_tax, e.currency)}</b> due at source`;
+    }
+    card.innerHTML =
+      `<div class="est-row"><span class="est-country">${e.country}</span>` +
+      ` <span class="pill">${roleLabel}</span></div>` +
+      `<div class="est-figure">${figure}</div>` +
+      (e.method ? `<div class="est-meta">${e.method}</div>` : "");
+    wrap.appendChild(card);
+  });
+  return wrap;
+}
+
 async function assess() {
   if (!targetReached()) return;
   const { status, body } = await post("/tools/assess_obligations", { profile: profile(), tax_year: year() });
@@ -484,12 +558,16 @@ async function assess() {
   const obs = body.obligations.map(o => `<tr><td>${o.income_type}</td><td>${o.source_country}</td><td>${o.treaty_article}</td><td>${(o.rate * 100).toFixed(0)}%</td><td>${o.relief}</td></tr>`).join("");
   const dls = body.deadlines.map(d => `<li><b>${d.jurisdiction}</b> — ${d.description}: <b>${d.due_date}</b></li>`).join("");
   panel.innerHTML = `
-    <p>Primary residence: <b>${body.primary_residence}</b> <span class="pill">confidence: ${confidenceBand(body.residence_confidence)}</span></p>
+    <p>Primary residence: <b>${body.primary_residence}</b> <span class="pill">confidence: ${confidenceBand(body.residence_confidence)}</span></p>`;
+  panel.appendChild(renderEstimates(body.estimates));
+  const tbl = document.createElement("div");
+  tbl.innerHTML = `
     <table style="width:100%; font-size:13px;"><tr><th>Income</th><th>Src</th><th>Art.</th><th>Rate</th><th>Relief</th></tr>${obs}</table>
     <p>Deadlines:</p><ul>${dls}</ul>
     <p><b>Sources (${body.citation_details ? body.citation_details.length : 0})</b></p>`;
+  panel.appendChild(tbl);
   panel.appendChild(renderSources(body.citation_details));
-  panel.appendChild(renderLegislation(body.legislation));
+  panel.appendChild(renderLegislation(relevantLegislation(body.legislation, body)));
 }
 
 async function memo() {
@@ -562,12 +640,16 @@ function appendFacts(a) {
   const dls = (a.deadlines || []).map(d => `<li><b>${d.jurisdiction}</b> — ${d.description}: <b>${d.due_date}</b></li>`).join("");
   card.innerHTML = `
     <h4>Engine result — cited</h4>
-    <p style="margin:0 0 8px">Primary residence: <b>${a.primary_residence}</b> <span class="pill">confidence: ${confidenceBand(a.residence_confidence)}</span></p>
+    <p style="margin:0 0 8px">Primary residence: <b>${a.primary_residence}</b> <span class="pill">confidence: ${confidenceBand(a.residence_confidence)}</span></p>`;
+  card.appendChild(renderEstimates(a.estimates));
+  const body = document.createElement("div");
+  body.innerHTML = `
     ${obs ? `<table style="width:100%; font-size:12.5px;"><tr><th>Income</th><th>Src</th><th>Art.</th><th>Rate</th><th>Relief</th></tr>${obs}</table>` : ""}
     ${dls ? `<p style="margin:8px 0 4px">Deadlines:</p><ul style="margin:0; padding-left:18px">${dls}</ul>` : ""}
     <p style="margin:8px 0 4px"><b>Sources (${(a.sources || []).length})</b></p>`;
+  card.appendChild(body);
   card.appendChild(renderSources(a.sources));
-  card.appendChild(renderLegislation(a.legislation));
+  card.appendChild(renderLegislation(relevantLegislation(a.legislation, a)));
   (last || log).appendChild(card);
   log.scrollTop = log.scrollHeight;
 }

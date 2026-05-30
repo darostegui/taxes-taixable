@@ -75,6 +75,22 @@ def _serialize(assessment: Assessment, deps: Deps) -> AssessmentOut:
             }
             for d in assessment.deadlines
         ],
+        estimates=[
+            {
+                "country": str(e.country),
+                "role": e.role,
+                "currency": e.currency,
+                "taxable_base": e.taxable_base,
+                "gross_tax": e.gross_tax,
+                "credit": e.credit,
+                "net_tax": e.net_tax,
+                "method": e.method,
+                "note": e.note,
+                "citation_ids": e.citation_ids,
+                "trace": e.trace,
+            }
+            for e in assessment.estimates
+        ],
         citations=assessment.citations,
         citation_details=[
             {"id": c.id, "label": c.label, "url": c.url} for c in details
@@ -143,6 +159,7 @@ def create_app(deps: Deps) -> FastAPI:
                 deps.residency_rules,
                 deps.treaty_retriever,
                 deps.rate_lookup,
+                deps.tax_bands,
             )
         except LookupError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -158,6 +175,7 @@ def create_app(deps: Deps) -> FastAPI:
                 deps.residency_rules,
                 deps.treaty_retriever,
                 deps.rate_lookup,
+                deps.tax_bands,
             )
         except LookupError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc

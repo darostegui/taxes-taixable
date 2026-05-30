@@ -231,6 +231,39 @@
       "effective_date": "2012-10-18",
       "source_url": "https://www.bundesfinanzministerium.de/Web/DE/Themen/Steuern/Internationales_Steuerrecht/Staatenbezogene_Informationen/staatenbezogene_info.html",
       "package_version": "2025.1"
+    },
+    {
+      "citation_id": "ES#irpf-bands",
+      "jurisdiction": "ES",
+      "title": "Spain IRPF — general progressive scale (simplified)",
+      "article": "Scale",
+      "summary": "Spain's personal income tax (IRPF) applies a progressive scale to general income above the personal minimum (allowance). The illustrative estimate uses the state general brackets from 19% to 47% and the personal minimum as an allowance; it excludes savings-income rates, regional scales, deductions and social security.",
+      "content_type": "curated_summary",
+      "effective_date": "2024-01-01",
+      "source_url": "https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "UK#income-tax-bands",
+      "jurisdiction": "UK",
+      "title": "UK Income Tax — rates and bands (rest-of-UK)",
+      "article": "Rates",
+      "summary": "UK income tax applies a personal allowance then basic (20%), higher (40%) and additional (45%) rates. The illustrative estimate uses the rest-of-UK bands and excludes the personal-allowance taper above £100,000, Scottish rates, dividend/savings allowances and National Insurance.",
+      "content_type": "curated_summary",
+      "effective_date": "2024-04-06",
+      "source_url": "https://www.gov.uk/income-tax-rates",
+      "package_version": "2025.1"
+    },
+    {
+      "citation_id": "DE#est-bands",
+      "jurisdiction": "DE",
+      "title": "Germany Einkommensteuer — progressive zones (coarse approximation)",
+      "article": "§ 32a EStG",
+      "summary": "Germany's income tax (§32a EStG) is a continuous progressive formula above the Grundfreibetrag (basic allowance), rising to 42% and 45%. The illustrative estimate approximates this with coarse marginal bands and excludes the solidarity surcharge, church tax, joint assessment and deductions.",
+      "content_type": "curated_summary",
+      "effective_date": "2024-01-01",
+      "source_url": "https://www.gesetze-im-internet.de/estg/__32a.html",
+      "package_version": "2025.1"
     }
   ]
 }

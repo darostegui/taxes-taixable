@@ -1,0 +1,56 @@
+{
+  "package_version": "2025.1",
+  "tax_bands": [
+    {
+      "country": "ES",
+      "currency": "EUR",
+      "personal_allowance": 5550,
+      "citation_id": "ES#irpf-bands",
+      "title": "Spain IRPF — general progressive scale (2024/25, simplified)",
+      "source": "Ley 35/2006 (IRPF), state general scale; personal minimum applied as an allowance (simplified)",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764",
+      "method": "taxable = worldwide income − personal minimum; statutory IRPF brackets applied from 0.",
+      "note": "Rough band approximation, not the Spanish statutory calculation. Spain applies the personal minimum as a bracket-bottom credit, has separate savings-income rates and regional (autonomous-community) scales; this simplified model excludes those, deductions and social security.",
+      "bands": [
+        {"up_to": 12450, "rate": 0.19},
+        {"up_to": 20200, "rate": 0.24},
+        {"up_to": 35200, "rate": 0.30},
+        {"up_to": 60000, "rate": 0.37},
+        {"up_to": 300000, "rate": 0.45},
+        {"up_to": null, "rate": 0.47}
+      ]
+    },
+    {
+      "country": "UK",
+      "currency": "GBP",
+      "personal_allowance": 12570,
+      "citation_id": "UK#income-tax-bands",
+      "title": "UK Income Tax — rates and bands (2024/25, rest-of-UK)",
+      "source": "HMRC Income Tax rates and Personal Allowance (excludes Scotland)",
+      "url": "https://www.gov.uk/income-tax-rates",
+      "method": "taxable = income − personal allowance; rest-of-UK main rates applied from 0.",
+      "note": "Excludes the personal-allowance taper above £100,000, Scottish rates, dividend/savings allowances, National Insurance and reliefs.",
+      "bands": [
+        {"up_to": 37700, "rate": 0.20},
+        {"up_to": 112570, "rate": 0.40},
+        {"up_to": null, "rate": 0.45}
+      ]
+    },
+    {
+      "country": "DE",
+      "currency": "EUR",
+      "personal_allowance": 11604,
+      "citation_id": "DE#est-bands",
+      "title": "Germany Einkommensteuer — progressive zones (2024, coarse approximation)",
+      "source": "§32a EStG progressive formula, approximated by coarse marginal bands",
+      "url": "https://www.gesetze-im-internet.de/estg/__32a.html",
+      "method": "taxable = income − Grundfreibetrag; the §32a progressive zones approximated by coarse marginal bands.",
+      "note": "Coarse approximation of the §32a EStG progressive formula (which is a continuous polynomial, not flat brackets). Excludes the solidarity surcharge, church tax, joint assessment (Splitting) and deductions.",
+      "bands": [
+        {"up_to": 55156, "rate": 0.30},
+        {"up_to": 266221, "rate": 0.42},
+        {"up_to": null, "rate": 0.45}
+      ]
+    }
+  ]
+}
