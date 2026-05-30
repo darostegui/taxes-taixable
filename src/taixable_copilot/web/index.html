@@ -830,7 +830,7 @@ async function sendChat(presetText) {
   try {
     const { status, body } = await post("/chat", { message: text, history: chatHistory, tax_year: year() });
     thinking.parentElement.remove();
-    if (status !== 200) { appendMsg("bot", "Sorry — the advisor is unavailable right now."); return; }
+    if (status !== 200) { appendMsg("bot", "Sorry — the advisor is unavailable right now."); renderChips([]); return; }
     const bubble = appendMsg("bot", body.reply);
     chatHistory.push({ role: "user", content: text });
     chatHistory.push({ role: "assistant", content: body.reply });
@@ -838,9 +838,11 @@ async function sendChat(presetText) {
     if (body.used_tool && body.assessment) appendFacts(body.assessment);
     const drawer = renderKnowledge(body.knowledge, body.search_meta);
     if (drawer) bubble.appendChild(drawer);
+    renderChips(buildSuggestions(body.reply, body.knowledge, body.assessment));
   } catch (e) {
     thinking.parentElement.remove();
     appendMsg("bot", "Sorry — I couldn't reach the advisor. Please try again.");
+    renderChips([]);
   } finally {
     chatBusy = false;
     document.getElementById("chatSend").disabled = false;
@@ -849,6 +851,113 @@ async function sendChat(presetText) {
 }
 
 function sendExample(el) { sendChat(el.textContent); }
+
+// ── Context-aware follow-up suggestions ─────────────────────────────────────
+// After every turn we regenerate the chips below the chat with questions the
+// client is likely to ask next, grounded ONLY on what was actually mentioned
+// (engine assessment + Elastic-retrieved knowledge + the reply text). These are
+// QUESTIONS, never claims, so they cannot introduce hallucinated facts.
+const SUGG_MAX = 4;
+const COUNTRY_NAMES = {
+  UK: "the UK", ES: "Spain", DE: "Germany", IE: "Ireland", PT: "Portugal",
+  AE: "the UAE", AT: "Austria", AU: "Australia", BE: "Belgium", BR: "Brazil",
+  CA: "Canada", CH: "Switzerland", CN: "China", DK: "Denmark", FI: "Finland",
+  FR: "France", HK: "Hong Kong", IL: "Israel", IN: "India", IT: "Italy",
+  JP: "Japan", LU: "Luxembourg", MX: "Mexico", NL: "the Netherlands",
+  NO: "Norway", NZ: "New Zealand", PL: "Poland", SE: "Sweden", SG: "Singapore",
+  US: "the US",
+};
+// Free-text signals (names, common cities/regions) → country code.
+const COUNTRY_SIGNALS = [
+  ["UK", /\b(united kingdom|u\.?k\.?|britain|british|england|english|scotland|wales|london|manchester|edinburgh)\b/i],
+  ["ES", /\b(spain|spanish|madrid|barcelona|catalu|catalon|mallorca|majorca|valencia|sevill|basque|navarr|beckham)\b/i],
+  ["DE", /\b(germany|german|berlin|munich|münchen|frankfurt|hamburg)\b/i],
+  ["IE", /\b(ireland|irish|dublin)\b/i],
+  ["PT", /\b(portugal|portuguese|lisbon|lisboa|porto|madeira|nhr)\b/i],
+  ["FR", /\b(france|french|paris|lyon|marseille)\b/i],
+  ["IT", /\b(italy|italian|rome|milan|milano)\b/i],
+  ["NL", /\b(netherlands|dutch|amsterdam|rotterdam|the hague)\b/i],
+  ["CH", /\b(switzerland|swiss|zurich|geneva|geneve)\b/i],
+  ["AE", /\b(uae|united arab emirates|dubai|abu dhabi)\b/i],
+  ["US", /\b(united states|u\.?s\.?a?\.?|america|new york|california)\b/i],
+  ["DK", /\b(denmark|danish|copenhagen)\b/i],
+  ["SE", /\b(sweden|swedish|stockholm)\b/i],
+  ["GR", /\b(greece|greek|athens)\b/i],
+];
+
+function detectCountries(reply, knowledge, assessment) {
+  const order = [], seen = new Set();
+  const add = c => { c = (c || "").toUpperCase(); if (COUNTRY_NAMES[c] && !seen.has(c)) { seen.add(c); order.push(c); } };
+  if (assessment) {
+    add(assessment.primary_residence);
+    (assessment.obligations || []).forEach(o => add(o.source_country));
+    (assessment.deadlines || []).forEach(d => add(d.jurisdiction));
+  }
+  (knowledge || []).forEach(p => (p.jurisdiction || p.country_pair || "").split(/[^A-Za-z]+/).forEach(add));
+  COUNTRY_SIGNALS.forEach(([c, re]) => {
+    if (re.test(reply || "") || (knowledge || []).some(p => re.test((p.title || "") + " " + (p.summary || "")))) add(c);
+  });
+  return order;
+}
+
+function buildSuggestions(reply, knowledge, assessment) {
+  const k = knowledge || [];
+  let ctx = (reply || "");
+  k.forEach(p => { ctx += " " + (p.title || "") + " " + (p.summary || "") + " " + (p.citation_id || ""); });
+  ctx = ctx.toLowerCase();
+  const has = (...keys) => keys.some(x => ctx.includes(x));
+  const countries = detectCountries(reply, k, assessment);
+  const pname = countries.length ? COUNTRY_NAMES[countries[0]] : null;
+
+  const out = [];
+  const push = t => { if (t && !out.includes(t) && out.length < SUGG_MAX) out.push(t); };
+
+  if (has("beckham")) push("What is the Beckham regime and would I qualify?");
+  if (has("familia numerosa", "familia-numerosa", "large family", "numerosa", "per child", "dependent child", "child benefit"))
+    push(pname ? `What family and child tax benefits apply in ${pname}?` : "What family or child tax benefits could apply to me?");
+  if (has("golden visa")) push("Is the golden visa still available, and what are the alternatives?");
+  if (has("wealth tax", "patrimonio", "solidarity tax", "net worth"))
+    push(pname ? `How much wealth tax would I pay in ${pname}?` : "How much wealth tax would I owe?");
+  if (has("region", "catalu", "catalon", "foral", "basque", "navarr", "autonomous communit"))
+    push(pname ? `How do regional taxes differ within ${pname}?` : "How do regional taxes change the result?");
+  if (has("pension", "retire", "retirement"))
+    push(pname ? `How will my pension be taxed if I retire in ${pname}?` : "How will my pension be taxed if I retire abroad?");
+  if (has("treaty", "double tax", "double-tax", "foreign tax credit", "relief from double"))
+    push("How do I make sure I'm not taxed twice on this income?");
+  if (has("nhr", "non-habitual", "impatriate", "non-dom", "inpatriate", "special regime", "preferential regime"))
+    push(pname ? `Which special tax regimes could I use in ${pname}?` : "Which special tax regimes might I qualify for?");
+  if (has("deduction", "relief", "exempt", "discount", "incentive", "tax credit", "allowance", "rebate", "save tax", "reduce your tax"))
+    push(pname ? `How can I legally lower my tax bill in ${pname}?` : "How can I legally lower my tax bill?");
+
+  countries.slice(0, 2).forEach(c => push(`Can I get any tax discounts or special regimes in ${COUNTRY_NAMES[c]}?`));
+
+  // Always leave the client with at least a couple of high-value next steps.
+  push("Where exactly do I have to pay tax, and how much?");
+  push("What are my filing deadlines and obligations?");
+  return out.slice(0, SUGG_MAX);
+}
+
+// Default chips shown before the conversation starts / after an error.
+const DEFAULT_CHIPS = [
+  "I work remotely from Spain for a UK employer — where do I pay tax?",
+  "How is my German pension taxed if I move to the UK?",
+  "90 days UK, 185 in Germany, rest in Spain. 62000 EUR salary in Germany.",
+  "Can I be taxed twice on dividends between Spain and the UK?",
+];
+
+function renderChips(list) {
+  const box = document.getElementById("chatChips");
+  if (!box) return;
+  const items = (list && list.length) ? list : DEFAULT_CHIPS;
+  box.innerHTML = "";
+  items.forEach(t => {
+    const s = document.createElement("span");
+    s.className = "chip";
+    s.textContent = t;
+    s.addEventListener("click", () => sendChat(t));
+    box.appendChild(s);
+  });
+}
 
 // Render the Elastic-retrieved evidence passages as a collapsible drawer, with a
 // badge showing the retrieval mode (hybrid kNN+BM25, BM25, or offline corpus).
