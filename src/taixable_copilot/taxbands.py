@@ -25,8 +25,10 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 
+from taixable_copilot.crossborder import resolve_cross_border
 from taixable_copilot.models import Country, CustomerProfile
 from taixable_copilot.rates import RateLookup, get_withholding_rate
+from taixable_copilot.treaty import Retriever
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
@@ -47,7 +49,7 @@ class CountryEstimate:
     currency: str
     taxable_base: float
     gross_tax: float | None
-    credit: float
+    credit: float | None
     net_tax: float | None
     method: str
     note: str
@@ -98,11 +100,24 @@ def estimate_liabilities(
     primary: Country,
     rate_lookup: RateLookup,
     tax_bands: dict[str, dict] | None,
+    *,
+    treaty_retriever: Retriever | None = None,
+    tax_base_scope: str | None = None,
+    known_citation_ids: set[str] | None = None,
 ) -> list[CountryEstimate]:
     """Estimate per-jurisdiction tax for the engine's residence determination.
 
     Returns an empty list when no bands are supplied (estimates are opt-in so the
     pure unit tests that exercise the obligation engine stay unaffected).
+
+    When ``treaty_retriever`` is provided, foreign income lines are resolved through
+    the fail-closed cross-border resolver: an uncurated country pair is flagged as
+    *not modelled* (no fabricated rate) and the residence net figure is then withheld
+    (a missing foreign-tax credit would overstate the residence tax). When it is not
+    provided the legacy direct-rate path is used (curated pairs only).
+
+    ``tax_base_scope`` (from the residency finding) gates the residence estimate:
+    a ``no_personal_income_tax`` jurisdiction never produces a positive amount.
     """
     if not tax_bands:
         return []
@@ -119,25 +134,43 @@ def estimate_liabilities(
     source_trace_by_country: dict[Country, list[str]] = {}
     source_cites_by_country: dict[Country, list[str]] = {}
     credited_income = 0.0
+    has_unmodelled_foreign = False
     for inc in foreign:
-        rate = get_withholding_rate(primary, inc.source_country, inc.type, rate_lookup)
-        if rate.rate <= 0:
+        if treaty_retriever is not None:
+            treatment = resolve_cross_border(
+                primary,
+                inc.source_country,
+                inc.type,
+                treaty_retriever,
+                rate_lookup,
+                known_ids=known_citation_ids,
+            )
+            if not treatment.modelled:
+                has_unmodelled_foreign = True
+                continue
+            line_rate = treatment.rate or 0.0
+            line_cite = treatment.citation_ids
+        else:
+            rate = get_withholding_rate(primary, inc.source_country, inc.type, rate_lookup)
+            line_rate = rate.rate
+            line_cite = [rate.citation_id]
+        if line_rate <= 0:
             continue
-        amt = round(inc.amount * rate.rate, 2)
+        amt = round(inc.amount * line_rate, 2)
         c = inc.source_country
         source_tax_by_country[c] = round(source_tax_by_country.get(c, 0.0) + amt, 2)
         source_base_by_country[c] = round(source_base_by_country.get(c, 0.0) + inc.amount, 2)
         source_trace_by_country.setdefault(c, []).append(
-            f"{inc.type} {inc.amount:,.0f} × {rate.rate * 100:.0f}% = {amt:,.0f} {ASSUMED_CURRENCY}"
+            f"{inc.type} {inc.amount:,.0f} × {line_rate * 100:.0f}% = {amt:,.0f} {ASSUMED_CURRENCY}"
         )
-        source_cites_by_country.setdefault(c, []).append(rate.citation_id)
+        source_cites_by_country.setdefault(c, []).extend(line_cite)
         credited_income += inc.amount
 
     total_source_tax = round(sum(source_tax_by_country.values()), 2)
 
     # --- Residence progressive estimate on worldwide income. ---
     spec = tax_bands.get(str(primary))
-    if spec:
+    if spec and tax_base_scope != "no_personal_income_tax":
         currency = spec["currency"]
         allowance = float(spec.get("personal_allowance", 0))
         taxable = max(0.0, worldwide - allowance)
@@ -150,7 +183,7 @@ def estimate_liabilities(
                     currency=currency,
                     taxable_base=round(taxable, 2),
                     gross_tax=None,
-                    credit=0.0,
+                    credit=None,
                     net_tax=None,
                     method=spec.get("method", ""),
                     note=(
@@ -168,22 +201,40 @@ def estimate_liabilities(
             )
         else:
             gross = progressive_tax(taxable, spec["bands"])
-            cap = round(gross * (credited_income / worldwide), 2) if worldwide > 0 else 0.0
-            credit = round(min(total_source_tax, cap), 2)
-            net = round(gross - credit, 2)
             trace = [
                 f"Worldwide income (assumed {ASSUMED_CURRENCY}) {worldwide:,.0f}",
                 f"− personal allowance {allowance:,.0f} → taxable {taxable:,.0f}",
                 f"Progressive bands → gross tax {gross:,.0f} {currency}",
             ]
             cites = [band_cite]
-            if total_source_tax > 0:
+            if has_unmodelled_foreign:
+                # A foreign line could not be modelled (uncurated treaty pair), so the
+                # foreign-tax credit is unknown. Show the gross residence figure but
+                # withhold the net — omitting the credit would overstate the liability.
+                credit: float | None = None
+                net: float | None = None
                 trace.append(
-                    f"Foreign tax credit = min(source tax {total_source_tax:,.0f}, "
-                    f"proportional cap {cap:,.0f}) = {credit:,.0f}"
+                    "Foreign-tax credit not computed: a foreign income line falls on an "
+                    "uncurated treaty pair (flagged for review), so the net residence "
+                    "figure is withheld to avoid overstating tax."
                 )
-                cites += [c for cl in source_cites_by_country.values() for c in cl]
-            trace.append(f"Net residence tax ≈ {net:,.0f} {currency}")
+                note = (
+                    "Net withheld — one or more foreign income lines are on a country "
+                    "pair not yet modelled, so the foreign-tax credit cannot be computed. "
+                    + spec.get("note", "")
+                ).strip()
+            else:
+                cap = round(gross * (credited_income / worldwide), 2) if worldwide > 0 else 0.0
+                credit = round(min(total_source_tax, cap), 2)
+                net = round(gross - credit, 2)
+                if total_source_tax > 0:
+                    trace.append(
+                        f"Foreign tax credit = min(source tax {total_source_tax:,.0f}, "
+                        f"proportional cap {cap:,.0f}) = {credit:,.0f}"
+                    )
+                    cites += [c for cl in source_cites_by_country.values() for c in cl]
+                trace.append(f"Net residence tax ≈ {net:,.0f} {currency}")
+                note = spec.get("note", "")
             estimates.append(
                 CountryEstimate(
                     country=primary,
@@ -194,7 +245,7 @@ def estimate_liabilities(
                     credit=credit,
                     net_tax=net,
                     method=spec.get("method", ""),
-                    note=spec.get("note", ""),
+                    note=note,
                     citation_ids=_dedupe(cites),
                     trace=trace,
                 )

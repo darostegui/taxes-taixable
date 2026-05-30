@@ -1,19 +1,259 @@
 # Residence day-count rules (simplified) keyed by ISO country code.
-# NOTE: Real residency tests (esp. the UK Statutory Residence Test) are far more
-# nuanced than a single day count. These thresholds are an intentional
-# simplification for the demo; see data/SOURCES.md.
+#
+# Two tiers, both fail-closed:
+#   1. COMPUTABLE  — a genuine quantitative ~183-day presence test exists as a
+#      standalone/primary residency trigger. We model that day count, but cap
+#      confidence (other statutory tests also exist) and disclose the simplification.
+#   2. COVERAGE-ONLY — the primary residency test is NOT a simple day count
+#      (substantial-presence, domicile, centre-of-life, etc.). We do NOT conclude
+#      residency from days; we only surface the cited statutory framework. These
+#      entries omit `days_threshold`; the engine flags residency_modelled=false.
+#
+# NOTE: Real residency tests (esp. UK SRT, US substantial-presence) are far more
+# nuanced than a single day count. See data/SOURCES.md. Every entry cites a
+# primary/authoritative source so the figure is verifiable, never fabricated.
+
+# ---------------------------------------------------------------------------
+# Tier 1 — COMPUTABLE day-count residency (existing UK/ES/DE unchanged)
+# ---------------------------------------------------------------------------
 ES:
   days_threshold: 183
   citation_id: "ES#residency-183"
   basis: "More than 183 days in the calendar year in Spanish territory (Ley 35/2006 IRPF, art. 9)."
   url: "https://www.boe.es/buscar/act.php?id=BOE-A-2006-20764"
+  tax_base_scope: "worldwide"
+  scope_citation_id: "ES#residency-183"
 UK:
   days_threshold: 183
   citation_id: "UK#srt-183"
   basis: "Automatic UK test: 183+ days in the tax year (Statutory Residence Test, simplified)."
   url: "https://www.gov.uk/government/publications/rdr3-statutory-residence-test-srt"
+  tax_base_scope: "worldwide"
+  scope_citation_id: "UK#srt-183"
 DE:
   days_threshold: 183
   citation_id: "DE#residency-183"
   basis: "Habitual abode / 183-day presence in Germany, Abgabenordnung §§8–9 (simplified)."
   url: "https://www.gesetze-im-internet.de/ao_1977/"
+  tax_base_scope: "worldwide"
+  scope_citation_id: "DE#residency-183"
+
+# --- Tier 1, new computable EU/EEA + APAC (confidence capped, other tests exist) ---
+FR:
+  days_threshold: 183
+  citation_id: "FR#tax-residency"
+  basis: "Resident if main home/principal place of stay (>183 days) is in France, CGI art. 4 B (simplified)."
+  url: "https://taxsummaries.pwc.com/france/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "FR#income-tax"
+IT:
+  days_threshold: 183
+  citation_id: "IT#tax-residency"
+  basis: "Resident if registered/present in Italy for the greater part of the year (>183 days), TUIR art. 2 (simplified)."
+  url: "https://taxsummaries.pwc.com/italy/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "IT#income-tax"
+NL:
+  days_threshold: 183
+  citation_id: "NL#tax-residency"
+  basis: "Residence based on facts and circumstances; sustained presence (>183 days) is a strong indicator (simplified)."
+  url: "https://taxsummaries.pwc.com/netherlands/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "NL#income-tax"
+IE:
+  days_threshold: 183
+  citation_id: "IE#tax-residency"
+  basis: "Resident if present in Ireland for 183+ days in the tax year (or 280 days over two years)."
+  url: "https://taxsummaries.pwc.com/ireland/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "IE#income-tax"
+PT:
+  days_threshold: 183
+  citation_id: "PT#tax-residency"
+  basis: "Resident if present in Portugal for more than 183 days in any 12-month period (simplified to calendar year)."
+  url: "https://taxsummaries.pwc.com/portugal/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "PT#income-tax"
+BE:
+  days_threshold: 183
+  citation_id: "BE#tax-residency"
+  basis: "Residence based on domicile/seat of wealth; sustained presence (>183 days) is indicative (simplified)."
+  url: "https://taxsummaries.pwc.com/belgium/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "BE#income-tax"
+AT:
+  days_threshold: 183
+  citation_id: "AT#tax-residency"
+  basis: "Unlimited tax liability via habitual abode; presence beyond ~6 months (>183 days) triggers residence (simplified)."
+  url: "https://taxsummaries.pwc.com/austria/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "AT#income-tax"
+SE:
+  days_threshold: 183
+  citation_id: "SE#tax-residency"
+  basis: "Resident if habitually present in Sweden; a continuous stay (>183 days) establishes residence (simplified)."
+  url: "https://taxsummaries.pwc.com/sweden/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "SE#income-tax"
+DK:
+  days_threshold: 183
+  citation_id: "DK#tax-residency"
+  basis: "Full tax liability arises with a home in Denmark or stay beyond 6 months (>183 days) (simplified)."
+  url: "https://taxsummaries.pwc.com/denmark/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "DK#income-tax"
+"NO":
+  days_threshold: 183
+  citation_id: "NO#tax-residency"
+  basis: "Resident if present in Norway more than 183 days in any 12-month period (simplified to calendar year)."
+  url: "https://taxsummaries.pwc.com/norway/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "NO#income-tax"
+FI:
+  days_threshold: 183
+  citation_id: "FI#tax-residency"
+  basis: "Resident if main abode is in Finland or continuous presence exceeds 6 months (>183 days) (simplified)."
+  url: "https://taxsummaries.pwc.com/finland/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "FI#income-tax"
+PL:
+  days_threshold: 183
+  citation_id: "PL#tax-residency"
+  basis: "Resident if present in Poland 183+ days in the tax year or centre of vital interests is in Poland (simplified)."
+  url: "https://taxsummaries.pwc.com/poland/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "PL#income-tax"
+LU:
+  days_threshold: 183
+  citation_id: "LU#tax-residency"
+  basis: "Resident if tax domicile/customary abode in Luxembourg; presence >6 months (>183 days) is indicative (simplified)."
+  url: "https://taxsummaries.pwc.com/luxembourg/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "LU#income-tax"
+AU:
+  days_threshold: 183
+  citation_id: "AU#tax-residency"
+  basis: "183-day test: present in Australia 183+ days unless usual place of abode is abroad (one of four statutory tests)."
+  url: "https://taxsummaries.pwc.com/australia/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "AU#income-tax"
+NZ:
+  days_threshold: 183
+  citation_id: "NZ#tax-residency"
+  basis: "183-day rule: present in New Zealand 183+ days in any 12-month period (also a permanent-place-of-abode test)."
+  url: "https://taxsummaries.pwc.com/new-zealand/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "NZ#income-tax"
+SG:
+  days_threshold: 183
+  citation_id: "SG#tax-residency"
+  basis: "Quantitative test: physically present or employed in Singapore for 183+ days in a calendar year."
+  url: "https://taxsummaries.pwc.com/singapore/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "territorial"
+  scope_citation_id: "SG#income-tax"
+CN:
+  days_threshold: 183
+  citation_id: "CN#tax-residency"
+  basis: "Resident if domiciled in China or present 183+ days in a tax year (IIT Law 2019 reform)."
+  url: "https://taxsummaries.pwc.com/peoples-republic-of-china/individual/residence"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "CN#income-tax"
+
+# ---------------------------------------------------------------------------
+# Tier 2 — COVERAGE-ONLY (primary test is not a simple calendar-year day count;
+# residency is NOT concluded from days — only the cited framework is surfaced)
+# ---------------------------------------------------------------------------
+US:
+  citation_id: "US#tax-residency"
+  basis: "Residency via Green Card or the Substantial Presence Test (weighted 3-year day count), not a single 183-day count."
+  url: "https://taxsummaries.pwc.com/united-states/individual/residence"
+  tax_base_scope: "worldwide"
+  scope_citation_id: "US#income-tax"
+CA:
+  citation_id: "CA#tax-residency"
+  basis: "Residency turns on residential ties; a 183-day sojourner rule can deem residency but ties govern (not modelled)."
+  url: "https://taxsummaries.pwc.com/canada/individual/residence"
+  tax_base_scope: "worldwide"
+  scope_citation_id: "CA#income-tax"
+CH:
+  citation_id: "CH#tax-residency"
+  basis: "Residency by domicile, or tax presence of 30 days (gainful) / 90 days (no work) — not a calendar 183-day test."
+  url: "https://taxsummaries.pwc.com/switzerland/individual/residence"
+  tax_base_scope: "worldwide"
+  scope_citation_id: "CH#income-tax"
+JP:
+  citation_id: "JP#tax-residency"
+  basis: "Residency based on domicile (jusho) or continuous presence of 1+ year — not a single 183-day count."
+  url: "https://taxsummaries.pwc.com/japan/individual/residence"
+  tax_base_scope: "worldwide"
+  scope_citation_id: "JP#income-tax"
+IN:
+  citation_id: "IN#tax-residency"
+  basis: "Resident if present 182+ days, or 60+ days plus 365 days over four prior years — multi-limb test (not modelled)."
+  url: "https://taxsummaries.pwc.com/india/individual/residence"
+  tax_base_scope: "worldwide"
+  scope_citation_id: "IN#income-tax"
+HK:
+  citation_id: "HK#tax-residency"
+  basis: "Territorial system: salaries tax depends on source of employment and 60/180-day presence, not residency per se."
+  url: "https://taxsummaries.pwc.com/hong-kong-sar/individual/residence"
+  tax_base_scope: "territorial"
+  scope_citation_id: "HK#income-tax"
+AE:
+  citation_id: "AE#tax-residency"
+  basis: "No personal income tax on employment/most personal income; residency rules exist mainly for treaty purposes."
+  url: "https://taxsummaries.pwc.com/united-arab-emirates/individual/residence"
+  tax_base_scope: "no_personal_income_tax"
+  scope_citation_id: "AE#income-tax"
+IL:
+  citation_id: "IL#tax-residency"
+  basis: "Residency by centre-of-life test (with 183-day / 30+425-day presumptions) — not a single day count (not modelled)."
+  url: "https://taxsummaries.pwc.com/israel/individual/residence"
+  tax_base_scope: "worldwide"
+  scope_citation_id: "IL#income-tax"
+BR:
+  citation_id: "BR#tax-residency"
+  basis: "Residency by permanent visa or 184 days within a 12-month period plus intent — not a calendar 183-day count (not modelled)."
+  url: "https://taxsummaries.pwc.com/brazil/individual/residence"
+  tax_base_scope: "worldwide"
+  scope_citation_id: "BR#income-tax"
+MX:
+  citation_id: "MX#tax-residency"
+  basis: "Residency by permanent home / centre of vital interests — not a day-count test (not modelled)."
+  url: "https://taxsummaries.pwc.com/mexico/individual/residence"
+  tax_base_scope: "worldwide"
+  scope_citation_id: "MX#income-tax"

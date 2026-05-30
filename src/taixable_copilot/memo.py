@@ -32,9 +32,12 @@ def render_memo(
         lines.append("| Income type | Source | Treaty art. | Rate | Relief | Citations |")
         lines.append("|---|---|---|---|---|---|")
         for o in assessment.obligations:
+            art = o.treaty_article or "—"
+            rate = f"{o.rate:.0%}" if o.rate is not None else "not modelled"
+            relief = o.relief or o.reason or "—"
             lines.append(
-                f"| {o.income_type} | {o.source_country} | {o.treaty_article} "
-                f"| {o.rate:.0%} | {o.relief} | {', '.join(o.citation_ids)} |"
+                f"| {o.income_type} | {o.source_country} | {art} "
+                f"| {rate} | {relief} | {', '.join(o.citation_ids)} |"
             )
     else:
         lines.append("_No cross-border obligations identified._")

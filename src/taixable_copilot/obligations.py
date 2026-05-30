@@ -9,11 +9,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from taixable_copilot.crossborder import resolve_cross_border
 from taixable_copilot.models import Country, CustomerProfile, IncomeType
-from taixable_copilot.rates import RateLookup, get_withholding_rate
+from taixable_copilot.rates import RateLookup
 from taixable_copilot.residency import determine_residency
 from taixable_copilot.taxbands import CountryEstimate, estimate_liabilities
-from taixable_copilot.treaty import Retriever, resolve_treaty_article
+from taixable_copilot.treaty import Retriever
 
 # Residence-country self-assessment filing deadlines (month, day) for the tax year
 # following the year of income, with a citation id + human label + source URL.
@@ -49,9 +50,11 @@ FILING_DEADLINES: dict[Country, dict] = {
 class Obligation:
     income_type: IncomeType
     source_country: Country
-    treaty_article: str
-    rate: float
-    relief: str
+    treaty_article: str | None
+    rate: float | None
+    relief: str | None
+    status: str = "modelled"  # "modelled" | "not_modelled"
+    reason: str = ""
     citation_ids: list[str] = field(default_factory=list)
 
 
@@ -71,6 +74,10 @@ class Assessment:
     deadlines: list[Deadline] = field(default_factory=list)
     estimates: list[CountryEstimate] = field(default_factory=list)
     citations: list[str] = field(default_factory=list)
+    residency_modelled: bool = True
+    tax_base_scope: str | None = None
+    scope_note: str | None = None
+    other_tests_exist: bool = False
 
 
 def assess_obligations(
@@ -80,6 +87,7 @@ def assess_obligations(
     treaty_retriever: Retriever,
     rate_lookup: RateLookup,
     tax_bands: dict[str, dict] | None = None,
+    known_citation_ids: set[str] | None = None,
 ) -> Assessment:
     residency = determine_residency(profile.days_present, residency_rules)
     primary = residency.primary_residence
@@ -91,18 +99,25 @@ def assess_obligations(
     # differ from the profile's declared residence_country.
     foreign = [inc for inc in profile.income if inc.source_country != primary]
     for inc in foreign:
-        article = resolve_treaty_article(primary, inc.source_country, inc.type, treaty_retriever)
-        rate = get_withholding_rate(primary, inc.source_country, inc.type, rate_lookup)
-        cite = [article.citation_id, rate.citation_id]
-        citations.extend(cite)
+        treatment = resolve_cross_border(
+            primary,
+            inc.source_country,
+            inc.type,
+            treaty_retriever,
+            rate_lookup,
+            known_ids=known_citation_ids,
+        )
+        citations.extend(treatment.citation_ids)
         obligations.append(
             Obligation(
                 income_type=inc.type,
                 source_country=inc.source_country,
-                treaty_article=article.article_no,
-                rate=rate.rate,
-                relief=rate.relief,
-                citation_ids=cite,
+                treaty_article=treatment.article_no,
+                rate=treatment.rate,
+                relief=treatment.relief,
+                status="modelled" if treatment.modelled else "not_modelled",
+                reason=treatment.reason,
+                citation_ids=treatment.citation_ids,
             )
         )
 
@@ -111,7 +126,15 @@ def assess_obligations(
         if d.citation_id:
             citations.append(d.citation_id)
 
-    estimates = estimate_liabilities(profile, primary, rate_lookup, tax_bands)
+    estimates = estimate_liabilities(
+        profile,
+        primary,
+        rate_lookup,
+        tax_bands,
+        treaty_retriever=treaty_retriever,
+        tax_base_scope=residency.tax_base_scope,
+        known_citation_ids=known_citation_ids,
+    )
     for est in estimates:
         citations.extend(est.citation_ids)
 
@@ -122,6 +145,10 @@ def assess_obligations(
         deadlines=deadlines,
         estimates=estimates,
         citations=sorted(set(citations)),
+        residency_modelled=residency.residency_modelled,
+        tax_base_scope=residency.tax_base_scope,
+        scope_note=residency.scope_note,
+        other_tests_exist=residency.other_tests_exist,
     )
 
 

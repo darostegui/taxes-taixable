@@ -214,9 +214,9 @@ LEAVES = {
         "title": "{name} — individual tax residence (PwC Worldwide Tax Summaries)",
         "summary": (
             "Cited reference card for individual tax-residence rules in {name}, "
-            "published by PwC Worldwide Tax Summaries. Reference-only: Taixable's "
-            "deterministic engine does not model {name}'s residence tests — open "
-            "the linked source for the authoritative, current rules."
+            "published by PwC Worldwide Tax Summaries. Source pointer only — open "
+            "the linked PwC page for the authoritative, current rules. Any Taixable "
+            "computation is shown separately with its own citation."
         ),
     },
     "income-tax": {
@@ -226,9 +226,9 @@ LEAVES = {
         "title": "{name} — personal income tax (PwC Worldwide Tax Summaries)",
         "summary": (
             "Cited reference card for personal income tax in {name}, published by "
-            "PwC Worldwide Tax Summaries. Reference-only: Taixable's deterministic "
-            "engine does not compute {name} tax — open the linked source for "
-            "current rates, bands and reliefs."
+            "PwC Worldwide Tax Summaries. Source pointer only — open the linked PwC "
+            "page for current rates, bands and reliefs. Any Taixable computation is "
+            "shown separately with its own citation."
         ),
     },
 }
@@ -326,8 +326,7 @@ def main() -> int:
             spec["title"],
             "Tax authority",
             f"Official tax-authority reference for {spec['name']}. {spec['note']} "
-            "Reference-only: Taixable's deterministic engine does not compute "
-            f"{spec['name']} tax.",
+            "Source pointer only — open the linked page for authoritative detail.",
             spec["url"],
             body,
             today,

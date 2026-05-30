@@ -51,6 +51,43 @@
         {"up_to": 266221, "rate": 0.42},
         {"up_to": null, "rate": 0.45}
       ]
+    },
+    {
+      "country": "IE",
+      "currency": "EUR",
+      "personal_allowance": 0,
+      "citation_id": "IE#income-tax-bands",
+      "title": "Ireland Income Tax — standard & higher rate (2025, simplified)",
+      "source": "Irish Revenue: standard-rate band 20%, balance at 40% (single individual)",
+      "url": "https://taxsummaries.pwc.com/ireland/individual/taxes-on-personal-income",
+      "method": "taxable = worldwide income; 20% up to the standard-rate band, 40% on the balance.",
+      "note": "Rough band approximation for a single individual. Excludes the Universal Social Charge (USC), PRSI, tax credits, marital/band adjustments and reliefs — actual Irish liability differs.",
+      "bands": [
+        {"up_to": 44000, "rate": 0.20},
+        {"up_to": null, "rate": 0.40}
+      ]
+    },
+    {
+      "country": "PT",
+      "currency": "EUR",
+      "personal_allowance": 0,
+      "citation_id": "PT#income-tax-bands",
+      "title": "Portugal IRS — progressive scale (2026, mainland, simplified)",
+      "source": "Portugal IRS general progressive brackets (Continente)",
+      "url": "https://taxsummaries.pwc.com/portugal/individual/taxes-on-personal-income",
+      "method": "taxable = worldwide income; statutory IRS marginal brackets applied from 0.",
+      "note": "Rough band approximation for mainland Portugal. Excludes the specific personal deduction mechanics, solidarity surcharge, social security and reliefs — actual Portuguese liability differs.",
+      "bands": [
+        {"up_to": 8342, "rate": 0.125},
+        {"up_to": 12587, "rate": 0.157},
+        {"up_to": 17838, "rate": 0.212},
+        {"up_to": 23089, "rate": 0.241},
+        {"up_to": 29397, "rate": 0.311},
+        {"up_to": 43090, "rate": 0.349},
+        {"up_to": 46566, "rate": 0.431},
+        {"up_to": 86634, "rate": 0.446},
+        {"up_to": null, "rate": 0.48}
+      ]
     }
   ]
 }

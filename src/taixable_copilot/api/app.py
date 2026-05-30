@@ -57,6 +57,10 @@ def _serialize(assessment: Assessment, deps: Deps) -> AssessmentOut:
     return AssessmentOut(
         primary_residence=str(assessment.primary_residence),
         residence_confidence=assessment.residence_confidence,
+        residency_modelled=assessment.residency_modelled,
+        tax_base_scope=assessment.tax_base_scope,
+        scope_note=assessment.scope_note,
+        other_tests_exist=assessment.other_tests_exist,
         obligations=[
             {
                 "income_type": str(o.income_type),
@@ -64,6 +68,8 @@ def _serialize(assessment: Assessment, deps: Deps) -> AssessmentOut:
                 "treaty_article": o.treaty_article,
                 "rate": o.rate,
                 "relief": o.relief,
+                "status": o.status,
+                "reason": o.reason,
                 "citation_ids": o.citation_ids,
             }
             for o in assessment.obligations
@@ -183,6 +189,7 @@ def create_app(deps: Deps) -> FastAPI:
                 deps.treaty_retriever,
                 deps.rate_lookup,
                 deps.tax_bands,
+                deps.known_citation_ids,
             )
         except LookupError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -199,6 +206,7 @@ def create_app(deps: Deps) -> FastAPI:
                 deps.treaty_retriever,
                 deps.rate_lookup,
                 deps.tax_bands,
+                deps.known_citation_ids,
             )
         except LookupError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc

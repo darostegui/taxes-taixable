@@ -18,9 +18,11 @@ class AssessRequest(BaseModel):
 class ObligationOut(BaseModel):
     income_type: str
     source_country: str
-    treaty_article: str
-    rate: float
-    relief: str
+    treaty_article: str | None = None
+    rate: float | None = None
+    relief: str | None = None
+    status: str = "modelled"
+    reason: str = ""
     citation_ids: list[str]
 
 
@@ -43,7 +45,7 @@ class EstimateOut(BaseModel):
     currency: str
     taxable_base: float
     gross_tax: float | None = None
-    credit: float = 0.0
+    credit: float | None = 0.0
     net_tax: float | None = None
     method: str
     note: str
@@ -54,6 +56,10 @@ class EstimateOut(BaseModel):
 class AssessmentOut(BaseModel):
     primary_residence: str
     residence_confidence: float
+    residency_modelled: bool = True
+    tax_base_scope: str | None = None
+    scope_note: str | None = None
+    other_tests_exist: bool = False
     obligations: list[ObligationOut]
     deadlines: list[DeadlineOut]
     estimates: list[EstimateOut] = Field(default_factory=list)

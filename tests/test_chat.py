@@ -47,12 +47,29 @@ def test_assess_tool_runs_engine_and_returns_cited_sources():
     assert captured["assessment"] == out
 
 
-def test_assess_tool_returns_error_for_unsupported_country():
+def test_assess_tool_returns_error_for_unknown_country_code():
+    deps = build_default_deps()
+    tool, _ = _make_assess_tool(deps)
+    out = tool(days_present_json=json.dumps({"ZZ": 365}), income_json="[]")
+    assert "error" in out
+    assert out["computable_amount_countries"] == ["UK", "ES", "DE", "IE", "PT"]
+
+
+def test_assess_tool_models_residency_without_bands_honestly():
+    # France is in the day-count residency tier but has no computable bands.
+    # The engine must determine residence (no crash, no error) yet refuse to
+    # invent an amount for it.
     deps = build_default_deps()
     tool, _ = _make_assess_tool(deps)
     out = tool(days_present_json=json.dumps({"FR": 365}), income_json="[]")
-    assert "error" in out
-    assert out["supported_countries"] == ["UK", "ES", "DE"]
+    assert "error" not in out
+    assert out["primary_residence"] == "FR"
+    assert out["residency_modelled"] is True
+    # No FR income-tax bands exist, so no residence amount is fabricated.
+    assert not any(
+        e["role"] == "residence" and e.get("gross_tax") is not None
+        for e in out["estimates"]
+    )
 
 
 def test_chat_graceful_when_unavailable(monkeypatch):

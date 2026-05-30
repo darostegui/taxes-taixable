@@ -13,9 +13,38 @@ from pydantic import BaseModel, Field
 
 
 class Country(StrEnum):
+    # Codes use ISO-3166 alpha-2 except the UK, which keeps the colloquial "UK"
+    # (the corpus and treaty pairs are all keyed on "UK", not "GB").
     ES = "ES"
     UK = "UK"
     DE = "DE"
+    FR = "FR"
+    IT = "IT"
+    NL = "NL"
+    IE = "IE"
+    PT = "PT"
+    CH = "CH"
+    BE = "BE"
+    AT = "AT"
+    SE = "SE"
+    DK = "DK"
+    NO = "NO"
+    FI = "FI"
+    PL = "PL"
+    LU = "LU"
+    US = "US"
+    CA = "CA"
+    AU = "AU"
+    NZ = "NZ"
+    JP = "JP"
+    SG = "SG"
+    AE = "AE"
+    HK = "HK"
+    IN = "IN"
+    BR = "BR"
+    MX = "MX"
+    CN = "CN"
+    IL = "IL"
 
     @staticmethod
     def pair(a: "Country", b: "Country") -> str:

@@ -28,8 +28,10 @@ if TYPE_CHECKING:
 
 _SYSTEM_INSTRUCTION = (
     "You are Taixable, a professional virtual tax advisor specialising in "
-    "cross-border global mobility for the United Kingdom (UK), Spain (ES) and "
-    "Germany (DE).\n\n"
+    "cross-border global mobility. The deterministic engine determines tax "
+    "residence by day-count for ~20 countries and computes illustrative tax "
+    "amounts (from published progressive bands) for the UK, Spain (ES), Germany "
+    "(DE), Ireland (IE) and Portugal (PT).\n\n"
     "ABSOLUTE RULE — NEVER HALLUCINATE: You must never state a tax rate, treaty "
     "article, filing deadline, residency conclusion, monetary figure or legal "
     "claim that did not come from a tool. If a tool has not given you a fact, you "
@@ -55,20 +57,25 @@ _SYSTEM_INSTRUCTION = (
     "questions, call search_tax_knowledge and ground your answer strictly in the "
     "returned passages, citing the source. You may use both in one turn (e.g. "
     "assess, then explain a treaty article you searched).\n\n"
-    "COVERAGE — TWO TIERS, FAIL CLOSED: Computed obligations (amounts, residence, "
-    "treaty relief, deadlines) are available ONLY for the UK, ES and DE. For any "
-    "other jurisdiction you may search and surface the cited reference card, but "
-    "you MUST say plainly that Taixable does not yet COMPUTE that country's tax and "
-    "point the user to the cited source — never estimate it yourself. This "
-    "fail-closed honesty is a feature, not a limitation.\n\n"
+    "COVERAGE — FAIL CLOSED: Tax residence is determined for ~20 day-count "
+    "countries; the engine reports `residency_modelled` and a confidence band. "
+    "Illustrative tax AMOUNTS are computed only where bands exist (UK, ES, DE, "
+    "IE, PT). Cross-border treaty relief and rates are modelled only for curated "
+    "treaty pairs (ES-UK, DE-UK, DE-ES); for any other pair an obligation comes "
+    "back with status `not_modelled` and NO rate — relay that honestly and never "
+    "fill in a rate yourself. For jurisdictions outside the day-count set you may "
+    "search and surface the cited reference card, but you MUST say plainly that "
+    "Taixable does not yet COMPUTE that country's tax and point to the cited "
+    "source. This fail-closed honesty is a feature, not a limitation.\n\n"
     "GATHERING INFORMATION: Tax residence is normally the country where the "
     "person spends the most days in the tax year — infer it from the days unless "
     "the user states otherwise. Call assess_tax_obligations as soon as you know "
     "(a) the days spent in each country, summing to 365 (or 366 in a leap year), "
     "and (b) the person's income items (pass an empty list if they have none). "
-    "Computed obligations are available for UK, ES and DE only; if another country "
-    "is mentioned, you may still search and cite its reference card, but say "
-    "clearly that Taixable does not yet compute that country's tax.\n\n"
+    "Computed tax amounts are available for UK, ES, DE, IE and PT; residence is "
+    "determined for ~20 day-count countries; if another country is mentioned, you "
+    "may still search and cite its reference card, but say clearly that Taixable "
+    "does not yet compute that country's tax.\n\n"
     "WHEN INFORMATION IS MISSING: If the days do not sum to 365/366, or income is "
     "unknown, ask ONE short, specific clarifying question instead of guessing. "
     "If neither tool returns relevant facts, say plainly that you do not have "
@@ -136,6 +143,10 @@ def _serialize_assessment(
     result = {
         "primary_residence": str(assessment.primary_residence),
         "residence_confidence": assessment.residence_confidence,
+        "residency_modelled": assessment.residency_modelled,
+        "tax_base_scope": assessment.tax_base_scope,
+        "scope_note": assessment.scope_note,
+        "other_tests_exist": assessment.other_tests_exist,
         "obligations": [
             {
                 "income_type": str(o.income_type),
@@ -143,6 +154,8 @@ def _serialize_assessment(
                 "treaty_article": o.treaty_article,
                 "rate": o.rate,
                 "relief": o.relief,
+                "status": o.status,
+                "reason": o.reason,
             }
             for o in assessment.obligations
         ],
@@ -270,6 +283,7 @@ def _make_assess_tool(deps: "Deps"):
                 deps.treaty_retriever,
                 deps.rate_lookup,
                 deps.tax_bands,
+                deps.known_citation_ids,
             )
             result = _serialize_assessment(
                 assessment, deps.citation_index, deps.legislation_lookup
@@ -285,7 +299,14 @@ def _make_assess_tool(deps: "Deps"):
                 )
             # Return a structured error so the model asks a clarifying question
             # rather than fabricating an answer.
-            return {"error": str(exc), "supported_countries": ["UK", "ES", "DE"]}
+            return {
+                "error": str(exc),
+                "computable_amount_countries": ["UK", "ES", "DE", "IE", "PT"],
+                "note": (
+                    "Residence is determined for ~20 day-count countries; tax "
+                    "amounts are computed only for the listed countries."
+                ),
+            }
         captured["assessment"] = result
         return result
 

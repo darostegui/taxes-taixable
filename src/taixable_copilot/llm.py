@@ -63,11 +63,18 @@ def build_narration_prompt(
     lines.append("Cross-border obligations:")
     if assessment.obligations:
         for o in assessment.obligations:
-            lines.append(
-                f"- {o.income_type} income sourced in {o.source_country}: "
-                f"treaty article {o.treaty_article}, rate {o.rate:.0%}, "
-                f"relief {o.relief}."
-            )
+            if o.rate is None or o.status != "modelled":
+                lines.append(
+                    f"- {o.income_type} income sourced in {o.source_country}: "
+                    f"not modelled by the engine ({o.reason or 'no curated treaty/rate'}); "
+                    "no rate asserted."
+                )
+            else:
+                lines.append(
+                    f"- {o.income_type} income sourced in {o.source_country}: "
+                    f"treaty article {o.treaty_article}, rate {o.rate:.0%}, "
+                    f"relief {o.relief}."
+                )
     else:
         lines.append("- None identified.")
     lines.append("")
