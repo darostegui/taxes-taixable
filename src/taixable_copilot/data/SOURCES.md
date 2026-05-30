@@ -51,6 +51,33 @@ source and states plainly that Taixable does not yet compute that country's tax.
   (`generator_version="reference-corpus/1.0"`, `package_version="2025.1"`); re-runnable
   and idempotent (never clobbers curated engine ids).
 
+### Special mobility-regimes corpus (`legislation.json`, `content_type="curated_regime"`)
+Curated, source-verified cards for the special regimes and benefits that drive mobility
+decisions. **Unlike the reference tier these carry concrete figures** (flat rates, caps,
+durations, thresholds) — every figure is verified against an official/primary source and
+stored with `source_url`, `effective_date`, `status` + `status_effective_date`,
+`applies_to_new_applicants`, structured `figures`/`eligibility_criteria`/`exclusions`,
+optional `region`/`grandfathering`, and provenance (`retrieved_at`, `source_content_hash`).
+They are surfaced for eligibility **screening** ("may be relevant if…"), never as an
+eligibility determination, and the agent relays the cited figure verbatim.
+- **Status enum** — `active | repealed | closed_to_new_entrants | replaced`. Closed routes
+  carry `applies_to_new_applicants=false` and are never recommended for a new move (the card
+  names any successor, e.g. UK non-dom → FIG, Portugal NHR → IFICI).
+- **Up-to-date flagship facts (verified 2024–2025)** — UK non-dom abolished 6 Apr 2025 → 4-yr
+  FIG; ES golden-visa real-estate route repealed 3 Apr 2025 (Ley Orgánica 1/2025); PT NHR
+  closed to new entrants 2024 → IFICI; IT impatriati / €200k HNWI flat / 7% pensioners; GR
+  5A non-dom / 5B pensioners / 5C impatriate; FR Art. 155 B; NL expat ruling 30% → 27% (2027);
+  ES Beckham 24% (Art. 93 LIRPF + Startups Law 28/2022), familia numerosa, regional/foral
+  (Madrid, Andalucía, Cataluña, País Vasco, Navarra) + national Solidarity Tax (ITSGF).
+- **Sources** — BOE (Spanish statutes), Agencia Tributaria, gov.uk technical notes, official
+  immigration portals, and PwC Worldwide Tax Summaries (`taxsummaries.pwc.com`) for cross-checks.
+- **Integrity** — each `figure` carries a `scope` tag; figures are never mixed across
+  jurisdictions/regions. Regional cards keep a single-country `jurisdiction` (e.g. `ES`) with
+  the region in the `citation_id` (`ES-CT#regional-irpf`) and a `region` field, so coverage and
+  treaty-pair logic never misread them.
+- Generated reproducibly by `scripts/build_special_regimes.py`
+  (`generator_version="special-regimes/1.0"`, `package_version="2025.1"`); idempotent.
+
 ## Citation id scheme
 
 `<COUNTRY-PAIR>#art<N>` for treaty articles, `<COUNTRY-PAIR>#art<N>-rate` for the

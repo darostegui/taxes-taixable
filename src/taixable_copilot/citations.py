@@ -78,11 +78,13 @@ def build_citation_index() -> dict[str, Citation]:
         cid = entry["citation_id"]
         if cid in index:
             continue
-        category = (
-            "curated_reference"
-            if entry.get("content_type") == "curated_reference"
-            else "engine"
-        )
+        content_type = entry.get("content_type")
+        if content_type == "curated_reference":
+            category = "curated_reference"
+        elif content_type == "curated_regime":
+            category = "curated_regime"
+        else:
+            category = "engine"
         index[cid] = Citation(
             cid, entry.get("title", cid), entry.get("source_url"), category
         )

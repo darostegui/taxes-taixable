@@ -140,6 +140,19 @@ def _public_passage(src: dict[str, Any]) -> dict[str, Any]:
 # --------------------------------------------------------------------------- #
 # Corpus (offline) lexical search                                             #
 # --------------------------------------------------------------------------- #
+def _content_type_prior(doc: dict[str, Any]) -> float:
+    """Small document prior so general factual queries favour canonical engine facts.
+
+    ``curated_regime`` cards are eligibility-SCREENING evidence whose self-contained
+    summaries repeat generic vocabulary ("Spanish income tax", "rule"), which can
+    edge out the canonical residency/deadline/treaty cards on near-ties. A modest
+    demotion keeps those general questions answered by the engine's canonical cards;
+    regime-specific queries still surface regimes because they cover far more
+    regime-specific terms than this prior can offset.
+    """
+    return -0.5 if doc.get("content_type") == "curated_regime" else 0.0
+
+
 def corpus_knowledge_search() -> KnowledgeSearch:
     docs = build_knowledge_corpus()
 
@@ -164,7 +177,7 @@ def corpus_knowledge_search() -> KnowledgeSearch:
             if covered == 0:
                 continue
             title_hits = len(q_tokens & title_tokens)
-            score = covered + 0.5 * title_hits
+            score = covered + 0.5 * title_hits + _content_type_prior(d)
             tiebreak = -len(body_tokens)  # prefer the more focused passage on ties
             scored.append((score, tiebreak, d))
         scored.sort(key=lambda s: (s[0], s[1]), reverse=True)
