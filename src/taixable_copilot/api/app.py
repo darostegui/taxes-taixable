@@ -13,9 +13,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import FileResponse
 
+from taixable_copilot.api import auth
 from taixable_copilot.api.deps import Deps, build_default_deps
 from taixable_copilot.api.schemas import (
     AssessmentOut,
@@ -24,6 +25,8 @@ from taixable_copilot.api.schemas import (
     ChatResponse,
     CoverageResponse,
     HighlightResponse,
+    LoginRequest,
+    LoginResponse,
     MemoRequest,
     MemoResponse,
     PersistRequest,
@@ -114,11 +117,48 @@ def _serialize(assessment: Assessment, deps: Deps) -> AssessmentOut:
 def create_app(deps: Deps) -> FastAPI:
     app = FastAPI(title="Cross-Border Tax Copilot — Tools", version="0.1.0")
 
+    def require_auth(authorization: str = Header(default="")) -> str:
+        """Gate protected endpoints behind a bearer token.
+
+        Honours :func:`auth.auth_disabled` (only true in dev/test) so the existing
+        test suite and local runs work without logging in. In production the
+        ``Authorization: Bearer <token>`` header is required.
+        """
+        if auth.auth_disabled():
+            return "anonymous"
+        token = ""
+        if authorization.lower().startswith("bearer "):
+            token = authorization[7:].strip()
+        username = auth.verify_token(token)
+        if username is None:
+            raise HTTPException(
+                status_code=401,
+                detail="Authentication required.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return username
+
+    @app.post("/login", response_model=LoginResponse)
+    def login(req: LoginRequest, request: Request) -> LoginResponse:
+        client = request.client.host if request.client else "unknown"
+        throttle_key = f"{client}:{req.username}"
+        if auth.is_locked(throttle_key):
+            raise HTTPException(
+                status_code=429,
+                detail="Too many failed attempts. Please wait a few minutes and retry.",
+            )
+        if not auth.verify_credentials(req.username, req.password):
+            auth.register_failure(throttle_key)
+            raise HTTPException(status_code=401, detail="Invalid username or password.")
+        auth.clear_failures(throttle_key)
+        token, ttl = auth.issue_token(req.username)
+        return LoginResponse(token=token, expires_in=ttl, username=req.username)
+
     @app.get("/healthz")
     def healthz() -> dict:
         return {"status": "ok"}
 
-    @app.get("/health/search")
+    @app.get("/health/search", dependencies=[Depends(require_auth)])
     def health_search() -> dict:
         """Probe the Elasticsearch knowledge backend for the demo dashboard.
 
@@ -142,7 +182,11 @@ def create_app(deps: Deps) -> FastAPI:
             "hits": len(results),
         }
 
-    @app.post("/tools/search_knowledge", response_model=SearchResponse)
+    @app.post(
+        "/tools/search_knowledge",
+        response_model=SearchResponse,
+        dependencies=[Depends(require_auth)],
+    )
     def search_knowledge(req: SearchRequest) -> SearchResponse:
         if deps.knowledge_search is None:
             return SearchResponse(results=[], meta={"mode": "disabled"})
@@ -154,7 +198,11 @@ def create_app(deps: Deps) -> FastAPI:
         )
         return SearchResponse(results=out.get("results", []), meta=out.get("meta", {}))
 
-    @app.get("/tools/highlight_citation", response_model=HighlightResponse)
+    @app.get(
+        "/tools/highlight_citation",
+        response_model=HighlightResponse,
+        dependencies=[Depends(require_auth)],
+    )
     def highlight_citation(citation_id: str, query: str = "") -> HighlightResponse:
         """Return the exact cited passage with the question's terms highlighted.
 
@@ -168,7 +216,11 @@ def create_app(deps: Deps) -> FastAPI:
         out = deps.knowledge_highlight(citation_id, query)
         return HighlightResponse(**out)
 
-    @app.get("/tools/coverage", response_model=CoverageResponse)
+    @app.get(
+        "/tools/coverage",
+        response_model=CoverageResponse,
+        dependencies=[Depends(require_auth)],
+    )
     def coverage() -> CoverageResponse:
         """Knowledge-coverage dashboard via Elasticsearch aggregations."""
         if deps.coverage is None:
@@ -179,7 +231,11 @@ def create_app(deps: Deps) -> FastAPI:
     def index() -> FileResponse:
         return FileResponse(_WEB_DIR / "index.html")
 
-    @app.post("/tools/assess_obligations", response_model=AssessmentOut)
+    @app.post(
+        "/tools/assess_obligations",
+        response_model=AssessmentOut,
+        dependencies=[Depends(require_auth)],
+    )
     def assess(req: AssessRequest) -> AssessmentOut:
         try:
             assessment = assess_obligations(
@@ -196,7 +252,11 @@ def create_app(deps: Deps) -> FastAPI:
         _reject_unknown_citations(deps, assessment.citations)
         return _serialize(assessment, deps)
 
-    @app.post("/tools/generate_memo", response_model=MemoResponse)
+    @app.post(
+        "/tools/generate_memo",
+        response_model=MemoResponse,
+        dependencies=[Depends(require_auth)],
+    )
     def generate_memo(req: MemoRequest) -> MemoResponse:
         try:
             assessment = assess_obligations(
@@ -223,7 +283,9 @@ def create_app(deps: Deps) -> FastAPI:
             narrative_source="gemini" if narrative else "deterministic",
         )
 
-    @app.post("/chat", response_model=ChatResponse)
+    @app.post(
+        "/chat", response_model=ChatResponse, dependencies=[Depends(require_auth)]
+    )
     def chat_endpoint(req: ChatRequest) -> ChatResponse:
         result = run_chat(
             deps,
@@ -246,7 +308,11 @@ def create_app(deps: Deps) -> FastAPI:
         )
         return ChatResponse(**result)
 
-    @app.post("/tools/persist_case", response_model=PersistResponse)
+    @app.post(
+        "/tools/persist_case",
+        response_model=PersistResponse,
+        dependencies=[Depends(require_auth)],
+    )
     def persist_case(req: PersistRequest) -> PersistResponse:
         if not req.approved:
             raise HTTPException(

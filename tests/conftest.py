@@ -4,6 +4,19 @@ from taixable_copilot.models import Country, IncomeType
 from taixable_copilot.obligations import Assessment, Deadline, Obligation
 
 
+@pytest.fixture(autouse=True)
+def _disable_auth(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Run the suite in a test environment with the login guardrail disabled.
+
+    The data endpoints are protected by ``require_auth`` in production; the
+    existing endpoint tests call them without a token, so we mark the
+    environment as ``test`` and disable auth. ``test_auth.py`` re-enables auth
+    explicitly where it needs to exercise the gate.
+    """
+    monkeypatch.setenv("TAIXABLE_ENV", "test")
+    monkeypatch.setenv("TAIXABLE_AUTH_DISABLED", "1")
+
+
 @pytest.fixture
 def sample_assessment() -> Assessment:
     return Assessment(

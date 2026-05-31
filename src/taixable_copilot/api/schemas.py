@@ -101,6 +101,18 @@ class ChatResponse(BaseModel):
     assessment: dict | None = None
     knowledge: list[dict] = Field(default_factory=list)
     search_meta: dict | None = None
+    blocked: bool = False
+
+
+class LoginRequest(BaseModel):
+    username: str = Field(min_length=1, max_length=120)
+    password: str = Field(min_length=1, max_length=256)
+
+
+class LoginResponse(BaseModel):
+    token: str
+    expires_in: int
+    username: str
 
 
 class SearchRequest(BaseModel):

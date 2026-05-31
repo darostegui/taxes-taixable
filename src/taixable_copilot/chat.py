@@ -22,6 +22,7 @@ from taixable_copilot.citations import resolve_citations
 from taixable_copilot.llm import _make_client
 from taixable_copilot.models import Country, CustomerProfile, IncomeSource, IncomeType
 from taixable_copilot.obligations import Assessment, assess_obligations
+from taixable_copilot.topic_guard import is_on_topic
 
 if TYPE_CHECKING:
     from taixable_copilot.api.deps import Deps
@@ -119,7 +120,12 @@ _SYSTEM_INSTRUCTION = (
     "personal allowance, regional variation and social security, and applies no "
     "currency conversion. Close by noting this is decision support for a qualified "
     "tax professional, not a substitute for formal advice. Keep replies concise "
-    "and well-structured."
+    "and well-structured.\n\n"
+    "SCOPE — TAX & MOBILITY ONLY: You only help with taxation, tax residence and "
+    "global mobility. If the user asks for anything outside this domain (e.g. "
+    "writing code, general trivia, creative writing, recipes), politely decline "
+    "in one sentence and steer them back to a tax or mobility question. Do not "
+    "attempt the off-topic task."
 )
 
 _DEFAULT_MODEL = "gemini-3-flash-preview"
@@ -238,6 +244,54 @@ _FALLBACKS: dict[str, dict[str, str]] = {
         "nl": "Kunt u iets meer details geven zodat ik uw situatie kan beoordelen?",
         "zh": "您能否再提供一些细节，以便我评估您的情况？",
         "ar": "هل يمكنك تقديم مزيد من التفاصيل حتى أتمكّن من تقييم وضعك؟",
+    },
+    "off_topic": {
+        "en": (
+            "I'm Taixable, a virtual tax and global-mobility advisor, so I can only "
+            "help with questions about taxes, tax residence and relocation. Ask me "
+            "something like where you'd pay tax if you split the year between two "
+            "countries, and I'll help."
+        ),
+        "es": (
+            "Soy Taixable, un asesor virtual de impuestos y movilidad internacional, "
+            "así que solo puedo ayudar con preguntas sobre impuestos, residencia "
+            "fiscal y traslados. Pregúnteme, por ejemplo, dónde pagaría impuestos si "
+            "reparte el año entre dos países y le ayudaré."
+        ),
+        "fr": (
+            "Je suis Taixable, un conseiller virtuel en fiscalité et mobilité "
+            "internationale ; je ne peux donc aider que sur les questions d'impôts, "
+            "de résidence fiscale et d'expatriation. Demandez-moi par exemple où vous "
+            "paieriez vos impôts en partageant l'année entre deux pays."
+        ),
+        "de": (
+            "Ich bin Taixable, ein virtueller Berater für Steuern und globale "
+            "Mobilität, und kann daher nur bei Fragen zu Steuern, steuerlicher "
+            "Ansässigkeit und Umzügen helfen. Fragen Sie mich z. B., wo Sie Steuern "
+            "zahlen würden, wenn Sie das Jahr auf zwei Länder aufteilen."
+        ),
+        "ru": (
+            "Я Taixable — виртуальный консультант по налогам и международной "
+            "мобильности, поэтому могу помочь только с вопросами о налогах, налоговом "
+            "резидентстве и переезде. Спросите, например, где вы будете платить "
+            "налоги, если разделите год между двумя странами."
+        ),
+        "nl": (
+            "Ik ben Taixable, een virtuele adviseur voor belastingen en "
+            "internationale mobiliteit, dus ik kan alleen helpen met vragen over "
+            "belasting, fiscale woonplaats en verhuizing. Vraag me bijvoorbeeld waar "
+            "u belasting zou betalen als u het jaar over twee landen verdeelt."
+        ),
+        "zh": (
+            "我是 Taixable，一个虚拟的税务与全球流动顾问，因此只能回答有关税务、"
+            "税务居民身份和迁居的问题。例如，您可以问我：如果一年分别居住在两个"
+            "国家，应该在哪里缴税。"
+        ),
+        "ar": (
+            "أنا Taixable، مستشار افتراضي للضرائب والتنقّل الدولي، لذا يمكنني فقط "
+            "المساعدة في الأسئلة المتعلقة بالضرائب والإقامة الضريبية والانتقال. "
+            "اسألني مثلاً أين ستدفع الضرائب إذا قسّمت السنة بين بلدين."
+        ),
     },
 }
 
@@ -551,6 +605,17 @@ def chat(
     professional message and ``available=False``/``error`` so the UI can fall
     back to the structured form.
     """
+    if not is_on_topic(message):
+        return {
+            "reply": _fallback("off_topic", language),
+            "available": True,
+            "used_tool": False,
+            "used_search": False,
+            "assessment": None,
+            "knowledge": [],
+            "search_meta": None,
+            "blocked": True,
+        }
     client = _make_client()
     if client is None:
         return {
