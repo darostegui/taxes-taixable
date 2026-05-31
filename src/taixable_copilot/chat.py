@@ -31,7 +31,7 @@ _SYSTEM_INSTRUCTION = (
     "cross-border global mobility. The deterministic engine determines tax "
     "residence by day-count for ~20 countries and computes illustrative tax "
     "amounts (from published progressive bands) for the UK, Spain (ES), Germany "
-    "(DE), Ireland (IE) and Portugal (PT).\n\n"
+    "(DE), Ireland (IE), Portugal (PT) and Andorra (AD).\n\n"
     "ABSOLUTE RULE — NEVER HALLUCINATE: You must never state a tax rate, treaty "
     "article, filing deadline, residency conclusion, monetary figure or legal "
     "claim that did not come from a tool. If a tool has not given you a fact, you "
@@ -60,7 +60,7 @@ _SYSTEM_INSTRUCTION = (
     "COVERAGE — FAIL CLOSED: Tax residence is determined for ~20 day-count "
     "countries; the engine reports `residency_modelled` and a confidence band. "
     "Illustrative tax AMOUNTS are computed only where bands exist (UK, ES, DE, "
-    "IE, PT). Cross-border treaty relief and rates are modelled only for curated "
+    "IE, PT, AD). Cross-border treaty relief and rates are modelled only for curated "
     "treaty pairs (ES-UK, DE-UK, DE-ES); for any other pair an obligation comes "
     "back with status `not_modelled` and NO rate — relay that honestly and never "
     "fill in a rate yourself. For jurisdictions outside the day-count set you may "
@@ -468,7 +468,7 @@ def _make_assess_tool(deps: "Deps"):
             # rather than fabricating an answer.
             return {
                 "error": str(exc),
-                "computable_amount_countries": ["UK", "ES", "DE", "IE", "PT"],
+                "computable_amount_countries": ["UK", "ES", "DE", "IE", "PT", "AD"],
                 "note": (
                     "Residence is determined for ~20 day-count countries; tax "
                     "amounts are computed only for the listed countries."

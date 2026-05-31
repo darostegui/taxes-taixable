@@ -5068,6 +5068,45 @@
       "generator_version": "special-regimes/1.0",
       "retrieved_at": "2026-05-30",
       "source_content_hash": "17f388276ba7c9ad8861f61fbac663628f63b20a3d87b9ae27292d3bf2aefc27"
+    },
+    {
+      "citation_id": "AD#income-tax",
+      "jurisdiction": "AD",
+      "title": "Andorra — personal income tax (Departament de Tributs i de Fronteres)",
+      "article": "Personal income tax",
+      "summary": "Cited reference card for personal income tax (IRPF) in Andorra, published by the Andorran tax authority (Departament de Tributs i de Fronteres). Source pointer only — open the linked official page for the authoritative, current scale and reliefs. Any Taixable computation is shown separately with its own citation.",
+      "content_type": "curated_reference",
+      "effective_date": "2026-05-31",
+      "source_url": "https://www.impostos.ad/irpf",
+      "package_version": "2025.1",
+      "generator_version": "reference-corpus/1.0",
+      "retrieved_at": "2026-05-31",
+      "source_content_hash": "9917c47f92eec8904b052885f805166ce551c72d67f410a155c8607d85ea55e3"
+    },
+    {
+      "citation_id": "AD#residence",
+      "jurisdiction": "AD",
+      "title": "Andorra — individual tax residence (Departament de Tributs i de Fronteres)",
+      "article": "Residence",
+      "summary": "Cited reference card for individual tax-residence rules in Andorra, published by the Andorran tax authority (Departament de Tributs i de Fronteres). Source pointer only — open the linked official page for the authoritative, current rules. Any Taixable computation is shown separately with its own citation.",
+      "content_type": "curated_reference",
+      "effective_date": "2026-05-31",
+      "source_url": "https://www.impostos.ad/irpf",
+      "package_version": "2025.1",
+      "generator_version": "reference-corpus/1.0",
+      "retrieved_at": "2026-05-31",
+      "source_content_hash": "fd0056029d3ac05a2579e8ff57d05bbb1b76c08eabd8eee454cddd2d48c7df35"
+    },
+    {
+      "citation_id": "AD#irpf-bands",
+      "jurisdiction": "AD",
+      "title": "Andorra IRPF — general progressive scale (simplified)",
+      "article": "Scale",
+      "summary": "Andorra's personal income tax (IRPF) applies a simplified progressive scale: a personal minimum exempts the first EUR 24,000, the next slice up to EUR 40,000 is taxed at 5% and income above EUR 40,000 at 10%. The illustrative estimate excludes family/dependant reductions, savings-income rules and other reliefs.",
+      "content_type": "curated_summary",
+      "effective_date": "2015-01-01",
+      "source_url": "https://www.impostos.ad/irpf",
+      "package_version": "2025.1"
     }
   ]
 }

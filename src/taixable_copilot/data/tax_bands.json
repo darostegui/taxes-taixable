@@ -88,6 +88,21 @@
         {"up_to": 86634, "rate": 0.446},
         {"up_to": null, "rate": 0.48}
       ]
+    },
+    {
+      "country": "AD",
+      "currency": "EUR",
+      "personal_allowance": 24000,
+      "citation_id": "AD#irpf-bands",
+      "title": "Andorra IRPF — general progressive scale (simplified)",
+      "source": "Andorra Impost sobre la Renda de les Persones Físiques (IRPF) general scale",
+      "url": "https://www.impostos.ad/irpf",
+      "method": "taxable = max(0, worldwide income − 24,000 personal minimum); statutory IRPF brackets (5%, 10%) applied from 0.",
+      "note": "Simplified illustrative estimate of Andorra's IRPF: the first €24,000 is exempt, the €24,000–40,000 slice is taxed at 5% and income above €40,000 at 10%. Excludes family/dependant reductions, savings-income rules and other reliefs — actual Andorran liability differs.",
+      "bands": [
+        {"up_to": 16000, "rate": 0.05},
+        {"up_to": null, "rate": 0.10}
+      ]
     }
   ]
 }

@@ -100,6 +100,26 @@ def test_portugal_residence_computes_exact_band_amount():
     assert residence.gross_tax == 13858.28
 
 
+def test_andorra_residence_computes_exact_band_amount():
+    bands = load_tax_bands()
+    # 90k - 24k allowance = 66k taxable: 16k @ 5% + 50k @ 10% = 5,800.
+    expected = progressive_tax(90000 - bands["AD"]["personal_allowance"], bands["AD"]["bands"])
+    assert expected == 5800.0
+
+    deps = build_default_deps()
+    profile = CustomerProfile(
+        residence_country=Country.AD,
+        days_present={Country.AD: 250, Country.ES: 110},
+        income=[IncomeSource(type=IncomeType.EMPLOYMENT, source_country=Country.AD, amount=90000)],
+    )
+    assessment = _assess(profile, deps)
+    assert assessment.primary_residence == Country.AD
+    residence = next(e for e in assessment.estimates if e.role == "residence")
+    assert residence.currency == "EUR"
+    assert residence.gross_tax == 5800.0
+    assert "AD#irpf-bands" in residence.citation_ids
+
+
 def test_uncurated_pair_is_not_modelled_and_withholds_net():
     deps = build_default_deps()
     # IE resident with UK-source rental: the IE-UK treaty pair is NOT curated, so

@@ -192,6 +192,15 @@ CN:
   other_tests_exist: true
   tax_base_scope: "worldwide"
   scope_citation_id: "CN#income-tax"
+AD:
+  days_threshold: 183
+  citation_id: "AD#tax-residency"
+  basis: "Resident if present in Andorra more than 183 days in the calendar year, or the main centre of economic interests is in Andorra (Llei 5/2014 de l'IRPF, simplified)."
+  url: "https://www.impostos.ad/irpf"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "AD#income-tax"
 
 # ---------------------------------------------------------------------------
 # Tier 2 — COVERAGE-ONLY (primary test is not a simple calendar-year day count;

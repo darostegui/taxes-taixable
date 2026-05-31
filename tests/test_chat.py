@@ -52,7 +52,7 @@ def test_assess_tool_returns_error_for_unknown_country_code():
     tool, _ = _make_assess_tool(deps)
     out = tool(days_present_json=json.dumps({"ZZ": 365}), income_json="[]")
     assert "error" in out
-    assert out["computable_amount_countries"] == ["UK", "ES", "DE", "IE", "PT"]
+    assert out["computable_amount_countries"] == ["UK", "ES", "DE", "IE", "PT", "AD"]
 
 
 def test_assess_tool_models_residency_without_bands_honestly():

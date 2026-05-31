@@ -45,6 +45,7 @@ class Country(StrEnum):
     MX = "MX"
     CN = "CN"
     IL = "IL"
+    AD = "AD"
 
     @staticmethod
     def pair(a: "Country", b: "Country") -> str:
