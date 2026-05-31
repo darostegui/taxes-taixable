@@ -154,6 +154,35 @@
   .bubble.md .md-table tbody tr:nth-child(even) td { background:rgba(255,255,255,.025); }
   .factcard { margin-top:10px; background:var(--bg2); border:1px solid rgba(94,155,255,.3); border-radius:10px; padding:12px; font-size:13px; }
   .factcard h4 { margin:0 0 8px; font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:var(--accent); }
+  /* Prominent call-to-action steering users to taixable.com (human advisor) + blog. */
+  .cta {
+    margin-top:12px; border-radius:14px; padding:1.5px;
+    background:linear-gradient(135deg, var(--accent), var(--accent2));
+    box-shadow:0 8px 26px rgba(34,211,238,.18);
+  }
+  .cta-inner { background:linear-gradient(160deg, #0f1d36, #0b1426); border-radius:12.5px; padding:14px 16px; }
+  .cta-main { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .cta-txt { flex:1 1 230px; min-width:0; }
+  .cta-head {
+    font-size:16px; font-weight:800; line-height:1.25; letter-spacing:.1px;
+    background:linear-gradient(135deg, #eaf1ff, var(--accent2)); -webkit-background-clip:text;
+    background-clip:text; color:transparent; display:flex; align-items:center; gap:8px;
+  }
+  .cta-sub { margin-top:5px; font-size:13px; color:#cbd8ee; line-height:1.45; }
+  .cta-sub a, .cta-blog a { color:var(--accent2); font-weight:600; text-decoration:none; }
+  .cta-sub a:hover, .cta-blog a:hover { text-decoration:underline; }
+  .cta-btn {
+    flex:none; display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+    background:linear-gradient(135deg, var(--accent), var(--accent2)); color:#04111f;
+    font-weight:800; font-size:13.5px; padding:11px 18px; border-radius:10px; white-space:nowrap;
+    box-shadow:0 4px 16px rgba(94,155,255,.35); transition:transform .12s, box-shadow .12s;
+  }
+  .cta-btn:hover { transform:translateY(-1px); box-shadow:0 7px 22px rgba(34,211,238,.45); }
+  .cta-blog { margin-top:12px; padding-top:11px; border-top:1px solid rgba(94,155,255,.22); font-size:12.5px; color:var(--muted); }
+  .cta-blog-h { display:block; margin-bottom:6px; font-weight:700; color:#cbd8ee; letter-spacing:.02em; }
+  .cta-blog ul { margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:5px; }
+  .cta-blog li { display:flex; align-items:baseline; gap:7px; }
+  .cta-blog li::before { content:"›"; color:var(--accent2); font-weight:800; }
   .chatInputRow { display:flex; gap:10px; margin-top:12px; align-items:flex-end; }
   .chatInputRow textarea { resize:none; min-height:44px; max-height:120px; }
   .chip { font-size:12px; color:#cfe0ff; background:rgba(94,155,255,.1); border:1px solid rgba(94,155,255,.3); border-radius:999px; padding:5px 11px; cursor:pointer; transition:background .15s; }
@@ -353,6 +382,10 @@ const I18N = {
     thinking: "Thinking…",
     err_unavail: "⚠️ The advisor is unavailable right now. Please try again.",
     err_unreach: "⚠️ Couldn't reach the advisor. Check your connection and retry.",
+    cta_head: "✓ Zero hallucination — every figure cited",
+    cta_sub: "Sanity-check these numbers with a human tax advisor at {site}.",
+    cta_btn: "Talk to a human advisor →",
+    cta_blog_h: "📖 Related reading on the Taixable blog",
     run_first: "Run an assessment first.", persisted: "✓ Persisted as case {id}",
     st_ready: "✓ {n} days across {c}", w_country: "country", w_countries: "countries",
     st_over: "Over by {n} — remove {n} day(s)",
@@ -429,6 +462,10 @@ I18N.es = {
   thinking: "Pensando…",
   err_unavail: "⚠️ El asesor no está disponible ahora mismo. Inténtalo de nuevo.",
   err_unreach: "⚠️ No se pudo contactar con el asesor. Revisa tu conexión e inténtalo de nuevo.",
+  cta_head: "✓ Cero alucinaciones — cada cifra citada",
+  cta_sub: "Verifica estas cifras con un asesor fiscal humano en {site}.",
+  cta_btn: "Habla con un asesor →",
+  cta_blog_h: "📖 Lecturas relacionadas en el blog de Taixable",
   run_first: "Ejecuta primero una evaluación.", persisted: "✓ Guardado como caso {id}",
   st_ready: "✓ {n} días en {c}", w_country: "país", w_countries: "países",
   st_over: "Sobran {n} — elimina {n} día(s)",
@@ -503,6 +540,10 @@ I18N.fr = {
   thinking: "Réflexion…",
   err_unavail: "⚠️ Le conseiller est indisponible pour le moment. Veuillez réessayer.",
   err_unreach: "⚠️ Impossible de joindre le conseiller. Vérifiez votre connexion et réessayez.",
+  cta_head: "✓ Zéro hallucination — chaque chiffre sourcé",
+  cta_sub: "Faites vérifier ces chiffres par un conseiller fiscal humain sur {site}.",
+  cta_btn: "Parler à un conseiller →",
+  cta_blog_h: "📖 À lire aussi sur le blog Taixable",
   run_first: "Lancez d'abord une évaluation.", persisted: "✓ Enregistré comme dossier {id}",
   st_ready: "✓ {n} jours sur {c}", w_country: "pays", w_countries: "pays",
   st_over: "Excédent de {n} — retirez {n} jour(s)",
@@ -577,6 +618,10 @@ I18N.de = {
   thinking: "Denke nach…",
   err_unavail: "⚠️ Der Berater ist derzeit nicht verfügbar. Bitte erneut versuchen.",
   err_unreach: "⚠️ Berater nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+  cta_head: "✓ Keine Halluzinationen — jede Zahl belegt",
+  cta_sub: "Lassen Sie diese Zahlen von einem menschlichen Steuerberater auf {site} prüfen.",
+  cta_btn: "Mit einem Berater sprechen →",
+  cta_blog_h: "📖 Weiterlesen im Taixable-Blog",
   run_first: "Führen Sie zuerst eine Bewertung durch.", persisted: "✓ Als Fall {id} gespeichert",
   st_ready: "✓ {n} Tage über {c}", w_country: "Land", w_countries: "Länder",
   st_over: "Um {n} zu viel — entfernen Sie {n} Tag(e)",
@@ -651,6 +696,10 @@ I18N.ru = {
   thinking: "Думаю…",
   err_unavail: "⚠️ Консультант сейчас недоступен. Пожалуйста, повторите попытку.",
   err_unreach: "⚠️ Не удалось связаться с консультантом. Проверьте соединение и повторите.",
+  cta_head: "✓ Без галлюцинаций — каждая цифра с источником",
+  cta_sub: "Проверьте эти цифры у живого налогового консультанта на {site}.",
+  cta_btn: "Поговорить с консультантом →",
+  cta_blog_h: "📖 Похожие статьи в блоге Taixable",
   run_first: "Сначала выполните оценку.", persisted: "✓ Сохранено как дело {id}",
   st_ready: "✓ {n} дней по {c}", w_country: "стране", w_countries: "странам",
   st_over: "Превышение на {n} — удалите {n} дн.",
@@ -725,6 +774,10 @@ I18N.nl = {
   thinking: "Aan het nadenken…",
   err_unavail: "⚠️ De adviseur is momenteel niet beschikbaar. Probeer het opnieuw.",
   err_unreach: "⚠️ Kon de adviseur niet bereiken. Controleer uw verbinding en probeer opnieuw.",
+  cta_head: "✓ Geen hallucinaties — elk bedrag met bron",
+  cta_sub: "Laat deze cijfers controleren door een menselijke belastingadviseur op {site}.",
+  cta_btn: "Praat met een adviseur →",
+  cta_blog_h: "📖 Gerelateerd leesvoer op de Taixable-blog",
   run_first: "Voer eerst een beoordeling uit.", persisted: "✓ Opgeslagen als zaak {id}",
   st_ready: "✓ {n} dagen over {c}", w_country: "land", w_countries: "landen",
   st_over: "{n} te veel — verwijder {n} dag(en)",
@@ -799,6 +852,10 @@ I18N.zh = {
   thinking: "思考中……",
   err_unavail: "⚠️ 顾问当前不可用，请重试。",
   err_unreach: "⚠️ 无法连接顾问。请检查网络后重试。",
+  cta_head: "✓ 零幻觉——每个数字都有出处",
+  cta_sub: "请在 {site} 让真人税务顾问核对这些数字。",
+  cta_btn: "咨询真人顾问 →",
+  cta_blog_h: "📖 Taixable 博客相关阅读",
   run_first: "请先运行评估。", persisted: "✓ 已保存为案例 {id}",
   st_ready: "✓ {c} 共 {n} 天", w_country: "个国家", w_countries: "个国家",
   st_over: "超出 {n}——请删除 {n} 天",
@@ -873,6 +930,10 @@ I18N.ar = {
   thinking: "جارٍ التفكير…",
   err_unavail: "⚠️ المستشار غير متاح حاليًا. يُرجى المحاولة مرة أخرى.",
   err_unreach: "⚠️ تعذَّر الوصول إلى المستشار. تحقَّق من اتصالك وأعد المحاولة.",
+  cta_head: "✓ بلا هلوسة — كل رقم موثَّق",
+  cta_sub: "تحقَّق من هذه الأرقام مع مستشار ضريبي بشري على {site}.",
+  cta_btn: "← تحدَّث إلى مستشار",
+  cta_blog_h: "📖 قراءات ذات صلة على مدوّنة Taixable",
   run_first: "نفِّذ تقييمًا أولًا.", persisted: "✓ حُفِظ كحالة {id}",
   st_ready: "✓ {n} يومًا عبر {c}", w_country: "دولة", w_countries: "دول",
   st_over: "زيادة بمقدار {n} — احذف {n} يومًا", 
@@ -1478,6 +1539,89 @@ function appendFacts(a) {
   log.scrollTop = log.scrollHeight;
 }
 
+// Curated Taixable.com blog deep-links, matched by topic keywords against the
+// reply + retrieved knowledge so "related reading" links are always relevant.
+const TX_BLOG = [
+  { re: /beckham|impatriat|non-?dom|golden visa|special regime|relocat|reduce (your )?tax|save (on )?tax|lower (your )?tax|tax break|optimi[sz]e|lump.?sum/i,
+    url: "https://taixable.com/blog/how-to-reduce-your-tax-burden-legally-when-relocating/",
+    title: "How to legally reduce your tax burden when relocating" },
+  { re: /digital nomad|nomad visa|n[oó]mada|remote.?work visa/i,
+    url: "https://taixable.com/blog/digital-nomad-visa-tax-implications-spain-portugal-croatia-and-beyond/",
+    title: "Digital nomad visa tax implications: Spain, Portugal, Croatia & beyond" },
+  { re: /retire|retirement|pension|jubilaci|annuit|rente/i,
+    url: "https://taixable.com/blog/retirement-abroad-tax-implications-you-need-to-know/",
+    title: "Retirement abroad: tax implications you need to know" },
+  { re: /crypto|bitcoin|cryptocurrenc|digital asset|web3|defi/i,
+    url: "https://taixable.com/blog/crypto-and-international-tax-what-digital-nomads-need-to-know/",
+    title: "Crypto & international tax: what digital nomads need to know" },
+  { re: /inherit|estate|succession|herencia|sucesi|bequest|trust|wealth transfer/i,
+    url: "https://taixable.com/blog/estate-planning-across-borders-protecting-your-assets-internationally/",
+    title: "Estate planning across borders" },
+  { re: /freelanc|self-?employ|aut[oó]nom|contractor|sole trader|gig work/i,
+    url: "https://taixable.com/blog/freelancer-tax-guide-working-across-borders/",
+    title: "Freelancer tax guide: working across borders" },
+  { re: /remote work|work(ing)? (from|remotely)|teletrabaj/i,
+    url: "https://taixable.com/blog/tax-guide-for-remote-workers-moving-to-spain/",
+    title: "Tax guide for remote workers moving to Spain" },
+  { re: /residenc|183 ?day|tax resident|domicil|habitual abode|centre of.{0,12}interest/i,
+    url: "https://taixable.com/blog/tax-residency-rules-explained-how-countries-determine-where-you-pay/",
+    title: "Tax residency rules explained" },
+  { re: /tax.?haven|tax.?friendly|andorra|monaco|gibraltar|dubai|\buae\b|low.?tax|cyprus|malta/i,
+    url: "https://taixable.com/blog/top-tax-friendly-countries-for-remote-workers-in-2026/",
+    title: "Top tax-friendly countries for remote workers in 2026" },
+  { re: /double taxation|treaty|\bdta\b|\bdtc\b|convention|foreign tax credit|relief/i,
+    url: "https://taixable.com/blog/understanding-double-taxation-agreements-a-practical-guide/",
+    title: "Understanding double taxation agreements" },
+  { re: /\bvat\b|\bgst\b|value added tax|sales tax/i,
+    url: "https://taixable.com/blog/vat-and-gst-guide-for-international-freelancers-and-businesses/",
+    title: "VAT & GST guide for international freelancers & businesses" },
+  { re: /corporate|company tax|business tax|small business|sociedad|startup/i,
+    url: "https://taixable.com/blog/corporate-tax-planning-for-small-businesses-going-global/",
+    title: "Corporate tax planning for small businesses going global" },
+];
+
+// Pick up to 3 relevant blog articles for the current answer.
+function detectBlogArticles(reply, knowledge) {
+  let hay = String(reply || "");
+  (knowledge || []).forEach(k => {
+    hay += " " + (k.title || "") + " " + (k.summary || "") + " " + (k.citation_id || "") + " " + (k.jurisdiction || "");
+  });
+  const out = [];
+  for (const a of TX_BLOG) {
+    if (a.re.test(hay)) out.push(a);
+    if (out.length >= 3) break;
+  }
+  return out;
+}
+
+// Append the always-on "verify with a human advisor" CTA (taixable.com) plus any
+// contextual blog deep-links, to the bottom of the latest bot reply bubble.
+function appendCta(bubble, reply, knowledge) {
+  const wrap = document.createElement("div");
+  wrap.className = "cta";
+  const site = '<a href="https://taixable.com" target="_blank" rel="noopener noreferrer">taixable.com</a>';
+  const articles = detectBlogArticles(reply, knowledge);
+  let blog = "";
+  if (articles.length) {
+    const items = articles.map(a =>
+      `<li><a href="${a.url}" target="_blank" rel="noopener noreferrer">${escapeHtml(a.title)}</a></li>`).join("");
+    blog = `<div class="cta-blog"><span class="cta-blog-h">${t("cta_blog_h")}</span><ul>${items}</ul></div>`;
+  }
+  wrap.innerHTML =
+    `<div class="cta-inner">
+       <div class="cta-main">
+         <div class="cta-txt">
+           <div class="cta-head">${t("cta_head")}</div>
+           <div class="cta-sub">${t("cta_sub", { site: site })}</div>
+         </div>
+         <a class="cta-btn" href="https://taixable.com" target="_blank" rel="noopener noreferrer">${t("cta_btn")}</a>
+       </div>
+       ${blog}
+     </div>`;
+  bubble.appendChild(wrap);
+  document.getElementById("chatLog").scrollTop = document.getElementById("chatLog").scrollHeight;
+}
+
 async function sendChat(presetText) {
   if (chatBusy) return;
   const input = document.getElementById("chatInput");
@@ -1501,6 +1645,7 @@ async function sendChat(presetText) {
     if (body.used_tool && body.assessment) appendFacts(body.assessment);
     const drawer = renderKnowledge(body.knowledge, body.search_meta);
     if (drawer) bubble.appendChild(drawer);
+    appendCta(bubble, body.reply, body.knowledge);
     lastSuggestions = buildSuggestions(body.reply, body.knowledge, body.assessment);
     renderChips(lastSuggestions);
   } catch (e) {
