@@ -273,7 +273,60 @@
   #logoutBtn { font-size:11px; border:1px solid var(--line); background:rgba(34,211,238,.05);
     color:var(--muted); border-radius:6px; padding:3px 9px; cursor:pointer; }
   #logoutBtn:hover { color:var(--ink); }
+
+  /* ---- Light theme ---- */
+  html[data-theme="light"] {
+    --bg:#eef2f9; --bg2:#ffffff; --card:#ffffff; --card2:#f3f6fc;
+    --ink:#1b2438; --muted:#5d6b86; --line:#dde5f1;
+    --accent:#2563eb; --accent2:#0e7490; --ok:#059669; --warn:#b45309; --bad:#dc2626;
+    --shadow:0 10px 30px rgba(30,50,90,.10);
+  }
+  html[data-theme="light"] body {
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(37,99,235,.08), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(14,116,144,.06), transparent 55%),
+      var(--bg);
+  }
+  html[data-theme="light"] header {
+    background:linear-gradient(180deg, rgba(255,255,255,.85), rgba(238,242,249,.4));
+  }
+  html[data-theme="light"] .msg.user .av { background:#dbe7ff; color:#1d4ed8; }
+  html[data-theme="light"] .msg.bot .bubble { background:#f1f5fb; }
+  html[data-theme="light"] .bubble.md h1, html[data-theme="light"] .bubble.md h2,
+  html[data-theme="light"] .bubble.md h3 { color:#16203a; }
+  html[data-theme="light"] .bubble.md code,
+  html[data-theme="light"] .bubble.md .md-table thead th { background:#eef3fb; }
+  html[data-theme="light"] .bubble.md .md-table tbody tr:nth-child(even) td { background:rgba(30,50,90,.035); }
+  html[data-theme="light"] .cta-inner { background:linear-gradient(160deg, #eaf2ff, #f6f9ff); }
+  html[data-theme="light"] .cta-head {
+    background:linear-gradient(135deg, #16203a, var(--accent2)); -webkit-background-clip:text;
+    background-clip:text; color:transparent;
+  }
+  html[data-theme="light"] .cta-sub, html[data-theme="light"] .cta-blog-h { color:#33415c; }
+  html[data-theme="light"] .inc, html[data-theme="light"] .ctry,
+  html[data-theme="light"] .toolbadge { background:rgba(30,50,90,.03); }
+
+  /* ---- Floating theme toggle (bottom-right) ---- */
+  #themeToggle {
+    position:fixed; right:20px; bottom:20px; z-index:900;
+    width:46px; height:46px; border-radius:50%; border:1px solid var(--line);
+    background:var(--card); color:var(--ink); box-shadow:var(--shadow);
+    display:grid; place-items:center; font-size:20px; line-height:1; cursor:pointer;
+    padding:0; transition:transform .12s, box-shadow .12s, background .15s;
+  }
+  #themeToggle:hover { transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,.28); }
+  #themeToggle:active { transform:translateY(0); }
+  html[dir="rtl"] #themeToggle { right:auto; left:20px; }
 </style>
+<script>
+  // Apply saved theme before paint to avoid a flash of the wrong theme.
+  (function () {
+    try {
+      var t = localStorage.getItem("taixable_theme");
+      if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    } catch (e) { /* ignore */ }
+  })();
+</script>
 </head>
 <body>
 <div id="loginOverlay" hidden>
@@ -382,6 +435,8 @@
     </div>
   </section>
 </main>
+
+<button id="themeToggle" type="button" onclick="toggleTheme()" aria-label="Toggle light or dark theme" title="Toggle theme">🌙</button>
 
 <script>
 // ── Internationalisation (UI chrome only) ──────────────────────────────────
@@ -2044,6 +2099,22 @@ async function refreshLiveStatus() {
 }
 
 appendMsg("bot", t("greeting"));
+
+// ---- Theme toggle (dark default) ----
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+}
+function syncThemeIcon() {
+  const btn = document.getElementById("themeToggle");
+  if (btn) btn.textContent = currentTheme() === "light" ? "🌙" : "☀️";
+}
+function toggleTheme() {
+  const next = currentTheme() === "light" ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("taixable_theme", next); } catch (e) { /* ignore */ }
+  syncThemeIcon();
+}
+syncThemeIcon();
 
 addIncome();
 render();
