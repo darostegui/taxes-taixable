@@ -82,13 +82,14 @@ Cloud credentials (Elastic, Google Cloud, MySQL) are read from a local
 The tax corpus lives in `src/taixable_copilot/data/` (with sources and a
 disclaimer in [`SOURCES.md`](src/taixable_copilot/data/SOURCES.md)) and spans:
 
-- **31 jurisdictions** with official tax-residency day-count rules;
+- **33 jurisdictions** with official tax-residency rules (day-count tests where
+  the statute uses one; coverage-only residence flags where it does not);
 - **6 bilateral double-tax treaty pairs** (ES-UK, DE-UK, DE-ES, FR-UK, IE-UK,
   NL-UK) with verified article references;
 - **deterministic tax-band / withholding tables** for the 6 core compute
   countries (AD, DE, ES, IE, PT, UK), so "how much" figures are arithmetic over
   cited statutory bands — never model-invented;
-- a **searchable cited reference corpus of 336 documents** across ~148
+- a **searchable cited reference corpus of 337 documents** across ~148
   jurisdictions (residency, income-tax, special-mobility-regime and treaty
   cards), indexed for Elastic hybrid (BM25 + vector + RRF) retrieval and
   citation highlighting.

@@ -4284,6 +4284,20 @@
       "source_content_hash": "f0f60de99ac8d861e15c0014d07b8059932c7ba08c448393ece030c1898e9eb4"
     },
     {
+      "citation_id": "RU#income-tax",
+      "jurisdiction": "RU",
+      "title": "Russia — personal income tax (Federal Tax Service official portal)",
+      "article": "Personal income tax",
+      "summary": "Cited reference card for personal income tax in Russia. PwC Worldwide Tax Summaries withdrew its Russia coverage in 2022, so this points at the Federal Tax Service of Russia's official English portal. Source pointer only — open the linked page for current rates, bands and reliefs. Taixable models Russian tax residence separately and does NOT compute a Russian tax amount; any computation is shown separately with its own citation.",
+      "content_type": "curated_reference",
+      "effective_date": "2026-06-01",
+      "source_url": "https://www.nalog.gov.ru/eng/",
+      "package_version": "2025.1",
+      "generator_version": "reference-corpus/1.0",
+      "retrieved_at": "2026-06-01",
+      "source_content_hash": "3d62d7355330dc4676bc1f8f8c387eaa8ccd4168f90ab5de9ae656438f233662"
+    },
+    {
       "citation_id": "ES#beckham-regime",
       "jurisdiction": "ES",
       "title": "Spain — Beckham / impatriate regime (Art. 93 LIRPF, as amended by the Startups Law)",

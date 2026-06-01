@@ -266,3 +266,18 @@ MX:
   url: "https://taxsummaries.pwc.com/mexico/individual/residence"
   tax_base_scope: "worldwide"
   scope_citation_id: "MX#income-tax"
+RU:
+  days_threshold: 183
+  basis: "Russia Tax Code art. 207(2): individual is a tax resident if physically present in Russia 183+ days within any rolling 12 consecutive months (simplified to a 183-day count; the statutory window is rolling, not calendar-year)."
+  citation_id: "RU#tax-residency"
+  url: "https://www.nalog.gov.ru/eng/"
+  confidence_cap: 0.9
+  other_tests_exist: true
+  tax_base_scope: "worldwide"
+  scope_citation_id: "RU#income-tax"
+ZA:
+  citation_id: "ZA#tax-residency"
+  basis: "South Africa: resident if 'ordinarily resident' (qualitative) or by the physical-presence test (>91 days in the current year and in each of the prior five years and >915 days in total) — not a single calendar-year day count (not modelled)."
+  url: "https://taxsummaries.pwc.com/south-africa/individual/residence"
+  tax_base_scope: "worldwide"
+  scope_citation_id: "ZA#income-tax"

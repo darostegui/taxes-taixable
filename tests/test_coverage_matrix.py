@@ -205,3 +205,49 @@ def test_new_treaty_pairs_model_safe_income_and_fail_closed_on_rest():
             assert t.modelled is False, (res, src, income)
             assert t.rate is None
             assert t.article_no is None
+
+
+def test_russia_is_tier1_day_count_residency_capped():
+    """Russia (RU) is modelled as a Tier-1 day-count residence (183 days in a
+    rolling 12 months, simplified) with capped confidence because other
+    statutory tests exist; the engine concludes residence and cites the FTS
+    portal, but does NOT compute a Russian amount (no verified bands)."""
+    deps = build_default_deps()
+    rules = deps.residency_rules
+
+    finding = determine_residency(
+        days_present={Country.RU: 200, Country.UK: 165}, rules=rules
+    )
+    assert finding.primary_residence == Country.RU
+    assert finding.per_country[Country.RU] is True
+    assert finding.residency_modelled is True
+    assert finding.confidence <= 0.9
+    assert finding.tax_base_scope == "worldwide"
+    assert "RU#tax-residency" in finding.citations
+
+    # below the 183-day boundary -> not resident in RU
+    below = determine_residency(
+        days_present={Country.RU: 182, Country.UK: 183}, rules=rules
+    )
+    assert below.per_country[Country.RU] is False
+    assert below.primary_residence == Country.UK
+
+    # RU residency + scope citations are in the known allowlist (fail-closed)
+    assert "RU#tax-residency" in deps.known_citation_ids
+    assert "RU#income-tax" in deps.known_citation_ids
+
+
+def test_south_africa_is_coverage_only_residency():
+    """South Africa (ZA) uses an 'ordinarily resident' / physical-presence test
+    that is not a single calendar-year day count, so residence is coverage-only:
+    never concluded from days, never a fabricated threshold."""
+    deps = build_default_deps()
+    finding = determine_residency(
+        days_present={Country.ZA: 300, Country.UK: 65}, rules=deps.residency_rules
+    )
+    assert finding.per_country[Country.ZA] is False
+    assert finding.residency_modelled is False
+    assert finding.confidence <= 0.5
+    assert "days_threshold" not in deps.residency_rules[Country.ZA]
+    assert "ZA#tax-residency" in deps.known_citation_ids
+    assert "ZA#income-tax" in deps.known_citation_ids
