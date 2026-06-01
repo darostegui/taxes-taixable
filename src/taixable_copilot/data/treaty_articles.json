@@ -395,6 +395,78 @@
       "citation_id": "SA-UK#art18",
       "source": "UK–Saudi Arabia Double Taxation Convention (2007), Article 18",
       "url": "https://www.gov.uk/government/publications/saudi-arabia-tax-treaties/2007-uk-saudi-arabia-double-taxation-convention-and-protocol-in-force"
+    },
+    {
+      "country_pair": "ES-US",
+      "income_types": [
+        "interest"
+      ],
+      "article_no": "11",
+      "topic": "Interest",
+      "text": "Interest arising in a Contracting State and beneficially owned by a resident of the other State shall be taxable only in that other State (0% at source), as amended by the 2013 Protocol; contingent interest and certain REMIC interest follow separate rules. Note: under the saving clause (Article 1(3)) the United States may still tax its citizens and residents as if the Convention had not entered into force.",
+      "citation_id": "ES-US#art11",
+      "source": "Spain–United States Income Tax Convention (1990), as amended by the 2013 Protocol, Article 11",
+      "url": "https://www.irs.gov/businesses/international-businesses/spain-tax-treaty-documents"
+    },
+    {
+      "country_pair": "ES-US",
+      "income_types": [
+        "employment"
+      ],
+      "article_no": "16",
+      "topic": "Dependent personal services (employment)",
+      "text": "Salaries, wages and other similar remuneration are taxable only in the State of residence unless the employment is exercised in the other State, subject to the 183-day (twelve-month period) exception in Article 16(2). Note: under the saving clause (Article 1(3)) the United States may still tax its citizens and residents as if the Convention had not entered into force.",
+      "citation_id": "ES-US#art16",
+      "source": "Spain–United States Income Tax Convention (1990), Article 16",
+      "url": "https://www.irs.gov/businesses/international-businesses/spain-tax-treaty-documents"
+    },
+    {
+      "country_pair": "ES-US",
+      "income_types": [
+        "pension"
+      ],
+      "article_no": "20",
+      "topic": "Pensions",
+      "text": "Private pensions and other similar remuneration beneficially owned by a resident of a Contracting State in consideration of past employment are taxable only in that State (Article 20(1)(a)); social-security and similar public pensions follow separate rules in Article 20(1)(b). Note: under the saving clause (Article 1(3)) the United States may still tax its citizens and residents as if the Convention had not entered into force.",
+      "citation_id": "ES-US#art20",
+      "source": "Spain–United States Income Tax Convention (1990), Article 20",
+      "url": "https://www.irs.gov/businesses/international-businesses/spain-tax-treaty-documents"
+    },
+    {
+      "country_pair": "DE-US",
+      "income_types": [
+        "interest"
+      ],
+      "article_no": "11",
+      "topic": "Interest",
+      "text": "Interest derived and beneficially owned by a resident of a Contracting State shall be taxable only in that State (0% at source). Note: under the saving clause (Article 1(4)) the United States may still tax its citizens and residents as if the Convention had not entered into force.",
+      "citation_id": "DE-US#art11",
+      "source": "Germany–United States Income Tax Convention (1989), as amended by the 2006 Protocol, Article 11",
+      "url": "https://www.irs.gov/businesses/international-businesses/germany-tax-treaty-documents"
+    },
+    {
+      "country_pair": "DE-US",
+      "income_types": [
+        "employment"
+      ],
+      "article_no": "15",
+      "topic": "Dependent personal services (employment)",
+      "text": "Salaries, wages and other similar remuneration are taxable only in the State of residence unless the employment is exercised in the other State, subject to the 183-day (calendar year) exception in Article 15(2). Note: under the saving clause (Article 1(4)) the United States may still tax its citizens and residents as if the Convention had not entered into force.",
+      "citation_id": "DE-US#art15",
+      "source": "Germany–United States Income Tax Convention (1989), Article 15",
+      "url": "https://www.irs.gov/businesses/international-businesses/germany-tax-treaty-documents"
+    },
+    {
+      "country_pair": "DE-US",
+      "income_types": [
+        "pension"
+      ],
+      "article_no": "18",
+      "topic": "Pensions",
+      "text": "Private pensions and other similar remuneration beneficially owned by a resident of a Contracting State in consideration of past employment are taxable only in that State (Article 18(1)); government-service pensions and social security follow separate rules in Article 19. Note: under the saving clause (Article 1(4)) the United States may still tax its citizens and residents as if the Convention had not entered into force.",
+      "citation_id": "DE-US#art18",
+      "source": "Germany–United States Income Tax Convention (1989), Article 18",
+      "url": "https://www.irs.gov/businesses/international-businesses/germany-tax-treaty-documents"
     }
   ]
 }

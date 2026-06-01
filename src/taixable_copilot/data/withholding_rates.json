@@ -296,6 +296,60 @@
       "citation_id": "SA-UK#art18-rate",
       "source": "UK–Saudi Arabia DTC (2007) Art. 18",
       "url": "https://www.gov.uk/government/publications/saudi-arabia-tax-treaties/2007-uk-saudi-arabia-double-taxation-convention-and-protocol-in-force"
+    },
+    {
+      "country_pair": "ES-US",
+      "income_type": "interest",
+      "rate": 0.0,
+      "relief": "exempt at source; taxed in residence State",
+      "citation_id": "ES-US#art11-rate",
+      "source": "Spain–US Income Tax Convention (1990) as amended by 2013 Protocol, Art. 11",
+      "url": "https://www.irs.gov/businesses/international-businesses/spain-tax-treaty-documents"
+    },
+    {
+      "country_pair": "ES-US",
+      "income_type": "employment",
+      "rate": 0.0,
+      "relief": "taxable in residence State (183-day rule applies)",
+      "citation_id": "ES-US#art16-rate",
+      "source": "Spain–US Income Tax Convention (1990) Art. 16",
+      "url": "https://www.irs.gov/businesses/international-businesses/spain-tax-treaty-documents"
+    },
+    {
+      "country_pair": "ES-US",
+      "income_type": "pension",
+      "rate": 0.0,
+      "relief": "private pension taxable only in residence State",
+      "citation_id": "ES-US#art20-rate",
+      "source": "Spain–US Income Tax Convention (1990) Art. 20",
+      "url": "https://www.irs.gov/businesses/international-businesses/spain-tax-treaty-documents"
+    },
+    {
+      "country_pair": "DE-US",
+      "income_type": "interest",
+      "rate": 0.0,
+      "relief": "exempt at source; taxed in residence State",
+      "citation_id": "DE-US#art11-rate",
+      "source": "Germany–US Income Tax Convention (1989) as amended by 2006 Protocol, Art. 11",
+      "url": "https://www.irs.gov/businesses/international-businesses/germany-tax-treaty-documents"
+    },
+    {
+      "country_pair": "DE-US",
+      "income_type": "employment",
+      "rate": 0.0,
+      "relief": "taxable in residence State (183-day rule applies)",
+      "citation_id": "DE-US#art15-rate",
+      "source": "Germany–US Income Tax Convention (1989) Art. 15",
+      "url": "https://www.irs.gov/businesses/international-businesses/germany-tax-treaty-documents"
+    },
+    {
+      "country_pair": "DE-US",
+      "income_type": "pension",
+      "rate": 0.0,
+      "relief": "private pension taxable only in residence State",
+      "citation_id": "DE-US#art18-rate",
+      "source": "Germany–US Income Tax Convention (1989) Art. 18",
+      "url": "https://www.irs.gov/businesses/international-businesses/germany-tax-treaty-documents"
     }
   ]
 }

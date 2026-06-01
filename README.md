@@ -84,8 +84,8 @@ disclaimer in [`SOURCES.md`](src/taixable_copilot/data/SOURCES.md)) and spans:
 
 - **33 jurisdictions** with official tax-residency rules (day-count tests where
   the statute uses one; coverage-only residence flags where it does not);
-- **9 bilateral double-tax treaty pairs** (ES-UK, DE-UK, DE-ES, FR-UK, IE-UK,
-  NL-UK, UK-US, UK-ZA, SA-UK) with verified article references;
+- **11 bilateral double-tax treaty pairs** (ES-UK, ES-US, DE-UK, DE-ES, DE-US,
+  FR-UK, IE-UK, NL-UK, UK-US, UK-ZA, SA-UK) with verified article references;
 - **deterministic tax-band / withholding tables** for the 6 core compute
   countries (AD, DE, ES, IE, PT, UK), so "how much" figures are arithmetic over
   cited statutory bands — never model-invented;
@@ -93,6 +93,15 @@ disclaimer in [`SOURCES.md`](src/taixable_copilot/data/SOURCES.md)) and spans:
   jurisdictions (residency, income-tax, special-mobility-regime and treaty
   cards), indexed for Elastic hybrid (BM25 + vector + RRF) retrieval and
   citation highlighting.
+
+Treaty pairs are added only when each cited article number and source rate is
+**verified against the primary in-force convention text** (gov.uk / IRS), so
+corridors we cannot yet primary-verify are deliberately left **fail-closed**
+rather than guessed. For countries with significant **subnational** income tax —
+the United States (states/cities), Canada (provinces), Switzerland (cantons) and
+Spain (autonomous communities) — the advisor asks where exactly the client lives
+and flags that those layers are **separate and not computed** by the engine; it
+never invents a state, provincial or regional rate.
 
 **Figures are illustrative and
 must be verified against the primary legal texts before any real-world use** — the

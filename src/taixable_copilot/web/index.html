@@ -323,6 +323,23 @@
   #themeToggle:hover { transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,.28); }
   #themeToggle:active { transform:translateY(0); }
   html[dir="rtl"] #themeToggle { right:auto; left:20px; }
+  #siteFooter {
+    max-width:1200px; margin:8px auto 64px; padding:18px 16px 0;
+    border-top:1px solid var(--line); color:var(--muted); font-size:12.5px;
+    text-align:center;
+  }
+  #siteFooter .foot-tag { line-height:1.6; }
+  #siteFooter a { color:var(--accent); text-decoration:none; }
+  #siteFooter a:hover { text-decoration:underline; }
+  #siteFooter .foot-legal { margin:10px auto 0; max-width:760px; text-align:left; }
+  #siteFooter .foot-legal > summary {
+    cursor:pointer; text-align:center; color:var(--muted); font-size:12px;
+    list-style:none; padding:6px 0;
+  }
+  #siteFooter .foot-legal > summary:hover { color:var(--ink); }
+  #siteFooter .foot-legal-body { margin-top:8px; line-height:1.55; }
+  #siteFooter .foot-legal-body p { margin:0 0 8px; }
+  #siteFooter .foot-legal-body strong { color:var(--ink); }
 </style>
 <script>
   // Apply saved theme before paint to avoid a flash of the wrong theme.
@@ -446,6 +463,25 @@
   </section>
 </main>
 
+<footer id="siteFooter">
+  <div class="foot-tag" data-i18n-html="foot_tag">
+    Lovingly over-engineered by the humans at
+    <a href="https://taixable.com" target="_blank" rel="noopener">taixable.com</a>
+    — people who get genuinely excited about cross-border tax so you don't have to. 🧮✈️
+  </div>
+  <details class="foot-legal">
+    <summary data-i18n="foot_legal_summary">Terms, Privacy &amp; the obligatory “this is not advice” bit</summary>
+    <div class="foot-legal-body">
+      <p><strong data-i18n="foot_terms_h">Terms of use.</strong>
+        <span data-i18n="foot_terms_b">Taixable is a decision-support demonstrator for cross-border tax and global mobility. It is provided “as is”, for informational purposes only, and is NOT legal, tax, accounting or financial advice and does not create any advisor–client relationship. Every figure is illustrative and may be incomplete or out of date. Always verify against the cited primary source and confirm your situation with a qualified professional before acting. We accept no liability for any decision taken on the basis of this tool.</span></p>
+      <p><strong data-i18n="foot_privacy_h">Privacy.</strong>
+        <span data-i18n="foot_privacy_b">This is a protected demo. Conversation text you enter is sent to the tax engine and to Google Cloud Vertex AI (Gemini) to generate a grounded answer; please do not enter real personal data or client information. We do not sell your data. The “demo” account and any sample data are for evaluation only.</span></p>
+      <p><strong data-i18n="foot_nolaw_h">Not legal advice.</strong>
+        <span data-i18n="foot_nolaw_b">Tax law changes frequently and varies by jurisdiction, region (state, province, canton or autonomous community) and personal circumstances. Nothing here is a recommendation to take, or refrain from, any course of action.</span></p>
+    </div>
+  </details>
+</footer>
+
 <button id="themeToggle" type="button" onclick="toggleTheme()" aria-label="Toggle light or dark theme" title="Toggle theme">🌙</button>
 
 <script>
@@ -537,6 +573,14 @@ const I18N = {
     login_user: "Username", login_pass: "Password", login_btn: "Sign in", logout: "Sign out",
     login_bad: "Invalid username or password.",
     login_throttle: "Too many attempts. Please wait a minute and try again.",
+    foot_tag: "Lovingly over-engineered by the humans at <a href=\"https://taixable.com\" target=\"_blank\" rel=\"noopener\">taixable.com</a> — people who get genuinely excited about cross-border tax so you don't have to. 🧮✈️",
+    foot_legal_summary: "Terms, Privacy & the obligatory “this is not advice” bit",
+    foot_terms_h: "Terms of use.",
+    foot_terms_b: "Taixable is a decision-support demonstrator for cross-border tax and global mobility. It is provided “as is”, for informational purposes only, and is NOT legal, tax, accounting or financial advice and does not create any advisor–client relationship. Every figure is illustrative and may be incomplete or out of date. Always verify against the cited primary source and confirm your situation with a qualified professional before acting. We accept no liability for any decision taken on the basis of this tool.",
+    foot_privacy_h: "Privacy.",
+    foot_privacy_b: "This is a protected demo. Conversation text you enter is sent to the tax engine and to Google Cloud Vertex AI (Gemini) to generate a grounded answer; please do not enter real personal data or client information. We do not sell your data. The “demo” account and any sample data are for evaluation only.",
+    foot_nolaw_h: "Not legal advice.",
+    foot_nolaw_b: "Tax law changes frequently and varies by jurisdiction, region (state, province, canton or autonomous community) and personal circumstances. Nothing here is a recommendation to take, or refrain from, any course of action.",
   },
 };
 // Localised overlays. Any key absent here inherits the English string above.
@@ -621,6 +665,14 @@ I18N.es = {
   login_user: "Usuario", login_pass: "Contraseña", login_btn: "Iniciar sesión", logout: "Cerrar sesión",
   login_bad: "Usuario o contraseña no válidos.",
   login_throttle: "Demasiados intentos. Espera un minuto e inténtalo de nuevo.",
+  foot_tag: "Cariñosamente sobre-diseñado por los humanos de <a href=\"https://taixable.com\" target=\"_blank\" rel=\"noopener\">taixable.com</a> — gente que se emociona de verdad con la fiscalidad transfronteriza para que tú no tengas que hacerlo. 🧮✈️",
+  foot_legal_summary: "Términos, Privacidad y el obligatorio «esto no es asesoramiento»",
+  foot_terms_h: "Condiciones de uso.",
+  foot_terms_b: "Taixable es un demostrador de apoyo a la decisión sobre fiscalidad transfronteriza y movilidad global. Se ofrece «tal cual», solo con fines informativos, y NO constituye asesoramiento legal, fiscal, contable ni financiero, ni crea relación alguna asesor-cliente. Todas las cifras son ilustrativas y pueden estar incompletas o desactualizadas. Verifica siempre con la fuente primaria citada y confirma tu situación con un profesional cualificado antes de actuar. No asumimos responsabilidad alguna por las decisiones tomadas con base en esta herramienta.",
+  foot_privacy_h: "Privacidad.",
+  foot_privacy_b: "Esta es una demo protegida. El texto que introduces se envía al motor fiscal y a Google Cloud Vertex AI (Gemini) para generar una respuesta fundamentada; no introduzcas datos personales reales ni información de clientes. No vendemos tus datos. La cuenta «demo» y los datos de ejemplo son solo para evaluación.",
+  foot_nolaw_h: "No es asesoramiento legal.",
+  foot_nolaw_b: "La legislación fiscal cambia con frecuencia y varía según la jurisdicción, la región (estado, provincia, cantón o comunidad autónoma) y las circunstancias personales. Nada de lo aquí expuesto es una recomendación para tomar, o abstenerse de tomar, ninguna decisión.",
 };
 I18N.fr = {
   title: "tAIxable — Conseiller Fiscal Virtuel",
@@ -703,6 +755,14 @@ I18N.fr = {
   login_user: "Identifiant", login_pass: "Mot de passe", login_btn: "Se connecter", logout: "Se déconnecter",
   login_bad: "Identifiant ou mot de passe invalide.",
   login_throttle: "Trop de tentatives. Veuillez patienter une minute et réessayer.",
+  foot_tag: "Affectueusement sur-conçu par les humains de <a href=\"https://taixable.com\" target=\"_blank\" rel=\"noopener\">taixable.com</a> — des gens qui s'enthousiasment vraiment pour la fiscalité transfrontalière pour que vous n'ayez pas à le faire. 🧮✈️",
+  foot_legal_summary: "Conditions, Confidentialité et l'inévitable « ceci n'est pas un conseil »",
+  foot_terms_h: "Conditions d'utilisation.",
+  foot_terms_b: "Taixable est un démonstrateur d'aide à la décision en matière de fiscalité transfrontalière et de mobilité internationale. Il est fourni « en l'état », à titre purement informatif, et ne constitue PAS un conseil juridique, fiscal, comptable ou financier et ne crée aucune relation conseiller-client. Tous les chiffres sont illustratifs et peuvent être incomplets ou obsolètes. Vérifiez toujours auprès de la source primaire citée et confirmez votre situation avec un professionnel qualifié avant d'agir. Nous déclinons toute responsabilité pour toute décision prise sur la base de cet outil.",
+  foot_privacy_h: "Confidentialité.",
+  foot_privacy_b: "Ceci est une démo protégée. Le texte que vous saisissez est envoyé au moteur fiscal et à Google Cloud Vertex AI (Gemini) pour générer une réponse étayée ; veuillez ne pas saisir de données personnelles réelles ni d'informations clients. Nous ne vendons pas vos données. Le compte « demo » et les données d'exemple sont uniquement destinés à l'évaluation.",
+  foot_nolaw_h: "Pas un conseil juridique.",
+  foot_nolaw_b: "La législation fiscale change fréquemment et varie selon la juridiction, la région (État, province, canton ou communauté autonome) et la situation personnelle. Rien ici ne constitue une recommandation d'entreprendre, ou de s'abstenir d'entreprendre, quelque action que ce soit.",
 };
 I18N.de = {
   title: "tAIxable — Virtueller Steuerberater",
@@ -785,6 +845,14 @@ I18N.de = {
   login_user: "Benutzername", login_pass: "Passwort", login_btn: "Anmelden", logout: "Abmelden",
   login_bad: "Ungültiger Benutzername oder Passwort.",
   login_throttle: "Zu viele Versuche. Bitte warten Sie eine Minute und versuchen Sie es erneut.",
+  foot_tag: "Mit Liebe over-engineered von den Menschen bei <a href=\"https://taixable.com\" target=\"_blank\" rel=\"noopener\">taixable.com</a> — Leute, die sich ehrlich für grenzüberschreitende Steuern begeistern, damit Sie es nicht müssen. 🧮✈️",
+  foot_legal_summary: "Nutzungsbedingungen, Datenschutz und der obligatorische „dies ist keine Beratung“-Teil",
+  foot_terms_h: "Nutzungsbedingungen.",
+  foot_terms_b: "Taixable ist ein Demonstrator zur Entscheidungsunterstützung für grenzüberschreitende Steuern und globale Mobilität. Er wird „wie besehen“ und ausschließlich zu Informationszwecken bereitgestellt und stellt KEINE rechtliche, steuerliche, buchhalterische oder finanzielle Beratung dar und begründet kein Berater-Mandanten-Verhältnis. Alle Zahlen sind illustrativ und können unvollständig oder veraltet sein. Prüfen Sie stets die zitierte Primärquelle und bestätigen Sie Ihre Situation mit einer qualifizierten Fachkraft, bevor Sie handeln. Für Entscheidungen auf Grundlage dieses Tools übernehmen wir keine Haftung.",
+  foot_privacy_h: "Datenschutz.",
+  foot_privacy_b: "Dies ist eine geschützte Demo. Der von Ihnen eingegebene Text wird an die Steuer-Engine und an Google Cloud Vertex AI (Gemini) gesendet, um eine fundierte Antwort zu erzeugen; bitte geben Sie keine echten personenbezogenen Daten oder Mandanteninformationen ein. Wir verkaufen Ihre Daten nicht. Das „demo“-Konto und alle Beispieldaten dienen nur der Evaluierung.",
+  foot_nolaw_h: "Keine Rechtsberatung.",
+  foot_nolaw_b: "Das Steuerrecht ändert sich häufig und unterscheidet sich je nach Land, Region (Bundesland, Provinz, Kanton oder autonome Gemeinschaft) und persönlichen Umständen. Nichts hiervon ist eine Empfehlung, eine Handlung vorzunehmen oder zu unterlassen.",
 };
 I18N.ru = {
   title: "tAIxable — Виртуальный налоговый консультант",
@@ -867,6 +935,14 @@ I18N.ru = {
   login_user: "Имя пользователя", login_pass: "Пароль", login_btn: "Войти", logout: "Выйти",
   login_bad: "Неверное имя пользователя или пароль.",
   login_throttle: "Слишком много попыток. Подождите минуту и попробуйте снова.",
+  foot_tag: "С любовью переусложнено людьми из <a href=\"https://taixable.com\" target=\"_blank\" rel=\"noopener\">taixable.com</a> — теми, кто искренне увлечён трансграничным налогообложением, чтобы вам не пришлось. 🧮✈️",
+  foot_legal_summary: "Условия, Конфиденциальность и обязательное «это не консультация»",
+  foot_terms_h: "Условия использования.",
+  foot_terms_b: "Taixable — это демонстратор поддержки принятия решений по трансграничному налогообложению и глобальной мобильности. Предоставляется «как есть», только в информационных целях, и НЕ является юридической, налоговой, бухгалтерской или финансовой консультацией и не создаёт отношений «консультант-клиент». Все цифры являются иллюстративными и могут быть неполными или устаревшими. Всегда сверяйтесь с указанным первоисточником и подтверждайте свою ситуацию у квалифицированного специалиста, прежде чем действовать. Мы не несём ответственности за любые решения, принятые на основе этого инструмента.",
+  foot_privacy_h: "Конфиденциальность.",
+  foot_privacy_b: "Это защищённая демоверсия. Введённый вами текст отправляется в налоговый движок и в Google Cloud Vertex AI (Gemini) для формирования обоснованного ответа; пожалуйста, не вводите реальные персональные данные или данные клиентов. Мы не продаём ваши данные. Учётная запись «demo» и любые примеры данных предназначены только для оценки.",
+  foot_nolaw_h: "Не юридическая консультация.",
+  foot_nolaw_b: "Налоговое законодательство часто меняется и различается в зависимости от юрисдикции, региона (штата, провинции, кантона или автономного сообщества) и личных обстоятельств. Ничто из вышеизложенного не является рекомендацией совершать или воздерживаться от каких-либо действий.",
 };
 I18N.nl = {
   title: "tAIxable — Virtuele belastingadviseur",
@@ -949,6 +1025,14 @@ I18N.nl = {
   login_user: "Gebruikersnaam", login_pass: "Wachtwoord", login_btn: "Inloggen", logout: "Uitloggen",
   login_bad: "Ongeldige gebruikersnaam of wachtwoord.",
   login_throttle: "Te veel pogingen. Wacht een minuut en probeer het opnieuw.",
+  foot_tag: "Liefdevol over-engineered door de mensen bij <a href=\"https://taixable.com\" target=\"_blank\" rel=\"noopener\">taixable.com</a> — mensen die oprecht enthousiast worden van grensoverschrijdende belastingen zodat u dat niet hoeft. 🧮✈️",
+  foot_legal_summary: "Voorwaarden, Privacy en het verplichte „dit is geen advies“-stukje",
+  foot_terms_h: "Gebruiksvoorwaarden.",
+  foot_terms_b: "Taixable is een beslissingsondersteunende demonstrator voor grensoverschrijdende belastingen en wereldwijde mobiliteit. Het wordt „as is“ geleverd, uitsluitend voor informatieve doeleinden, en vormt GEEN juridisch, fiscaal, boekhoudkundig of financieel advies en schept geen adviseur-cliëntrelatie. Alle bedragen zijn illustratief en kunnen onvolledig of verouderd zijn. Controleer altijd aan de hand van de geciteerde primaire bron en bevestig uw situatie bij een gekwalificeerde professional voordat u handelt. Wij aanvaarden geen aansprakelijkheid voor beslissingen die op basis van dit hulpmiddel worden genomen.",
+  foot_privacy_h: "Privacy.",
+  foot_privacy_b: "Dit is een beschermde demo. De tekst die u invoert wordt naar de belastingengine en naar Google Cloud Vertex AI (Gemini) gestuurd om een onderbouwd antwoord te genereren; voer geen echte persoonsgegevens of cliëntinformatie in. Wij verkopen uw gegevens niet. Het „demo“-account en voorbeeldgegevens zijn uitsluitend voor evaluatie.",
+  foot_nolaw_h: "Geen juridisch advies.",
+  foot_nolaw_b: "Belastingwetgeving verandert vaak en verschilt per jurisdictie, regio (staat, provincie, kanton of autonome gemeenschap) en persoonlijke omstandigheden. Niets hierin is een aanbeveling om enige handeling te verrichten of na te laten.",
 };
 I18N.zh = {
   title: "tAIxable — 虚拟税务顾问",
@@ -1031,6 +1115,14 @@ I18N.zh = {
   login_user: "用户名", login_pass: "密码", login_btn: "登录", logout: "退出登录",
   login_bad: "用户名或密码无效。",
   login_throttle: "尝试次数过多。请稍候一分钟后重试。",
+  foot_tag: "由 <a href=\"https://taixable.com\" target=\"_blank\" rel=\"noopener\">taixable.com</a> 的人类倾情过度打造——他们是真心热爱跨境税务的人，这样您就不必如此。🧮✈️",
+  foot_legal_summary: "条款、隐私以及必不可少的「这不构成建议」部分",
+  foot_terms_h: "使用条款。",
+  foot_terms_b: "Taixable 是一个用于跨境税务和全球流动的决策支持演示工具。按「原样」提供，仅供参考，并不构成法律、税务、会计或财务建议，也不形成任何顾问与客户关系。所有数字均为示例，可能不完整或已过时。在采取行动之前，请务必对照所引用的原始来源进行核实，并向合格的专业人士确认您的具体情况。对于基于本工具做出的任何决定，我们概不负责。",
+  foot_privacy_h: "隐私。",
+  foot_privacy_b: "这是一个受保护的演示。您输入的对话文本会发送到税务引擎和 Google Cloud Vertex AI (Gemini) 以生成有依据的回答；请勿输入真实的个人数据或客户信息。我们不会出售您的数据。「demo」账户及任何示例数据仅供评估使用。",
+  foot_nolaw_h: "并非法律建议。",
+  foot_nolaw_b: "税法经常变化，并因司法管辖区、地区（州、省、州或自治区）和个人情况而异。本文所述内容均不构成采取或不采取任何行动的建议。",
 };
 I18N.ar = {
   title: "tAIxable — مستشار ضريبي افتراضي",
@@ -1113,6 +1205,14 @@ I18N.ar = {
   login_user: "اسم المستخدم", login_pass: "كلمة المرور", login_btn: "تسجيل الدخول", logout: "تسجيل الخروج",
   login_bad: "اسم المستخدم أو كلمة المرور غير صحيحة.",
   login_throttle: "محاولات كثيرة جدًا. يرجى الانتظار دقيقة والمحاولة مرة أخرى.",
+  foot_tag: "صُمِّم بإفراط وبكل حب على يد البشر في <a href=\"https://taixable.com\" target=\"_blank\" rel=\"noopener\">taixable.com</a> — أشخاص يتحمّسون فعلاً للضرائب العابرة للحدود حتى لا تضطر أنت لذلك. 🧮✈️",
+  foot_legal_summary: "الشروط والخصوصية والجزء الإلزامي «هذه ليست استشارة»",
+  foot_terms_h: "شروط الاستخدام.",
+  foot_terms_b: "Taixable أداة عرض توضيحي لدعم القرار في الضرائب العابرة للحدود والتنقل العالمي. تُقدَّم «كما هي»، لأغراض إعلامية فقط، وهي ليست استشارة قانونية أو ضريبية أو محاسبية أو مالية ولا تنشئ أي علاقة بين مستشار وعميل. جميع الأرقام توضيحية وقد تكون غير مكتملة أو قديمة. تحقّق دائمًا من المصدر الأساسي المُستشهد به وأكِّد وضعك مع متخصص مؤهل قبل التصرف. لا نتحمّل أي مسؤولية عن أي قرار يُتخذ بناءً على هذه الأداة.",
+  foot_privacy_h: "الخصوصية.",
+  foot_privacy_b: "هذا عرض توضيحي محمي. يُرسَل النص الذي تُدخله إلى محرك الضرائب وإلى Google Cloud Vertex AI (Gemini) لإنشاء إجابة مدعومة؛ يُرجى عدم إدخال بيانات شخصية حقيقية أو معلومات عملاء. نحن لا نبيع بياناتك. حساب «demo» وأي بيانات نموذجية مخصّصة للتقييم فقط.",
+  foot_nolaw_h: "ليست استشارة قانونية.",
+  foot_nolaw_b: "تتغيّر قوانين الضرائب كثيرًا وتختلف حسب الولاية القضائية والإقليم (الولاية أو المقاطعة أو الكانتون أو منطقة الحكم الذاتي) والظروف الشخصية. لا شيء هنا يُعدّ توصية باتخاذ أي إجراء أو الامتناع عنه.",
 };
 
 const RTL_LANGS = ["ar"];

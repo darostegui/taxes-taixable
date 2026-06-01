@@ -252,6 +252,47 @@ def test_uk_anchored_us_za_sa_treaty_pairs_model_safe_income_and_fail_closed():
             assert t.article_no is None
 
 
+def test_us_anchored_es_de_treaty_pairs_model_safe_income_and_fail_closed():
+    """ES-US / DE-US: interest, employment and (private) pension are curated from
+    primary IRS in-force convention text (US-Spain 1990 treaty as amended by the
+    2013 Protocol; US-Germany 1989 treaty as amended by the 2006 Protocol) and
+    resolve as *modelled* with the verified US-Model article numbers + a 0% source
+    rate; dividend and rental are deliberately omitted and must fail closed."""
+    from taixable_copilot.api.deps import build_default_deps
+    from taixable_copilot.crossborder import resolve_cross_border
+
+    deps = build_default_deps()
+    known = set(deps.known_citation_ids)
+    expected = {
+        (Country.US, Country.ES): {
+            IncomeType.INTEREST: "11",
+            IncomeType.EMPLOYMENT: "16",
+            IncomeType.PENSION: "20",
+        },
+        (Country.US, Country.DE): {
+            IncomeType.INTEREST: "11",
+            IncomeType.EMPLOYMENT: "15",
+            IncomeType.PENSION: "18",
+        },
+    }
+    for (res, src), arts in expected.items():
+        for income, article_no in arts.items():
+            t = resolve_cross_border(
+                res, src, income, deps.treaty_retriever, deps.rate_lookup, known
+            )
+            assert t.modelled is True, (res, src, income)
+            assert t.article_no == article_no, (res, src, income, t.article_no)
+            assert t.rate == 0.0
+            assert all(c in known for c in t.citation_ids)
+        for income in (IncomeType.DIVIDEND, IncomeType.RENTAL):
+            t = resolve_cross_border(
+                res, src, income, deps.treaty_retriever, deps.rate_lookup, known
+            )
+            assert t.modelled is False, (res, src, income)
+            assert t.rate is None
+            assert t.article_no is None
+
+
 def test_russia_is_tier1_day_count_residency_capped():
     """Russia (RU) is modelled as a Tier-1 day-count residence (183 days in a
     rolling 12 months, simplified) with capped confidence because other
