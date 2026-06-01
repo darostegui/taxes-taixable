@@ -19,21 +19,21 @@ Given a tax advisor's customer profile (residence + income/assets, some foreign-
 ## Architecture
 
 ```
-                 ┌─────────────────────────────────────────────┐
-   Advisor ──▶   │  Web UI (Cloud Run)                          │
-                 │   select customer · run · review · approve   │
-                 └───────────────┬─────────────────────────────┘
+                 ┌───────────────────────────────────────────────┐
+   Advisor ──▶   │  Web UI (Cloud Run)                           │
+                 │   select customer · run · review · approve    │
+                 └───────────────┬───────────────────────────────┘
                                  │  invokes
-                 ┌───────────────▼─────────────────────────────┐
-                 │  Google Cloud Agent Builder  (Gemini 3)      │
-                 │  plan → retrieve → compute → draft → persist │
-                 └───────┬───────────────────────┬─────────────┘
+                 ┌───────────────▼───────────────────────────────┐
+                 │  Google Cloud Agent Builder  (Gemini 3)       │
+                 │  plan → retrieve → compute → draft → persist  │
+                 └───────┬───────────────────────┬───────────────┘
               MCP tools  │                       │  function tools
-                 ┌───────▼────────┐      ┌───────▼──────────────┐
-                 │ Elastic (MCP)  │      │ FastAPI tool service  │
-                 │ hybrid search  │      │ assess · memo ·       │
-                 │ + ES|QL rates  │      │ persist (approval gate)│
-                 │ curated corpus │      └───────┬───────────────┘
+                 ┌───────▼────────┐      ┌───────▼─────────────────┐
+                 │ Elastic (MCP)  │      │ FastAPI tool service    │
+                 │ hybrid search  │      │ assess · memo ·         │
+                 │ + ES|QL rates  │      │ persist (approval gate) │
+                 │ curated corpus │      └───────┬─────────────────┘
                  └────────────────┘              │
                                           ┌──────▼──────────┐
                                           │ Cloud SQL MySQL │
