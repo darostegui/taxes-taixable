@@ -35,6 +35,9 @@ _DEV_ENVS = {"dev", "test", "local"}
 # Dev-only fallbacks. Production overrides these via the environment (see deploy).
 _DEV_SECRET = "taixable-dev-secret-change-me"
 _DEV_ADMIN_PASSWORD = "taixable-admin"
+# Public judge/demo account. Always present so hackathon reviewers can sign in
+# with ``demo`` / ``demo`` without provisioning. Override via ``TAIXABLE_DEMO_PASSWORD``.
+_DEMO_PASSWORD = "demo"
 
 # --- brute-force throttle (in-memory, best-effort) -------------------------
 _FAIL_WINDOW = 300  # seconds
@@ -71,7 +74,9 @@ def users() -> dict[str, str]:
 
     Parsed from ``TAIXABLE_USERS`` (``"user1:pass1,user2:pass2"``); an ``admin``
     user is always present (password from ``TAIXABLE_ADMIN_PASSWORD`` or the dev
-    default) so there is a known account for testing the demo.
+    default) so there is a known account for testing the demo. A public ``demo``
+    user (password from ``TAIXABLE_DEMO_PASSWORD``, default ``demo``) is also always
+    present so hackathon judges can sign in without provisioning.
     """
     table: dict[str, str] = {}
     raw = os.getenv("TAIXABLE_USERS", "")
@@ -85,6 +90,8 @@ def users() -> dict[str, str]:
             table[name] = pw
     if "admin" not in table:
         table["admin"] = os.getenv("TAIXABLE_ADMIN_PASSWORD", _DEV_ADMIN_PASSWORD)
+    if "demo" not in table:
+        table["demo"] = os.getenv("TAIXABLE_DEMO_PASSWORD", _DEMO_PASSWORD)
     return table
 
 
