@@ -74,8 +74,8 @@ make db-up        # optional: local MySQL (docker) for prod parity
 make es-up        # optional: local Elasticsearch (docker)
 ```
 
-Cloud credentials (Elastic, Google Cloud, MySQL) are read from
-`~/scratch/taixable-infra/secrets.env` and are **never committed**.
+Cloud credentials (Elastic, Google Cloud, MySQL) are read from a local
+`secrets.env` (git-ignored) or your environment and are **never committed**.
 
 ## Curated data & disclaimer
 

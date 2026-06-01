@@ -10,7 +10,7 @@ build/
 .ruff_cache/
 .mypy_cache/
 
-# Env / secrets (never commit — live in ~/scratch/taixable-infra/)
+# Env / secrets (never commit — keep in a local secrets.env)
 .env
 *.env
 secrets.env
