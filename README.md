@@ -10,7 +10,7 @@
 Given a tax advisor's customer profile (residence + income/assets, some foreign-sourced), the agent:
 
 1. **Determines tax residency** per country from official residency rules.
-2. **Applies the relevant bilateral double-tax treaty** (ES·UK·DE·FR·IE·NL pairs) per income type.
+2. **Applies the relevant bilateral double-tax treaty** (ES·UK·DE·FR·IE·NL·US·ZA·SA pairs) per income type.
 3. **Looks up withholding/relief rates** from the treaty rate tables.
 4. **Computes obligations + filing deadlines** — every conclusion **cited** to a real source.
 5. **Drafts a client-ready memo**, and **only after the advisor approves**, persists a compliance
@@ -84,8 +84,8 @@ disclaimer in [`SOURCES.md`](src/taixable_copilot/data/SOURCES.md)) and spans:
 
 - **33 jurisdictions** with official tax-residency rules (day-count tests where
   the statute uses one; coverage-only residence flags where it does not);
-- **6 bilateral double-tax treaty pairs** (ES-UK, DE-UK, DE-ES, FR-UK, IE-UK,
-  NL-UK) with verified article references;
+- **9 bilateral double-tax treaty pairs** (ES-UK, DE-UK, DE-ES, FR-UK, IE-UK,
+  NL-UK, UK-US, UK-ZA, SA-UK) with verified article references;
 - **deterministic tax-band / withholding tables** for the 6 core compute
   countries (AD, DE, ES, IE, PT, UK), so "how much" figures are arithmetic over
   cited statutory bands — never model-invented;

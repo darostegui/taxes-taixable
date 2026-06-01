@@ -215,6 +215,87 @@
       "citation_id": "IE-UK#art17-rate",
       "source": "UK–Ireland DTC (1976, amended) Art. 17",
       "url": "https://www.gov.uk/government/publications/ireland-tax-treaties/1976-uk-ireland-double-taxation-convention-as-amended-by-the-1998-protocol-in-force"
+    },
+    {
+      "country_pair": "UK-US",
+      "income_type": "interest",
+      "rate": 0.0,
+      "relief": "exempt at source; taxed in residence State",
+      "citation_id": "UK-US#art11-rate",
+      "source": "UK–USA DTC (2001) Art. 11",
+      "url": "https://www.gov.uk/government/publications/usa-tax-treaties"
+    },
+    {
+      "country_pair": "UK-US",
+      "income_type": "employment",
+      "rate": 0.0,
+      "relief": "taxable in residence State (183-day rule applies)",
+      "citation_id": "UK-US#art14-rate",
+      "source": "UK–USA DTC (2001) Art. 14",
+      "url": "https://www.gov.uk/government/publications/usa-tax-treaties"
+    },
+    {
+      "country_pair": "UK-US",
+      "income_type": "pension",
+      "rate": 0.0,
+      "relief": "private pension taxable only in residence State",
+      "citation_id": "UK-US#art17-rate",
+      "source": "UK–USA DTC (2001) Art. 17",
+      "url": "https://www.gov.uk/government/publications/usa-tax-treaties"
+    },
+    {
+      "country_pair": "UK-ZA",
+      "income_type": "interest",
+      "rate": 0.0,
+      "relief": "exempt at source; taxed in residence State",
+      "citation_id": "UK-ZA#art11-rate",
+      "source": "UK–South Africa DTC (2002, amended 2010) Art. 11",
+      "url": "https://www.gov.uk/government/publications/south-africa-tax-treaties/2002-uk-south-africa-double-taxation-convention-as-amended-by-the-2010-protocol"
+    },
+    {
+      "country_pair": "UK-ZA",
+      "income_type": "employment",
+      "rate": 0.0,
+      "relief": "taxable in residence State (183-day rule applies)",
+      "citation_id": "UK-ZA#art14-rate",
+      "source": "UK–South Africa DTC (2002, amended 2010) Art. 14",
+      "url": "https://www.gov.uk/government/publications/south-africa-tax-treaties/2002-uk-south-africa-double-taxation-convention-as-amended-by-the-2010-protocol"
+    },
+    {
+      "country_pair": "UK-ZA",
+      "income_type": "pension",
+      "rate": 0.0,
+      "relief": "private pension taxable only in residence State",
+      "citation_id": "UK-ZA#art17-rate",
+      "source": "UK–South Africa DTC (2002, amended 2010) Art. 17",
+      "url": "https://www.gov.uk/government/publications/south-africa-tax-treaties/2002-uk-south-africa-double-taxation-convention-as-amended-by-the-2010-protocol"
+    },
+    {
+      "country_pair": "SA-UK",
+      "income_type": "interest",
+      "rate": 0.0,
+      "relief": "exempt at source; taxed in residence State",
+      "citation_id": "SA-UK#art11-rate",
+      "source": "UK–Saudi Arabia DTC (2007) Art. 11",
+      "url": "https://www.gov.uk/government/publications/saudi-arabia-tax-treaties/2007-uk-saudi-arabia-double-taxation-convention-and-protocol-in-force"
+    },
+    {
+      "country_pair": "SA-UK",
+      "income_type": "employment",
+      "rate": 0.0,
+      "relief": "taxable in residence State (183-day rule applies)",
+      "citation_id": "SA-UK#art15-rate",
+      "source": "UK–Saudi Arabia DTC (2007) Art. 15",
+      "url": "https://www.gov.uk/government/publications/saudi-arabia-tax-treaties/2007-uk-saudi-arabia-double-taxation-convention-and-protocol-in-force"
+    },
+    {
+      "country_pair": "SA-UK",
+      "income_type": "pension",
+      "rate": 0.0,
+      "relief": "pension taxable only in residence State",
+      "citation_id": "SA-UK#art18-rate",
+      "source": "UK–Saudi Arabia DTC (2007) Art. 18",
+      "url": "https://www.gov.uk/government/publications/saudi-arabia-tax-treaties/2007-uk-saudi-arabia-double-taxation-convention-and-protocol-in-force"
     }
   ]
 }

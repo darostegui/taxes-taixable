@@ -287,6 +287,114 @@
       "citation_id": "IE-UK#art17",
       "source": "UK–Ireland Double Taxation Convention (1976, as amended), Article 17",
       "url": "https://www.gov.uk/government/publications/ireland-tax-treaties/1976-uk-ireland-double-taxation-convention-as-amended-by-the-1998-protocol-in-force"
+    },
+    {
+      "country_pair": "UK-US",
+      "income_types": [
+        "interest"
+      ],
+      "article_no": "11",
+      "topic": "Interest",
+      "text": "Interest arising in a Contracting State and beneficially owned by a resident of the other State shall be taxable only in that other State, subject to the Convention's anti-conduit and contingent-interest exceptions. Note: under the saving clause (Article 1(4)) the United States may still tax its citizens and residents as if the Convention had not entered into force.",
+      "citation_id": "UK-US#art11",
+      "source": "UK–USA Double Taxation Convention (2001), Article 11",
+      "url": "https://www.gov.uk/government/publications/usa-tax-treaties"
+    },
+    {
+      "country_pair": "UK-US",
+      "income_types": [
+        "employment"
+      ],
+      "article_no": "14",
+      "topic": "Income from employment",
+      "text": "Salaries are taxable only in the State of residence unless the employment is exercised in the other State, subject to the 183-day exception. Note: under the saving clause (Article 1(4)) the United States may still tax its citizens and residents as if the Convention had not entered into force.",
+      "citation_id": "UK-US#art14",
+      "source": "UK–USA Double Taxation Convention (2001), Article 14",
+      "url": "https://www.gov.uk/government/publications/usa-tax-treaties"
+    },
+    {
+      "country_pair": "UK-US",
+      "income_types": [
+        "pension"
+      ],
+      "article_no": "17",
+      "topic": "Pensions",
+      "text": "Periodic private pensions beneficially owned by a resident of a Contracting State are taxable only in that State; lump-sum payments and government social-security benefits follow separate rules in Article 17(2)–(3). Note: under the saving clause (Article 1(4)) the United States may still tax its citizens and residents as if the Convention had not entered into force.",
+      "citation_id": "UK-US#art17",
+      "source": "UK–USA Double Taxation Convention (2001), Article 17",
+      "url": "https://www.gov.uk/government/publications/usa-tax-treaties"
+    },
+    {
+      "country_pair": "UK-ZA",
+      "income_types": [
+        "interest"
+      ],
+      "article_no": "11",
+      "topic": "Interest",
+      "text": "Interest arising in a Contracting State and beneficially owned by a resident of the other State shall be taxable only in that other State.",
+      "citation_id": "UK-ZA#art11",
+      "source": "UK–South Africa Double Taxation Convention (2002, as amended by the 2010 Protocol), Article 11",
+      "url": "https://www.gov.uk/government/publications/south-africa-tax-treaties/2002-uk-south-africa-double-taxation-convention-as-amended-by-the-2010-protocol"
+    },
+    {
+      "country_pair": "UK-ZA",
+      "income_types": [
+        "employment"
+      ],
+      "article_no": "14",
+      "topic": "Income from employment",
+      "text": "Salaries are taxable only in the State of residence unless the employment is exercised in the other State, subject to the 183-day exception.",
+      "citation_id": "UK-ZA#art14",
+      "source": "UK–South Africa Double Taxation Convention (2002, as amended by the 2010 Protocol), Article 14",
+      "url": "https://www.gov.uk/government/publications/south-africa-tax-treaties/2002-uk-south-africa-double-taxation-convention-as-amended-by-the-2010-protocol"
+    },
+    {
+      "country_pair": "UK-ZA",
+      "income_types": [
+        "pension"
+      ],
+      "article_no": "17",
+      "topic": "Pensions",
+      "text": "Private pensions are taxable only in the State of residence of the recipient.",
+      "citation_id": "UK-ZA#art17",
+      "source": "UK–South Africa Double Taxation Convention (2002, as amended by the 2010 Protocol), Article 17",
+      "url": "https://www.gov.uk/government/publications/south-africa-tax-treaties/2002-uk-south-africa-double-taxation-convention-as-amended-by-the-2010-protocol"
+    },
+    {
+      "country_pair": "SA-UK",
+      "income_types": [
+        "interest"
+      ],
+      "article_no": "11",
+      "topic": "Income from debt-claims (interest)",
+      "text": "Income from debt-claims (interest) arising in a Contracting State and beneficially owned by a resident of the other State shall be taxable only in that other State.",
+      "citation_id": "SA-UK#art11",
+      "source": "UK–Saudi Arabia Double Taxation Convention (2007), Article 11",
+      "url": "https://www.gov.uk/government/publications/saudi-arabia-tax-treaties/2007-uk-saudi-arabia-double-taxation-convention-and-protocol-in-force"
+    },
+    {
+      "country_pair": "SA-UK",
+      "income_types": [
+        "employment"
+      ],
+      "article_no": "15",
+      "topic": "Dependent personal services",
+      "text": "Salaries (dependent personal services) are taxable only in the State of residence unless the employment is exercised in the other State, subject to the 183-day exception.",
+      "citation_id": "SA-UK#art15",
+      "source": "UK–Saudi Arabia Double Taxation Convention (2007), Article 15",
+      "url": "https://www.gov.uk/government/publications/saudi-arabia-tax-treaties/2007-uk-saudi-arabia-double-taxation-convention-and-protocol-in-force"
+    },
+    {
+      "country_pair": "SA-UK",
+      "income_types": [
+        "pension"
+      ],
+      "article_no": "18",
+      "topic": "Pensions",
+      "text": "Pensions and other similar remuneration are taxable only in the State of residence of the recipient.",
+      "citation_id": "SA-UK#art18",
+      "source": "UK–Saudi Arabia Double Taxation Convention (2007), Article 18",
+      "url": "https://www.gov.uk/government/publications/saudi-arabia-tax-treaties/2007-uk-saudi-arabia-double-taxation-convention-and-protocol-in-force"
     }
   ]
 }
