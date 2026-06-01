@@ -10,7 +10,7 @@
 Given a tax advisor's customer profile (residence + income/assets, some foreign-sourced), the agent:
 
 1. **Determines tax residency** per country from official residency rules.
-2. **Applies the relevant bilateral double-tax treaty** (Spain · UK · Germany) per income type.
+2. **Applies the relevant bilateral double-tax treaty** (ES·UK·DE·FR·IE·NL pairs) per income type.
 3. **Looks up withholding/relief rates** from the treaty rate tables.
 4. **Computes obligations + filing deadlines** — every conclusion **cited** to a real source.
 5. **Drafts a client-ready memo**, and **only after the advisor approves**, persists a compliance
@@ -58,7 +58,7 @@ The domain logic (`src/taixable_copilot/`) is a pure-Python, modular layer desig
 
 ```bash
 make install      # create venv + install (editable) with dev deps
-make test         # run pytest (26 tests)
+make test         # run pytest (126 tests)
 make evals        # run the golden-case eval harness
 make run          # serve the agent tool service + demo UI on :8080
 ```
@@ -79,9 +79,21 @@ Cloud credentials (Elastic, Google Cloud, MySQL) are read from a local
 
 ## Curated data & disclaimer
 
-The tax corpus (3 jurisdictions + 3 bilateral treaties) lives in
-`src/taixable_copilot/data/` with sources and a disclaimer in
-[`SOURCES.md`](src/taixable_copilot/data/SOURCES.md). **Figures are illustrative and
+The tax corpus lives in `src/taixable_copilot/data/` (with sources and a
+disclaimer in [`SOURCES.md`](src/taixable_copilot/data/SOURCES.md)) and spans:
+
+- **31 jurisdictions** with official tax-residency day-count rules;
+- **6 bilateral double-tax treaty pairs** (ES-UK, DE-UK, DE-ES, FR-UK, IE-UK,
+  NL-UK) with verified article references;
+- **deterministic tax-band / withholding tables** for the 6 core compute
+  countries (AD, DE, ES, IE, PT, UK), so "how much" figures are arithmetic over
+  cited statutory bands — never model-invented;
+- a **searchable cited reference corpus of 336 documents** across ~148
+  jurisdictions (residency, income-tax, special-mobility-regime and treaty
+  cards), indexed for Elastic hybrid (BM25 + vector + RRF) retrieval and
+  citation highlighting.
+
+**Figures are illustrative and
 must be verified against the primary legal texts before any real-world use** — the
 agent is decision support for a qualified professional, not autonomous tax advice.
 
@@ -101,26 +113,33 @@ into Elastic (`make ingest`), add the **Elastic MCP server** as a tool, and impo
 [`agent/openapi.tools.json`](agent/openapi.tools.json) as the action tool set in
 **Google Cloud Agent Builder** (Gemini 3).
 
-### Hosted URL & domain
+### Hosted URL & access
 
-The **judged hosted URL is the Agent Builder agent** (Gemini 3), exposed as a
-**no-login demo with sample data** (a login-free sandbox is explicitly preferred by the
-rules). Two equally valid options for the URL:
+The live demo is hosted on **Cloud Run** at **https://taxes.taixable.net**.
 
-- **Default Cloud Run URL** (`https://taixable-copilot-<hash>-<region>.run.app`) —
-  simplest, no DNS work, no-login by default. Recommended if you're short on time.
-- **Dedicated hackathon subdomain** on a domain you control (e.g.
-  `tax-copilot.taixable.dev` / `rapid-agent.taixable.app`), mapped to the service:
+Access is **protected by a login** (username + password), so customer-style
+queries aren't exposed to the open internet. For the hackathon, a shared
+read-only demo account is provided so judges can sign in immediately:
 
-  ```bash
-  gcloud beta run domain-mappings create \
-    --service taixable-copilot --domain tax-copilot.taixable.dev --region <region>
-  ```
+| Field | Value |
+| --- | --- |
+| Username | `demo` |
+| Password | `demo` |
 
-Do **not** host the demo on the production `taixable.com` apex/marketing domain: the
-hackathon requires *new* work, and serving it under the live commercial brand blurs that
-line. A clearly-scoped subdomain (or the `run.app` URL) keeps the "new project" boundary
-unambiguous.
+> The `demo` / `demo` credentials are intentionally published for judging only and
+> grant access to the synthetic-data sandbox. The login gate is the app's own
+> JSON `/login` endpoint (HMAC bearer token), **not** HTTP Basic Auth — enter the
+> credentials in the on-page form. Production secrets are set via environment
+> variables and are never committed.
+
+A dedicated subdomain (`taxes.taixable.net`) is mapped to the service so the
+demo is clearly scoped as new hackathon work, separate from any production
+marketing site. To map your own subdomain:
+
+```bash
+gcloud beta run domain-mappings create \
+  --service taixable-copilot --domain <your-subdomain> --region <region>
+```
 
 ## Tech stack
 
