@@ -85,6 +85,28 @@ def test_chat_graceful_when_unavailable(monkeypatch):
     assert "form" in result["reply"].lower()
 
 
+def test_chat_fails_closed_when_daily_budget_exceeded(monkeypatch):
+    # When the spend guard refuses, chat must block BEFORE creating a client.
+    from taixable_copilot import spend_guard
+
+    spend_guard._reset_for_tests()
+    monkeypatch.setattr(spend_guard, "check_and_reserve", lambda: False)
+
+    def _boom():  # pragma: no cover - must never be reached
+        raise AssertionError("model client must not be created once budget is hit")
+
+    monkeypatch.setattr(chatmod, "_make_client", _boom)
+    deps = build_default_deps()
+    result = chat(deps, history=[], message="Where do I pay tax?", language="es")
+    assert result["available"] is False
+    assert result["blocked"] is True
+    assert result["used_tool"] is False
+    assert result["assessment"] is None
+    # Localised budget message (Spanish copy mentions the structured form).
+    assert "formulario" in result["reply"].lower()
+    spend_guard._reset_for_tests()
+
+
 def test_search_tool_returns_cited_passages_and_captures():
     deps = build_default_deps()
     tool, captured = _make_search_tool(deps)

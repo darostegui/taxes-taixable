@@ -23,6 +23,7 @@ from taixable_copilot.llm import _make_client
 from taixable_copilot.models import Country, CustomerProfile, IncomeSource, IncomeType
 from taixable_copilot.obligations import Assessment, assess_obligations
 from taixable_copilot.topic_guard import is_on_topic
+from taixable_copilot import spend_guard
 
 if TYPE_CHECKING:
     from taixable_copilot.api.deps import Deps
@@ -320,6 +321,47 @@ _FALLBACKS: dict[str, dict[str, str]] = {
             "أنا Taixable، مستشار افتراضي للضرائب والتنقّل الدولي، لذا يمكنني فقط "
             "المساعدة في الأسئلة المتعلقة بالضرائب والإقامة الضريبية والانتقال. "
             "اسألني مثلاً أين ستدفع الضرائب إذا قسّمت السنة بين بلدين."
+        ),
+    },
+    "budget_exceeded": {
+        "en": (
+            "I've reached today's usage limit for the AI advisor on this demo. "
+            "Please try again tomorrow, or use the structured form — it produces "
+            "the same cited assessment without the AI."
+        ),
+        "es": (
+            "He alcanzado el límite de uso de hoy del asesor con IA en esta demo. "
+            "Vuelva a intentarlo mañana o utilice el formulario estructurado: "
+            "genera la misma evaluación con fuentes citadas sin la IA."
+        ),
+        "fr": (
+            "J'ai atteint la limite d'utilisation du jour du conseiller IA sur "
+            "cette démo. Réessayez demain ou utilisez le formulaire structuré : il "
+            "produit la même évaluation sourcée sans l'IA."
+        ),
+        "de": (
+            "Das heutige Nutzungslimit des KI-Beraters in dieser Demo ist erreicht. "
+            "Bitte versuchen Sie es morgen erneut oder nutzen Sie das strukturierte "
+            "Formular – es liefert dieselbe belegte Einschätzung ohne KI."
+        ),
+        "ru": (
+            "Достигнут дневной лимит использования ИИ-консультанта в этой демо. "
+            "Попробуйте завтра или воспользуйтесь структурированной формой — она "
+            "даёт ту же оценку со ссылками на источники без ИИ."
+        ),
+        "nl": (
+            "De daglimiet voor het gebruik van de AI-adviseur in deze demo is "
+            "bereikt. Probeer het morgen opnieuw of gebruik het gestructureerde "
+            "formulier — het levert dezelfde onderbouwde beoordeling zonder AI."
+        ),
+        "zh": (
+            "本演示的 AI 顾问今日使用额度已用尽。请明天再试，或使用结构化表单——"
+            "它无需 AI 即可生成同样带来源引用的评估。"
+        ),
+        "ar": (
+            "لقد بلغت حدّ الاستخدام اليومي لمستشار الذكاء الاصطناعي في هذا العرض. "
+            "يُرجى المحاولة غدًا أو استخدام النموذج المنظَّم، فهو ينتج التقييم نفسه "
+            "مع ذكر المصادر دون الذكاء الاصطناعي."
         ),
     },
 }
@@ -638,6 +680,17 @@ def chat(
         return {
             "reply": _fallback("off_topic", language),
             "available": True,
+            "used_tool": False,
+            "used_search": False,
+            "assessment": None,
+            "knowledge": [],
+            "search_meta": None,
+            "blocked": True,
+        }
+    if not spend_guard.check_and_reserve():
+        return {
+            "reply": _fallback("budget_exceeded", language),
+            "available": False,
             "used_tool": False,
             "used_search": False,
             "assessment": None,
